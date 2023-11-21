@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0","xarray","numpy","pandas"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "shxarray"
+version = "0.0.1"
+authors = [
+  { name="Roelof Rietbroek", email="r.rietbroek@utwente.nl" },
+]
+description = "Spherical harmonic extension for Xarray"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: POSIX :: Linux",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering",
+    "Development Status :: 1 - Planning"
+]
+
+[project.urls]
+"Homepage" = "https://github.com/ITC-Water-Resources/shxarray"
+"Bug Tracker" = "https://github.com/ITC-Water-Resources/shxarray/issues"

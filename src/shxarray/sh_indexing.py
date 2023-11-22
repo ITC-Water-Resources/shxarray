@@ -24,26 +24,26 @@ class SHindexBase:
         # _nmin=nmin
         # _squeeze=squeeze
 
-    # @staticmethod
-    # def nsh(nmax,nmin=0,squeeze=True):
-        # """
-        # Compute the total amount of spherical harmonic coefficients
-        # :param nmax: maximum spherical harmonic degree
-        # :param nmin: minimum spherical harmonic degree
-        # :param squeeze: When true, don't store zero order Sine coefficients (will be zero)
-        # :return Amount of spherical harmonic coefficients
-        # """
-        # assert nmax>=nmin
+    @staticmethod
+    def nsh(nmax,nmin=0,squeeze=True):
+        """
+        Compute the total amount of spherical harmonic coefficients
+        :param nmax: maximum spherical harmonic degree
+        :param nmin: minimum spherical harmonic degree
+        :param squeeze: When true, don't store zero order Sine coefficients (will be zero)
+        :return Amount of spherical harmonic coefficients
+        """
+        assert nmax>=nmin
 
-        # sz=(nmax+1)*(nmax+1)
-        # if not squeeze:
-            # sz+=nmax+1
+        sz=(nmax+1)*(nmax+1)
+        if not squeeze:
+            sz+=nmax+1
 
-        # if nmin > 0:
-            # #possibly remove the number of coefficients which have n < nmin (calls this function itself)
-            # sz-=SHindexBase.nsh(nmin-1,0,squeeze=squeeze)
+        if nmin > 0:
+            #possibly remove the number of coefficients which have n < nmin (calls this function itself)
+            sz-=SHindexBase.nsh(nmin-1,0,squeeze=squeeze)
 
-        # return sz
+        return sz
 
     @staticmethod
     def nmt_mi(nmax,nmin=0,squeeze=False):

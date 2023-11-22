@@ -22,3 +22,8 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/ITC-Water-Resources/shxarray"
 "Bug Tracker" = "https://github.com/ITC-Water-Resources/shxarray/issues"
+
+#For some reason specifying the xarray-backend as below is not working in toml (it's added in setup.py)
+#[project.entry-points."xarray-backends"]
+#shengine = "shxarray.io.shiobackend:ShIOEngine"
+

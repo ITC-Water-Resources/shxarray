@@ -12,7 +12,6 @@ import Cython.Compiler.Options
 import os 
 import numpy as np
 
-
 debug=False
 #don't necessarily use cython
 if "USE_CYTHON" in os.environ:
@@ -39,5 +38,11 @@ if useCython:
     extensions=cythonize(extensions,language_level=3,annotate=True,gdb_debug=debug)
 
 setup(
-    ext_modules=extensions
-)
+    ext_modules=extensions,
+    entry_points={
+        "xarray.backends": [
+            "icgem=shxarray.io.shiobackend:ICGEMBackEntryPoint",
+            "gsmv6=shxarray.io.shiobackend:GSMv6BackEntryPoint"
+        ],
+    }
+    )

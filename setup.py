@@ -27,7 +27,7 @@ def listexts():
     names=["shlib"]
     exts=[]
     for nm in names:
-        exts.append(Extension("shxarray."+nm.replace("/","."),["src/ext/"+nm+ext],include_dirs=[np.get_include(),"."], define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')]))
+        exts.append(Extension("shxarray."+nm.replace("/","."),["src/builtin_backend/"+nm+ext],include_dirs=[np.get_include(),"."], define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')]))
     return exts
 
 extensions=listexts()
@@ -38,11 +38,14 @@ if useCython:
     extensions=cythonize(extensions,language_level=3,annotate=True,gdb_debug=debug)
 
 setup(
-    ext_modules=extensions,
-    entry_points={
-        "xarray.backends": [
-            "icgem=shxarray.io.shiobackend:ICGEMBackEntryPoint",
-            "gsmv6=shxarray.io.shiobackend:GSMv6BackEntryPoint"
-        ],
-    }
+    ext_modules=extensions
+    # entry_points={
+        # "xarray.backends": [
+            # "icgem=shxarray.io.shiobackend:ICGEMBackEntryPoint",
+            # "gsmv6=shxarray.io.shiobackend:GSMv6BackEntryPoint"
+        # ],
+        # "shxarray.computebackends": [
+            # "builtin=shxarray.shlib:SHComputeBackend",
+            # ],
+    # }
     )

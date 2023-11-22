@@ -4,7 +4,14 @@
 #
 
 include "legendre.pyx" 
-include "wigner3j.pyx" 
+include "wigner3j.pyx"
+
+
+from shxarray.shcomputebase import SHComputeBackendBase
+
+class SHComputeBackend(SHComputeBackendBase):
+    pass
+
 
 
 

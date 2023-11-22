@@ -19,11 +19,16 @@ classifiers = [
     "Development Status :: 1 - Planning"
 ]
 
+#For some reason specifying the xarray-backend as below is not working in toml (it's added in setup.py)
+[project.entry-points."xarray.backends"]
+icgem = "shxarray.io.shiobackend:ICGEMBackEntryPoint"
+gsmv6 = "shxarray.io.shiobackend:GSMv6BackEntryPoint"
+
+[project.entry-points."shxarray.computebackends"]
+shlib = "shxarray.shlib:SHComputeBackend"
+
 [project.urls]
 "Homepage" = "https://github.com/ITC-Water-Resources/shxarray"
 "Bug Tracker" = "https://github.com/ITC-Water-Resources/shxarray/issues"
 
-#For some reason specifying the xarray-backend as below is not working in toml (it's added in setup.py)
-#[project.entry-points."xarray-backends"]
-#shengine = "shxarray.io.shiobackend:ShIOEngine"
 

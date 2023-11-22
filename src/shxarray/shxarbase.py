@@ -6,7 +6,9 @@
 
 import xarray as xr
 import numpy as np
+
 from .sh_indexing import SHindexBase,trig
+from importlib.metadata import entry_points
 
 
 class ShXrBase:
@@ -113,4 +115,12 @@ class ShXrBase:
             #rebuild multiindex from an array of "left-over" tuples
             shimi=SHindexBase.mi_fromtuples(self._obj.shi.values)
             return self._obj.drop_vars(["shi"]).assign_coords(shi=shimi)
+
+    @staticmethod
+    def _eng(engine="shlib"):
+        computebackends=entry_points(group="shxarray.computebackends",name=engine)
+        if len(computebackends) == 0:
+            raise RuntimeError(f"compute engine {engine} not found")
+        return computebackends[0].load()
+
     

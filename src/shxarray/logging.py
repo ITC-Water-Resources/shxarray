@@ -39,3 +39,5 @@ def setWarningLevel():
 def setErrorLevel():
     """Set logging level for both python and c++ to WARNING severity"""
     logger.setLevel(logging.ERROR)
+
+setInfoLevel()

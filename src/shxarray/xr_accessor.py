@@ -5,7 +5,7 @@
 
 import xarray as xr
 from .shxarbase import ShXrBase
-
+from shxarray.earth.snrei import SnreiFactory
 
 @xr.register_dataarray_accessor("sh")
 class SHDaAccessor(ShXrBase):
@@ -45,9 +45,10 @@ class SHDaAccessor(ShXrBase):
 
 @xr.register_dataset_accessor("sh")
 class SHDsAccessor(ShXrBase):
+    snrei=SnreiFactory
     def __init__(self, xarray_obj):
         super().__init__(xarray_obj)
-        
+    
     @staticmethod
     def zeros(nmax,nmin=0,squeeze=True,name="cnm",auxcoords={}):
         """0-Initialize an spherical harmonic Dataset based on nmax and nmin"""

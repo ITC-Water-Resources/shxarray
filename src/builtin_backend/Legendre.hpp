@@ -10,21 +10,26 @@
 #ifndef FR_SH_LEGENDRE_HPP_
 #define FR_SH_LEGENDRE_HPP_
 
+#define UNNORM 0
+#define GEODESY4PI 1
 
-///@brief a class which computes and caches a unnormalized Legendre polynomial
+
+///@brief a class which computes and caches a (un)normalized Legendre polynomial
 template<class ftype>
     class Legendre{
         public:
             Legendre(){}
             Legendre(int nmax):nmax_(nmax),pn_(nmax+1){}
+            Legendre(int nmax,int norm):nmax_(nmax),pn_(nmax+1),norm_(norm){}
 	    const std::vector<ftype> get(const ftype costheta);
         private:
             int nmax_=-1;
             std::vector<ftype> pn_{};
+            int norm_=UNNORM;
     };
 
 
-///@brief a class which computes and caches a unnormalized Legendre polynomial
+///@brief a class which computes and caches a (un)normalized Legendre polynomial
 template<class ftype>
             const std::vector<ftype> Legendre<ftype>::get(const ftype costheta){
                 assert(nmax_ >0);
@@ -45,7 +50,14 @@ template<class ftype>
                    pnmin1=pn;
                    pn_[n]=pn;
                 }
+                
+                /* possibly normalize */
+                if (norm_ ==  GEODESY4PI){
+                    for(int n=0;n<=nmax_;++n){
+                        pn_[n]=pn_[n]/(2*n+1);
 
+                    }
+                }
                 return pn_;
             }
             

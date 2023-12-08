@@ -10,13 +10,15 @@ from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 # C++ / Cython interface declaration 
 cdef extern from "Legendre.hpp":
-    cdef cppclass Legendre[T]:
+    cdef cppclass Legendre[T] nogil:
         Legendre(int nmax) except +
+        Legendre(int nmax,int norm) except +
         vector[T] get(T costheta) except+
 
 # C++ associated Legendre functions
 cdef extern from "Legendre_nm.hpp":
-    cdef cppclass Legendre_nm[T]:
+    cdef cppclass Legendre_nm[T] nogil:
+        Legendre_nm() except +
         Legendre_nm(int nmax) except +
         void set(T costheta, double arr[] ) except+
         @staticmethod
@@ -26,7 +28,6 @@ cdef extern from "Legendre_nm.hpp":
         pair[int,int] nm_from_i(cython.size_t idx, int nmax)
         #cached version:
         pair[int,int] nm(cython.size_t idx)
-        
         int nmax()
         cython.size_t size()
 # End of interface declaration

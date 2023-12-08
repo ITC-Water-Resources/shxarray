@@ -17,8 +17,8 @@ cimport numpy as np
 cdef class Pn:
     """Double precision Legendre polynomial wrapper"""
     cdef Legendre[double]*leg_ptr  # Pointer to the wrapped C++ class
-    def __cinit__(self, int nmax):
-        self.leg_ptr = new Legendre[double](nmax)
+    def __cinit__(self, int nmax,norm=0):
+        self.leg_ptr = new Legendre[double](nmax,norm)
     
     def __dealloc__(self):
         del self.leg_ptr

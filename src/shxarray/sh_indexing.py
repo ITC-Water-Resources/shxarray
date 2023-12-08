@@ -46,7 +46,7 @@ class SHindexBase:
         return sz
 
     @staticmethod
-    def nmt_mi(nmax,nmin=0,squeeze=False):
+    def nmt_mi(nmax,nmin=0,squeeze=True):
         """ create a multindex guide which varies with n, then m, and than trigonometric sign"""
         if squeeze:
             nmt=[(n,m,t) for t in [trig.c,trig.s] for n in range(nmin,nmax+1) for m in range(n+1) if not (m == 0 and t == trig.s) ]

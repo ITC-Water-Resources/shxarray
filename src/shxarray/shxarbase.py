@@ -9,9 +9,11 @@ import numpy as np
 
 from .sh_indexing import SHindexBase,trig
 from importlib.metadata import entry_points
-
+from shxarray.kernels.factory import KernelFactory
 
 class ShXrBase:
+    #inserts functionality to work with kernels
+    kernels=KernelFactory
     def __init__(self, xarray_obj):
         """Constructor takes an xarray object as conforming with the xarray accessor routines
         :param xarray_obj: Xarray.DataArray  representing the parent
@@ -25,9 +27,13 @@ class ShXrBase:
         :return: minimum degree
         :rtype: int
         """
-        if self._obj.shi is None:
-            raise RuntimeError("Cannot return nmin, spherical harmonic index is not initialized") 
-        return self._obj.shi.n.min().item()
+        if "shi" in self._obj.indexes:
+            return self._obj.shi.n.min().item()
+
+        if "n" in self._obj.indexes:
+            return self._obj.n.min().item()
+        
+        raise RuntimeError("Cannot return nmin, spherical harmonic index is not initialized") 
     
     @property
     def nmax(self):
@@ -36,9 +42,14 @@ class ShXrBase:
         :return: maximum degree
         :rtype: int
         """
-        if self._obj.shi is None:
-            raise RuntimeError("Cannot return nmax, spherical harmonic index is not initialized") 
-        return self._obj.shi.n.max().item()
+        if "shi" in self._obj.indexes:
+            return self._obj.shi.n.max().item()
+
+        if "n" in self._obj.indexes:
+            return self._obj.n.max().item()
+        
+        raise RuntimeError("Cannot return nmax, spherical harmonic index is not initialized") 
+    
    
     def truncate(self,nmax=None,nmin=None):
         """
@@ -49,17 +60,27 @@ class ShXrBase:
         :rtype: xarray.DataArray
         """
         indx=None
-        if nmax is not None:
-            indx=(self._obj.shi.n <= nmax)
-        if nmin is not None:
-            if indx is not None:
-                indx=indx*(self._obj.shi.n >= nmin)
-            else:
-                indx=(self._obj.shi.n >= nmin)
+        if "shi" in self._obj.indexes:
+            if nmax is not None:
+                indx=(self._obj.shi.n <= nmax)
+            if nmin is not None:
+                if indx is not None:
+                    indx=indx*(self._obj.shi.n >= nmin)
+                else:
+                    indx=(self._obj.shi.n >= nmin)
         
-        return self._obj.isel(shi=indx) 
-
-
+            return self._obj.isel(shi=indx) 
+        elif "n" in self._obj.indexes:
+            if nmax is not None:
+                indx=(self._obj.n <= nmax)
+            if nmin is not None:
+                if indx is not None:
+                    indx=indx*(self._obj.n >= nmin)
+                else:
+                    indx=(self._obj.n >= nmin)
+            return self._obj.isel(n=indx) 
+        raise RuntimeError("No spherical harmonic index ('shi' or 'n') was found in the xarray object")
+    
     @staticmethod
     def _initWithScalar(nmax,nmin=0,scalar=0,squeeze=True,name="cnm",auxcoords={}):
         """Initialize an spherical harmonic DataArray based on nmax and nmin"""
@@ -123,4 +144,3 @@ class ShXrBase:
             raise RuntimeError(f"compute engine {engine} not found")
         return computebackends[0].load()
 
-    

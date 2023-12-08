@@ -97,7 +97,7 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
     dataregex=re.compile(b'^gfc')
     for ln in fileobj:
         if dataregex.match(ln):
-            lnspl=ln.split()
+            lnspl=ln.replace(b"D",b"E").split()
             n=int(lnspl[1])
             if n> nmaxstop:
                 if ncount > nsh:

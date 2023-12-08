@@ -39,13 +39,4 @@ if useCython:
 
 setup(
     ext_modules=extensions
-    # entry_points={
-        # "xarray.backends": [
-            # "icgem=shxarray.io.shiobackend:ICGEMBackEntryPoint",
-            # "gsmv6=shxarray.io.shiobackend:GSMv6BackEntryPoint"
-        # ],
-        # "shxarray.computebackends": [
-            # "builtin=shxarray.shlib:SHComputeBackend",
-            # ],
-    # }
     )

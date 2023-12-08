@@ -5,12 +5,14 @@
 
 include "legendre.pyx" 
 include "wigner3j.pyx"
-
+include "ynm.pyx"
+include "analysis.pyx"
 
 from shxarray.shcomputebase import SHComputeBackendBase
 
 class SHComputeBackend(SHComputeBackendBase):
-    pass
+    def analysis(self,dsobj,lon,lat,forcegrid=False):
+        analysis=Analysis(lon,lat)
 
 
 

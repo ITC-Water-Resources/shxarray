@@ -28,6 +28,7 @@ def readGSMv6(fileobj,nmaxstop=sys.maxsize):
             break
         else:
             buf.write(ln)
+
     hdr=yaml.safe_load(buf.getvalue())["header"]
     
     #setup global attributes

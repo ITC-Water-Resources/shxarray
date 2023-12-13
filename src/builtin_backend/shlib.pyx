@@ -9,10 +9,12 @@ include "ynm.pyx"
 include "analysis.pyx"
 
 from shxarray.shcomputebase import SHComputeBackendBase
+# from shxarray.shlib import Analysis
 
 class SHComputeBackend(SHComputeBackendBase):
-    def analysis(self,dsobj,lon,lat,forcegrid=False):
-        analysis=Analysis(lon,lat)
+    def analysis(self,dain,lon,lat):
+        ana=Analysis(lon,lat)
+        return ana(dain)
 
 
 

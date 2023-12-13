@@ -12,7 +12,7 @@ import Cython.Compiler.Options
 import os 
 import numpy as np
 
-debug=False
+debug=True
 #don't necessarily use cython
 if "USE_CYTHON" in os.environ:
     useCython=True

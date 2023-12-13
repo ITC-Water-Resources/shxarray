@@ -42,8 +42,9 @@ cdef class Ynm:
             self.sz=len(nmax_or_index)
             self.resort=True
 
+        cdef nshmax=SHindexBase.nsh(self.nmax,squeeze=True)
 
-        cdef int[:,::1] nmt=np.zeros([self.sz,3],dtype=np.int32)
+        cdef int[:,::1] nmt=np.zeros([nshmax,3],dtype=np.int32)
 
         cdef cython.size_t i=0
         for m in range(self.nmax+1):
@@ -144,14 +145,16 @@ cdef class Ynm:
                 else:
                     idx=i
 
-                self.data[idx]=c_mlambda* self.pnmcache[ipnm]
+                if idx >=0:
+                    self.data[idx]=c_mlambda* self.pnmcache[ipnm]
                 i+=1
                 if m > 0:
                     if self.resort:
                         idx=self._idx[i]
                     else:
                         idx=i
-                    self.data[idx]=s_mlambda* self.pnmcache[ipnm]
+                    if idx>=0:
+                        self.data[idx]=s_mlambda* self.pnmcache[ipnm]
                     i+=1
 
                 

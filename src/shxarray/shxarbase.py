@@ -82,26 +82,30 @@ class ShXrBase:
         raise RuntimeError("No spherical harmonic index ('shi' or 'n') was found in the xarray object")
     
     @staticmethod
-    def _initWithScalar(nmax,nmin=0,scalar=0,squeeze=True,name="cnm",auxcoords={}):
+    def _initWithScalar(nmax,nmin=0,scalar=0,squeeze=True,name="cnm",auxcoords={},order='C'):
         """Initialize an spherical harmonic DataArray based on nmax and nmin"""
         
         coords={"shi":SHindexBase.nmt_mi(nmax,nmin,squeeze=squeeze)}
-        dims=["shi"]
-        shp=[len(coords['shi'])]
-
-        #possibly append coordinates
+        dims=[]
+        shp=[]
+        
+        
+        #possibly use auxiliary coordinates
         for dim,coord in auxcoords.items():
             dims.append(dim)
             shp.append(len(coord))
             coords[dim]=coord
-
-
+        
+        # add shi dimension and shape last (so it varies quikest in memory
+        dims.append("shi")
+        shp.append(len(coords['shi']))
+        
         if scalar == 0:
-            return xr.DataArray(data=np.zeros(shp),dims=dims,name=name,coords=coords)
+            return xr.DataArray(data=np.zeros(shp,order=order),dims=dims,name=name,coords=coords)
         elif scalar == 1:
-            return xr.DataArray(data=np.ones(shp),dims=dims,name=name,coords=coords)
+            return xr.DataArray(data=np.ones(shp,order=order),dims=dims,name=name,coords=coords)
         else:
-            return xr.DataArray(data=np.full(shp,scalar),dims=dims,name=name,coords=coords)
+            return xr.DataArray(data=np.full(shp,scalar,order=order),dims=dims,name=name,coords=coords)
 
     
     # @staticmethod
@@ -139,8 +143,8 @@ class ShXrBase:
 
     @staticmethod
     def _eng(engine="shlib"):
-        computebackends=entry_points(group="shxarray.computebackends",name=engine)
-        if len(computebackends) == 0:
+        eps=entry_points(group="shxarray.computebackends")
+        if engine not in eps.names:
             raise RuntimeError(f"compute engine {engine} not found")
-        return computebackends[0].load()
+        return eps[engine].load()
 

@@ -7,7 +7,7 @@
 cimport cython
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
-from libcpp.map cimport map
+# from libcpp.map cimport map
 
 
 # C++ / Cython interface declaration 
@@ -35,7 +35,10 @@ cdef extern from "Legendre_nm.hpp":
 
 # C++ Surface Spherical Harmonics functions
 cdef extern from "Ynm.hpp":
-    
+    struct mni:
+        int n
+        int m
+        size_t i
     cdef cppclass Ynm_cpp[T] nogil:
         Ynm_cpp() except +
         Ynm_cpp(int nmax) except +
@@ -46,6 +49,6 @@ cdef extern from "Ynm.hpp":
         int nmax()
         T* data()
         cython.size_t size()
-        map[pair[int,int],ssize_t] getmn()
+        vector[mni] getmn()
 # End of interface declaration
 

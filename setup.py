@@ -11,6 +11,12 @@ from Cython.Build import cythonize
 import Cython.Compiler.Options
 import os 
 import numpy as np
+import sys
+
+if sys.platform.startswith("win"):
+    openmp_arg = '/openmp'
+else:
+    openmp_arg = '-fopenmp'
 
 debug=True
 #don't necessarily use cython
@@ -27,7 +33,7 @@ def listexts():
     names=["shlib"]
     exts=[]
     for nm in names:
-        exts.append(Extension("shxarray."+nm.replace("/","."),["src/builtin_backend/"+nm+ext],include_dirs=[np.get_include(),"."], define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')]))
+        exts.append(Extension("shxarray."+nm.replace("/","."),["src/builtin_backend/"+nm+ext],include_dirs=[np.get_include(),"."], define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')],extra_compile_args=[openmp_arg],extra_link_args=[openmp_arg]))
     return exts
 
 extensions=listexts()

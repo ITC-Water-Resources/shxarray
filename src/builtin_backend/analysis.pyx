@@ -12,19 +12,22 @@ import cython
 cimport numpy as np
 from cython.parallel cimport parallel, prange
 from shxarray.shlib import Ynm
+from legendre cimport Ynm_cpp
 from libc.stdio cimport printf
 # from warnings import warn
 # Todo: potentially improve speed by directly calling dgemv
 # from scipy.linalg.blas import dgemv,ddot
 from scipy.linalg.cython_blas cimport dgemv,ddot
 from cython.operator cimport dereference as deref
+from openmp cimport omp_get_thread_num,omp_get_num_threads,omp_get_max_threads
+from cpython.mem cimport PyMem_Malloc, PyMem_Free
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
 cdef class Analysis:
     cdef public object _dsobj
-    def __cinit__(self, lon=np.arange(-180.0,180.0,1.0), lat=np.arange(-90.0,90.0,1.0),grid=True):
+    def __cinit__(self, lon, lat,grid=True):
         
         if type(lon) == xr.DataArray and type(lat) == xr.DataArray:
             #possibly check whether they share the same dimension name and size and set grid to false in that case
@@ -69,33 +72,6 @@ cdef class Analysis:
         daout=xr.DataArray(np.zeros([val[1] for val in dimsout]),coords=coordsout,dims=[val[0] for val in dimsout])
         self._apply_dgemv(dain,daout)
         return daout
-
-    # def _ddot_grid(self,dain:xr.DataArray,daout:xr.DataArray):
-        # cdef int nmax=dain.sh.nmax
-        # cdef int nmin=dain.sh.nmin
-    
-        # cdef double[::1] lonv=self._dsobj.lon.values
-        # cdef double[::1] latv=self._dsobj.lat.values
-        # nlat=len(latv)
-        # nlon=len(lonv)
-
-        # cdef Ynm ynm=Ynm(dain.indexes["shi"])
-        
-        
-
-        # cdef double [:,::1] outv=daout.data
-        # cdef double [::1] inval=dain.data
-        
-        # cdef:
-            # int nsh=len(dain.indexes["shi"])
-            # int incx=1
-            # int incy=1
-        
-        # for ilat in range(nlat):
-            # for ilon in range(nlon):
-                # ynm.set(lonv[ilon],latv[ilat])
-                # outv[ilat,ilon]=ddot(&nsh,&ynm.data[0],&incx,&inval[0],&incy)
-        
 
 
     def _apply_dgemv(self,dain:xr.DataArray,daout:xr.DataArray):
@@ -178,24 +154,6 @@ cdef class Analysis:
             n=shsize
 
 
-        # if (shIslast and dain.data.flags['C_CONTIGUOUS']) or (not shIslast and dain.data.flags['F_CONTIGUOUS']):
-            # # Note this means that the shi dimension varies quickest
-            # # For dgemv this means we need to transpose the input
-            # # This can also be interpreted as a Fortran array where the rows span the shi dimension 
-            # trans=b'T'
-            # lda=shsize
-            # m=shsize
-            # n=auxsize
-
-        # else:
-
-            # #Note: shi dimension varies slowest
-            # trans=b'N'
-            # lda=auxsize
-            # m=auxsize
-            # n=shsize
-        
-
         #fortran call signature dgemv( 	character  	trans, 
         #integer  	m,
         #integer  	n,
@@ -207,19 +165,104 @@ cdef class Analysis:
         #double precision  	beta,
         #double precision, dimension(*)  	y,
         #integer  	incy 
-        
-        cdef Ynm ynm=Ynm(dain.indexes["shi"])
-        cdef int ilat,ilon,idx          
-        if grid:
-            #use gridded approach (can be significantly faster because the latitudes will be in the outer loop)
-            for ilat in range(nlat):
-                for ilon in range(nlon):
-                    ynm.set(lonv[ilon],latv[ilat])
-                    dgemv(&trans,&m,&n,&alpha,&inval[0,0],&lda,&ynm.data[0],&incx,&beta,&outv[ilat*nlon+ilon,0],&incy)
+                
+        # cdef Ynm ynm=Ynm(dain.indexes["shi"])
+        cdef int[::1] nv = dain.shi.n.data.astype(np.int32)
+        cdef int[::1] mv = dain.shi.m.data.astype(np.int32)
+        cdef int[::1] tv = dain.shi.t.data.astype(np.int32)
 
-        else:
-            for idx in range(npoints):
-                ynm.set(lonv[idx],latv[idx])
-                dgemv(&trans,&m,&n,&alpha,&inval[0,0],&lda,&ynm.data[0],&incx,&beta,&outv[idx,0],&incy)
+        cdef Ynm_cpp[double] ynm
+        cdef int ilat,ilon,idx          
+        
+        with nogil, parallel():
+            ynm=Ynm_cpp[double](shsize,&nv[0],&mv[0],&tv[0])
+            if grid:
+                #use gridded approach (can be significantly faster because the latitudes will be in the outer loop)
+                for ilat in prange(nlat):
+                    for ilon in range(nlon):
+                        ynm.set(lonv[ilon],latv[ilat])
+                        # dgemv(&trans,&m,&n,&alpha,&inval[0,0],&lda,&ynm.data[0],&incx,&beta,&outv[ilat*nlon+ilon,0],&incy)
+                        dgemv(&trans,&m,&n,&alpha,&inval[0,0],&lda,ynm.data(),&incx,&beta,&outv[ilat*nlon+ilon,0],&incy)
+
+            else:
+                for idx in prange(npoints):
+                    ynm.set(lonv[idx],latv[idx])
+                    # dgemv(&trans,&m,&n,&alpha,&inval[0,0],&lda,&ynm.data[0],&incx,&beta,&outv[idx,0],&incy)
+                    dgemv(&trans,&m,&n,&alpha,&inval[0,0],&lda,ynm.data(),&incx,&beta,&outv[idx,0],&incy)
+
+@cython.profile(True)
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
+def threadedynm():
+    
+    cdef int num_threads
+    cdef int ithread
+    cdef int max_threads=omp_get_max_threads()
+    cdef np.ndarray ynms = np.empty([max_threads,],dtype=Ynm)
+    cdef double * ynmdata
+    cdef double [::1] lat=np.arange(-90.0,90.0,0.5)
+    cdef double [::1] lon=np.arange(-180.0,180.0,0.5)
+    cdef int nlat=len(lat)
+    cdef int nlon=len(lon)
+    cdef int ilat,ilon
+
+    printf("max threads %d\n",max_threads)
+    ynmlist = []
+    # cdef Ynm_cpp[double] * ynm
+    cdef Ynm_cpp[double]  ynm
+    with nogil, parallel():
+        num_threads = omp_get_num_threads()
+        ithread = omp_get_thread_num()
+        
+        ynm = Ynm_cpp[double](300)
+        # ynm = new Ynm_cpp[double](150)
+    # printf("num_threads  %d,threadid %d assigned nmax %d\n",num_threads,ithread,1)
+    # printf("thread id %d, ynmdata address %p, nmax %d\n",ithread,ynm.data(),ynm.nmax())
+        for ilat in prange(nlat):
+            # printf("thread id %d, doing latitude %f\n",ithread,lat[ilat])
+            
+            for ilon in range(nlon):
+                # deref(ynm).set(lon[ilon],lat[ilat])
+                ynm.set(lon[ilon],lat[ilat])
+        # with gil:
+            # # PyMem_Free(ynm)
+            # del ynm
+            
+
+    return ynms
+    # printf("memory address of ynm %p\n",ynm_ptr)
+
+def checkynm():
+    nmax=20
+    da=xr.DataArray.sh.ones(20)
+    shi=da.sh.truncate(12,3).shi
+    ynm1=Ynm(shi)
+    
+    cdef int[::1] nv = np.array([n for n,_,_ in ynm1._shindex.values]).astype(np.int32)
+    cdef int[::1] mv = np.array([m for _,m,_ in ynm1._shindex.values]).astype(np.int32)
+    cdef int[::1] tv = np.array([t for _,_,t in ynm1._shindex.values]).astype(np.int32)
+    
+    cdef Ynm_cpp[double] ynm2= Ynm_cpp[double](len(ynm1),&nv[0],&mv[0],&tv[0])
+    
+    # cdef Ynm_cpp[double] ynm2= Ynm_cpp[double](nmax)
+    cdef lon=40.3
+    cdef lat=20.5
+    cdef cython.size_t idx
+    cdef int i,n,m,t
+    # ynm1.set(lon,lat)
+    ynm2.set(lon,lat)
+    for it in ynm2.getmn():
+        m=it.m
+        n=it.n
+        idx=it.i
+        printf("%d n:%d m:%d\n",idx,n,m)
+
+    # for i,(n,m,t) in enumerate(ynm1._shindex.values):
+        # idx=ynm2.idx(n,m,t)
+        # printf("%d n:%d m:%d t:%d %f %f\n",i,n,m,t,ynm1.data[i],ynm2[idx])
+
+    
+
 
 

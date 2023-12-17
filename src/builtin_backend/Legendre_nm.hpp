@@ -18,7 +18,7 @@ class Legendre_nm {
     Legendre_nm(const int nmax);
     Legendre_nm() {}
     using nmp=std::pair<int,int>;
-    void set(const ftype costheta, ftype pnm[]);
+    void set(const ftype costheta, ftype pnm[])const;
     inline size_t idx(int n, int m)const {
 	return Legendre_nm::i_from_nm(n,m,nmax_);
     }
@@ -86,7 +86,7 @@ Legendre_nm<ftype>::Legendre_nm(int nmax)
 }
 
 template <class ftype>
-void Legendre_nm<ftype>::set(const ftype costheta, ftype pnm[]) {
+void Legendre_nm<ftype>::set(const ftype costheta, ftype pnm[])const {
     assert(nmax_ > 0);
     assert(costheta >= -1.0 and costheta <= 1.0);
 

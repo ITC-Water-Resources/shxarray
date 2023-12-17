@@ -9,87 +9,66 @@
 import cython
 cimport numpy as np
 import xarray as xr
-from legendre cimport Legendre_nm
-from libc.math cimport sin,cos,pi
-from cython.operator cimport dereference as deref
-from libcpp.pair cimport pair
+from legendre cimport Ynm_cpp,mni
 from shxarray.sh_indexing import SHindexBase
-from cython.view cimport array as cvarray
-from libc.stdlib cimport malloc
 from libc.stdio cimport printf
+
+
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
 cdef class Ynm:
-    cdef int nmax
-    cdef double[::1] pnmcache
+    cdef Ynm_cpp[double] _ynm
     cdef double[::1] data
-    cdef long [::1] _idx
-    cdef double latprev;
-    cdef cython.size_t sz
-    cdef bint resort
-    # cdef Legendre_nm[double]*legnm_ptr
-    cdef Legendre_nm[double] legnm
     cdef public object _shindex
     def __cinit__(self,nmax_or_index):
+        
+        cdef int[::1] nv  
+        cdef int[::1] mv 
+        cdef int[::1] tv
+        cdef int [:,::1] nmt
+        cdef cython.size_t sz,idx
+        cdef int nmax,n,m,t
+        cdef mni it
         if type(nmax_or_index) == int:
-            self.nmax=nmax_or_index
-            self.sz=SHindexBase.nsh(self.nmax,squeeze=True)
-            self.resort=False
-        else:
-            self._shindex=nmax_or_index
-            self.nmax=nmax_or_index.max()[0]
-            self.sz=len(nmax_or_index)
-            self.resort=True
+            nmax=nmax_or_index
+            self._ynm=Ynm_cpp[double](nmax)
+            sz=self._ynm.size()
+            #create a sh index
+            nmt=np.zeros([sz,3],dtype=np.int32)
+            for it in self._ynm.getmn():
+                n=it.n
+                m=it.m
+                idx=it.i
+                if m<0:
+                    nmt[idx,0]=n
+                    nmt[idx,1]=-m
+                    nmt[idx,2]=1
+                else:
+                    nmt[idx,0]=n
+                    nmt[idx,1]=m
+                    nmt[idx,2]=0
 
-        cdef nshmax=SHindexBase.nsh(self.nmax,squeeze=True)
-
-        cdef int[:,::1] nmt=np.zeros([nshmax,3],dtype=np.int32)
-
-        cdef cython.size_t i=0
-        for m in range(self.nmax+1):
-            for n in range(m,self.nmax+1):
-                nmt[i,0]=n
-                nmt[i,1]=m
-                nmt[i,2]=0
-                i+=1
-                if m > 0:
-                    nmt[i,0]=n
-                    nmt[i,1]=m
-                    nmt[i,2]=1
-                    i+=1
-
-
-        
-        if self.resort:
-            # get the resorting index
-            self._idx=self._shindex.get_indexer(SHindexBase.mi_fromarrays(np.asarray(nmt).T))
-        else:
-            #create a new index from the nmt array
             self._shindex=SHindexBase.mi_fromarrays(np.asarray(nmt).T)
+        else:
+            nv=np.array([n for n,_,_ in nmax_or_index.values]).astype(np.int32)
+            mv=np.array([m for _,m,_ in nmax_or_index.values]).astype(np.int32)
+            tv=np.array([t for _,_,t in nmax_or_index.values]).astype(np.int32)
 
-        # self.legnm_ptr=new Legendre_nm[double](self.nmax)
-        
-        self.legnm=Legendre_nm[double](self.nmax)
-        self.latprev=-1000.0 #an invalid initial value triggers initial computation
-        
-        # cdef cython.size_t pnm_sz=deref(self.legnm_ptr).size()
-        cdef cython.size_t pnm_sz=self.legnm.size()
-        #initialize cache and lookup index
-        self.pnmcache=np.zeros([pnm_sz])
-        self.data=np.zeros([self.sz])
+            sz=len(nmax_or_index)
+            self._ynm=Ynm_cpp[double](sz,&nv[0],&mv[0],&tv[0])
+            self._shindex=nmax_or_index
 
+        #have data memory view point to the memory of the cpp class
+        self.data = <double[:sz:1]>(self._ynm.data()) 
 
-    def __dealloc__(self):
-        pass
-        # del self.legnm_ptr
 
     @property
     def nmax(self):
-        return self.nmax
+        return self._ynm.nmax()
     
     def __len__(self):
-        return self.sz
+        return self._ynm.size()
     
     def  __call__(self,lon, lat):
         
@@ -97,7 +76,8 @@ cdef class Ynm:
         cdef double[:,::1] data;
 
         if np.isscalar(lon) and np.isscalar(lat):
-            self.set(lon,lat)
+            
+            self._ynm.set(lon,lat)
             dsout=xr.DataArray(self.data,coords={"shi":self._shindex,"lon":lon,"lat":lat},dims=["shi"],name="Ynm")
         else:
             #multiple sets requested
@@ -107,54 +87,10 @@ cdef class Ynm:
             data=np.empty([npos,self.sz])
             
             for i in range(npos):
-                self.set(lon[i],lat[i])
+                self.ynm.set(lon[i],lat[i])
                 data[i,:]=self.data
             
             dsout=xr.DataArray(data,coords={"shi":("shi",self._shindex),"lon":("nlonlat",lon),"lat":("nlonlat",lat)},dims=["nlonlat","shi"],name="Ynm")
         
         return dsout
 
-    cdef void set(self,double lon,double lat) noexcept nogil:
-        cdef double costheta
-        if (lat != self.latprev):
-            #(re)compute associated Legendre functions
-            costheta=sin(lat*pi/180.0)
-            self.latprev=lat
-            # deref(self.legnm_ptr).set(costheta,&self.pnmcache[0])
-            self.legnm.set(costheta,&self.pnmcache[0])
-        cdef double lonr=lon*pi/180.0
-
-        cdef int m=0
-        cdef int n=0
-        cdef double c_mlambda=0
-        cdef double s_mlambda=0
-
-        #note: the order of these loops and their corresponding n,m,t MUST agree with the index self._idx!
-        cdef cython.size_t i=0
-        cdef cython.size_t ipnm=0
-        cdef long idx=0
-
-        for m in range(self.nmax+1):
-            c_mlambda=cos(m*lonr)
-            s_mlambda=sin(m*lonr)
-            for n in range(m,self.nmax+1):
-                # ipnm=deref(self.legnm_ptr).idx(n,m)
-                ipnm=self.legnm.idx(n,m)
-                if self.resort:
-                    idx=self._idx[i]
-                else:
-                    idx=i
-
-                if idx >=0:
-                    self.data[idx]=c_mlambda* self.pnmcache[ipnm]
-                i+=1
-                if m > 0:
-                    if self.resort:
-                        idx=self._idx[i]
-                    else:
-                        idx=i
-                    if idx>=0:
-                        self.data[idx]=s_mlambda* self.pnmcache[ipnm]
-                    i+=1
-
-                

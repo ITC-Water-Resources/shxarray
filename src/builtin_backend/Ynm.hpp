@@ -68,8 +68,8 @@ class Ynm_cpp{
 };
 
 template <class ftype>
-Ynm_cpp<ftype>::Ynm_cpp(int nmax):legnm(nmax),sz_(2*(legnm.idx(nmax,nmax)+1))
-		,pnmcache_(sz_/2),ynmdata_(sz_,0.0),mnidx_(sz_){
+Ynm_cpp<ftype>::Ynm_cpp(int nmax):legnm(nmax),sz_(2*(legnm.idx(nmax,nmax)+1)-(nmax+1))
+		,pnmcache_(legnm.size()),ynmdata_(sz_,0.0),mnidx_(sz_){
 /// Fill internal index	
     size_t i=0;
     for (int m=-nmax;m<=nmax;++m){

@@ -55,7 +55,7 @@ class SHindexBase:
         return SHindexBase.mi_fromtuples(nmt)
 
     @staticmethod
-    def shi(nmax,nmin,squeeze=False,dim="shi"):
+    def shi(nmax,nmin=0,squeeze=True,dim="shi"):
         """Convenience function which returns a dictionary which can be used as input for xarray constructors"""
         return {dim:(dim,SHindexBase.nmt_mi(nmax,nmin,squeeze))}
 

@@ -8,8 +8,16 @@ import xarray as xr
 import numpy as np
 
 from .sh_indexing import SHindexBase,trig
-from importlib.metadata import entry_points
+
+
 from shxarray.kernels.factory import KernelFactory
+
+loaded_engines={}
+
+# version which is backward compatible
+from importlib_metadata import entry_points
+# For newer versions this may eventually need to be replaced with 
+# from importlib.metadata import entry_points
 
 class ShXrBase:
     #inserts functionality to work with kernels
@@ -143,8 +151,21 @@ class ShXrBase:
 
     @staticmethod
     def _eng(engine="shlib"):
-        eps=entry_points(group="shxarray.computebackends")
-        if engine not in eps.names:
-            raise RuntimeError(f"compute engine {engine} not found")
-        return eps[engine].load()
+        
+
+        if engine not in loaded_engines:
+            #load engine if not done already
+
+            grp="shxarray.computebackends"
+            eps=entry_points(group=grp)
+
+            if engine not in eps.names:
+                raise RuntimeError(f"compute engine {engine} not found")
+            Eng=eps[engine].load()
+            loaded_engines[engine]=Eng()
+        
+
+
+        return loaded_engines[engine]
+        
 

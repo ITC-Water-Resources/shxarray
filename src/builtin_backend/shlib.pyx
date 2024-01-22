@@ -6,15 +6,21 @@
 include "legendre.pyx" 
 include "wigner3j.pyx"
 include "ynm.pyx"
+include "synthesis.pyx"
 include "analysis.pyx"
 
 from shxarray.shcomputebase import SHComputeBackendBase
 
 class SHComputeBackend(SHComputeBackendBase):
-    def analysis(self,dain,lon, lat,grid):
-        ana=Analysis(lon,lat,grid)
+    def synthesis(self,dain,lon, lat,grid):
+        syn=Synthesis(lon,lat,grid)
+        return syn(dain)
+
+
+    def analysis(self,dain,nmax,method):
+        if method not in ['integrate']:
+            raise RuntimeError (f"SHComputeBackend does not support {method} in analysis")
+        ana=Analysis(nmax)
         return ana(dain)
-
-
 
 

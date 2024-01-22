@@ -23,14 +23,14 @@ class SHDaAccessor(ShXrBase):
         """1-Initialize an spherical harmonic DataArray based on nmax and nmin"""
         return ShXrBase._initWithScalar(nmax,nmin,1,squeeze,name,auxcoords,order=order)
     
-    def analysis(self,lon=np.arange(-180.0,180.0,1.0), lat=np.arange(-90.0,90.0,1.0),grid=True,engine="shlib"):
+    def synthesis(self,lon=np.arange(-180.0,180.0,1.0), lat=np.arange(-90.0,90.0,1.0),grid=True,engine="shlib"):
         """
-        Apply spherical harmonic analysis on a set of longitude, latitude points
+        Apply spherical harmonic synthesis on a set of longitude, latitude points
         :param lon: Longitude in degrees East
         :param lat: Latitude in degrees North
         :param grid: Set to false if lon,lat pairs represent individual points 
         :param engine: Spherical harmonic compute engine to use for the computation
-        :return: A datarray for which the spherical harmonic coefficietn dimension is mapped to set of points
+        :return: A datarray for which the spherical harmonic coefficient dimension is mapped to set of points
         The following scenarios can be handled:
         
         1: lon, lat are Xarray coordinate variables sharing the same dimension
@@ -40,9 +40,24 @@ class SHDaAccessor(ShXrBase):
         4. lon,lat are list-like objects of different lengths: Map to a grid
         """
         #dispatch to compute engine
-        eng=self._eng(engine)()
-        return eng.analysis(self._obj,lon,lat,grid)
+        eng=self._eng(engine)
+        return eng.synthesis(self._obj,lon,lat,grid)
     
+    def analysis(self,nmax=100,method='integrate',engine="shlib"):
+        """
+        Apply spherical harmonic analysis from the given ints
+        :param nmax : Spherical harmonic truncation degree of output
+        :param method: Method to use for the analysis
+        :return: A datarray with spherical harmonic coefficients derived from the input dataArray
+
+        Depending on the method applied different scenarios can be handled
+        method == 'integrate'
+        input is given on an equidistant longitude, latitude grid (but may be different step size in lon and lat direction)
+        """
+        #dispatch to compute engine
+        eng=self._eng(engine)
+    
+        return eng.analysis(self._obj,nmax,method)
 
 @xr.register_dataset_accessor("sh")
 class SHDsAccessor(ShXrBase):

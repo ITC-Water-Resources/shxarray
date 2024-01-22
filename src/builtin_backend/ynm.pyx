@@ -84,10 +84,10 @@ cdef class Ynm:
             if len(lon) != len(lat):
                 raise RuntimeError("input longitude and latitude needs to be of the same length")
             npos=len(lon)
-            data=np.empty([npos,self.sz])
+            data=np.empty([npos,self._ynm.size()])
             
             for i in range(npos):
-                self.ynm.set(lon[i],lat[i])
+                self._ynm.set(lon[i],lat[i])
                 data[i,:]=self.data
             
             dsout=xr.DataArray(data,coords={"shi":("shi",self._shindex),"lon":("nlonlat",lon),"lat":("nlonlat",lat)},dims=["nlonlat","shi"],name="Ynm")

@@ -1,7 +1,10 @@
 class SHComputeBackendBase:
     """base class providing the calling interface for more compute intensive Spherical harmonic operations"""
 
-    def analysis(self,dain,lon,lat):
+    def synthesis(self,*argv):
+        self._notImplemented("synthesis")
+    
+    def analysis(self,*argv):
         self._notImplemented("Analysis")
 
     def _notImplemented(self,methodname):

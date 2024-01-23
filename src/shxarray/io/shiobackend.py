@@ -6,6 +6,7 @@ from xarray.backends import BackendEntrypoint
 from shxarray.logging import logger 
 from shxarray.io.icgem import readIcgem
 from shxarray.io.gsmv6 import readGSMv6
+from shxarray.io.binv_legacy import readBINV
 import os
 import re
 
@@ -52,3 +53,25 @@ class GSMv6BackEntryPoint(BackendEntrypoint):
         return False
 
 
+## NOte: this currently does not work (xarray changes the underlying sparse array)
+class DDKBackEntryPoint(BackendEntrypoint):
+    url="https://github.com/ITC-Water-Resources/shxarray"
+    description = "Read spherical harmonic filter coefficients in legacy BINV format"
+    def open_dataset(self,filename_or_obj,*,drop_variables=None):
+        dsout=readBINV(filename_or_obj)
+        breakpoint()
+        if drop_variables is not None:
+            dsout=dsout.drop_vars(drop_variables)
+        return dsout
+    
+    def guess_can_open(self,filename_or_obj):
+        try:
+            strrep=str(filename_or_obj)
+            # search for conventional file naming of  DDK files
+            if strrep.startswith('Wbd_2-120'):
+                #known anisotropic DDK filter matrix
+                return True
+        except AttributeError:
+            return False
+            
+        return False

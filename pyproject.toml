@@ -23,6 +23,7 @@ classifiers = [
 [project.entry-points."xarray.backends"]
 icgem = "shxarray.io.shiobackend:ICGEMBackEntryPoint"
 gsmv6 = "shxarray.io.shiobackend:GSMv6BackEntryPoint"
+#ddk = "shxarray.io.shiobackend:DDKBackEntryPoint"
 
 [project.entry-points."shxarray.computebackends"]
 shlib = "shxarray.shlib:SHComputeBackend"

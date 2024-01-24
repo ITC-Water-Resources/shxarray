@@ -39,7 +39,7 @@ class IsoKernelBase:
         else:
             coeff=self._dsiso.sel(n=shindex.n)
     
-        return coeff
+        return xr.DataArray(coeff.data,coords=dict(shi=shindex))
 
 
     def jacobian(self,shindex):
@@ -50,17 +50,9 @@ class IsoKernelBase:
         #create the jacobian matrix based on the input maximum and minimum degrees
         if "shi" not in dain.indexes:
             raise RuntimeError("Spherical harmonic index not found in input, cannot apply kernel operator to object")
-        jacob=self.jacobian(dain.shi)
-
-        #apply the dot product
-        if dain.dims[0] == "shi":
-            out=jacob.dot(dain)
-        elif dain.dims[-1] == "shi":
-            out=jacob.dot(dain.T).T
-        else:
-            raise RuntimeError("shi dimension needs to be either first or last")
-    
-        daout=xr.DataArray(out,coords=dain.coords,dims=dain.dims)
+        #expand kernel to the same degrees as the input
+        daexpand=self.expanddiag(dain.shi)
+        daout=dain*daexpand
         return daout
 
     def position(self,lon,lat):

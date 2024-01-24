@@ -37,7 +37,7 @@ def validation():
 
 @pytest.fixture(params=[('C','N'),('C','T'),('F','N'),('F','T')])
 def grdinput(request):
-    testdir=os.path.dirname(os.path.realpath(__file__))
+    testdir=os.path.join(os.path.dirname(os.path.realpath(__file__)),'testdata')
     valnc="shanalysis-test-paracap-n200.nc"
     valnc=os.path.join(testdir,valnc)
     dagrd= xr.open_dataset(valnc).z

@@ -46,7 +46,7 @@ def snrei_load(model,dbfile_or_con,frame="CF"):
     """Loads (load) Love numbers"""
     if dbfile_or_con is None:
         #create a default filename
-        dbfile_or_con=os.path.join(defaultcache(),"geoslurp_dump_llove.sql")
+        dbfile_or_con=os.path.join(defaultcache('Love'),"geoslurp_dump_llove.sql")
     
     if str(dbfile_or_con).endswith(".sql"):
         download_snrei(dbfile_or_con)

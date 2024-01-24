@@ -15,13 +15,16 @@ from shxarray.sh_indexing import SHindexBase
 import xarray as xr
 import sparse
 
-def getBDcoords(ddict):
+def getBDcoords(ddict,trans):
 
     if not ddict['type'] in ["BDFULLV0","BDFULLVN"]:
         raise RuntimeError("cannot get coordinates for this type of matrix (yet)")
 
     mxblk=np.max(np.diff(ddict['blockind']))
-    mshx,mshy=np.meshgrid([x for x in range(mxblk)],[y for y in range(mxblk)])
+    if trans:
+        mshx,mshy=np.meshgrid([x for x in range(mxblk)],[y for y in range(mxblk)])
+    else:
+        mshy,mshx=np.meshgrid([x for x in range(mxblk)],[y for y in range(mxblk)])
     # mshx=mshx.reshape([mshx.size])
     # mshy=mshy.reshape([mshy.size])
 
@@ -58,7 +61,7 @@ def get_shmi(charar):
     shmi=SHindexBase.mi_fromtuples(nmt)
     return shmi
 
-def readBINV(file_or_obj):
+def readBINV(file_or_obj,trans=False):
     """Reads in a legacy binary file written using the fortran RLFTlbx"""
     dictout={}
     #default to assuming the file is in little endian
@@ -149,7 +152,7 @@ def readBINV(file_or_obj):
     if dictout["type"] in ['BDSYMV0_','BDFULLV0','BDSYMVN_','BDFULLVN']:
         dictout["blockind"]=np.fromfile(fid,dtype=endianness+'I',count=nblocks)
         #also add coordinates in the full matrix
-        coords=getBDcoords(dictout)
+        coords=getBDcoords(dictout,trans)
 
 
     #possibly read second side description
@@ -186,8 +189,10 @@ def readBINV(file_or_obj):
         mshi=get_shmi(side1_d)
     except KeyError:
         pass
-
-    dsout=xr.Dataset(dict(mat=(["shi","shi_t"],mat)),coords=dict(shi=(["shi"],mshi)),attrs=dictout)
+     
+    dsout=xr.Dataset(dict(mat=(["shi","shi_"],mat)),coords=dict(shi=(["shi"],mshi),shi_=(["shi_"],SHindexBase.mi_toggle(mshi))),attrs=dictout)
+    #transform the data in dask 
+    # dsout=dsout.chunk()
     if nvec > 0:
         dsout["vec"]=(["shi"],vec)
 

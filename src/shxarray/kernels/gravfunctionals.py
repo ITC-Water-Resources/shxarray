@@ -11,7 +11,6 @@
 from shxarray.kernels.isokernelbase import IsoKernelBase
 
 from shxarray.earth.constants import a_earth,rho_water,rho_earth,rho_sea
-#from sparse import diagonalize
 
 class Stokes2Eqh(IsoKernelBase):
     """Provides an isotropic kernel representing the transformation of Stokes coefficients [-] to equivalent water height [m]"""

@@ -67,4 +67,12 @@ class SHindexBase:
     @staticmethod
     def mi_fromarrays(nmt):
         return pd.MultiIndex.from_arrays(nmt,names=["n","m","t"])
+    
+    @staticmethod
+    def mi_toggle(mi):
+        """Rename the levels of the multindex so that they can be use as transposed versions"""
+        if "n" in mi.names:
+            return mi.rename([nm+"_" for nm in mi.names])
+        else:
+            return mi.rename([nm[:-1] for nm in mi.names])
 

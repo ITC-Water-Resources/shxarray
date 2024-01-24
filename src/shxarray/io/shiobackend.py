@@ -7,6 +7,7 @@ from shxarray.logging import logger
 from shxarray.io.icgem import readIcgem
 from shxarray.io.gsmv6 import readGSMv6
 from shxarray.io.binv_legacy import readBINV
+from shxarray.io.shascii import readSHAscii
 import os
 import re
 
@@ -52,6 +53,18 @@ class GSMv6BackEntryPoint(BackendEntrypoint):
             
         return False
 
+class SHAsciiBackEntryPoint(BackendEntrypoint):
+    url="https://github.com/ITC-Water-Resources/shxarray"
+    description = "Read spherical harmonic coefficients in generic n,m, cnm, snm, sigcnm, sigsnm ascii format"
+    def open_dataset(self,filename_or_obj,*,drop_variables=None):
+        dsout=readSHAscii(filename_or_obj)
+        if drop_variables is not None:
+            dsout=dsout.drop_vars(drop_variables)
+        return dsout
+    
+    def guess_can_open(self,filename_or_obj):
+        #User need to use this engine explicitly as the filenaming can be anything
+        return False
 
 ## NOte: this currently does not work (xarray changes the underlying sparse array)
 class DDKBackEntryPoint(BackendEntrypoint):

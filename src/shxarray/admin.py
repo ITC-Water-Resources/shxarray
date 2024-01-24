@@ -5,8 +5,10 @@
 
 import os
 
-def defaultcache():
-    path=os.path.expanduser("~/.shxarray_storage")
+def defaultcache(subdir=None):
+    path=os.path.expanduser("~/.cache/shxarray_storage")
+    if subdir is not None:
+        path=os.path.join(path,subdir)
     os.makedirs(path,exist_ok=True)
     return path
 

@@ -148,6 +148,22 @@ class ShXrBase:
             #rebuild multiindex from an array of "left-over" tuples
             shimi=SHindexBase.mi_fromtuples(self._obj.shi.values)
             return self._obj.drop_vars(["shi"]).assign_coords(shi=shimi)
+    
+    def toggle_shi(self):
+        """Toggle naming of shi, shi_ multindices and their levels"""
+        renamedict={}
+        if "shi" in self._obj.dims:
+            renamedict["shi"]="shi_"
+            renamedict["n"]="n_"
+            renamedict["m"]="m_"
+            renamedict["t"]="t_"
+        
+        if "shi_" in self._obj.dims:
+            renamedict["shi_"]="shi"
+            renamedict["n_"]="n"
+            renamedict["m_"]="m"
+            renamedict["t_"]="t"
+        return self._obj.rename(renamedict)
 
     @staticmethod
     def _eng(engine="shlib"):

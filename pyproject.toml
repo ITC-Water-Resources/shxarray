@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0","xarray","numpy","pandas","Cython","wheel"]
+requires = ["setuptools>=61.0","numpy","Cython","wheel"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "shxarray"
@@ -23,6 +23,7 @@ classifiers = [
 [project.entry-points."xarray.backends"]
 icgem = "shxarray.io.shiobackend:ICGEMBackEntryPoint"
 gsmv6 = "shxarray.io.shiobackend:GSMv6BackEntryPoint"
+shascii ="shxarray.io.shiobackend:SHAsciiBackEntryPoint"
 #ddk = "shxarray.io.shiobackend:DDKBackEntryPoint"
 
 [project.entry-points."shxarray.computebackends"]

@@ -4,6 +4,7 @@
 #
 
 
+from types import NoneType
 import xarray as xr
 import numpy as np
 
@@ -59,16 +60,36 @@ class ShXrBase:
         raise RuntimeError("Cannot return nmax, spherical harmonic index is not initialized") 
     
    
-    def truncate(self,nmax=None,nmin=None):
+    def truncate(self,nmax=None,nmin=None,dims=["shi"]):
         """
         Truncate the maximum and/or minimum degree of the spherical harmonic coordinate and corresponding variables
         :param nmax: (int) maximum spherical harmonic degree to keep
         :param nmin: (int) minimum spherical harmonic degree to keep
+        :param dims: list of SH dimensions to truncate over default ['shi']. Alternatively specify ['shi_'] or both
         :return: A new truncated data array
         :rtype: xarray.DataArray
         """
         indx=None
-        if "shi" in self._obj.indexes:
+        da=None
+        # if "shi" in self._obj.indexes:
+            # if nmax is not None:
+                # indx=(self._obj.shi.n <= nmax)
+            # if nmin is not None:
+                # if indx is not None:
+                    # indx=indx*(self._obj.shi.n >= nmin)
+                # else:
+                    # indx=(self._obj.shi.n >= nmin)
+            # selector["shi"]=indx
+        # elif "n" in self._obj.indexes:
+            # if nmax is not None:
+                # indx=(self._obj.n <= nmax)
+            # if nmin is not None:
+                # if indx is not None:
+                    # indx=indx*(self._obj.n >= nmin)
+                # else:
+                    # indx=(self._obj.n >= nmin)
+            # selector={"n":indx}
+        if "shi" in dims:
             if nmax is not None:
                 indx=(self._obj.shi.n <= nmax)
             if nmin is not None:
@@ -76,18 +97,25 @@ class ShXrBase:
                     indx=indx*(self._obj.shi.n >= nmin)
                 else:
                     indx=(self._obj.shi.n >= nmin)
+            da=self._obj.isel(shi=indx)
         
-            return self._obj.isel(shi=indx) 
-        elif "n" in self._obj.indexes:
+        if "shi_" in dims:
             if nmax is not None:
-                indx=(self._obj.n <= nmax)
+                indx=(self._obj.shi_.n_ <= nmax)
             if nmin is not None:
                 if indx is not None:
-                    indx=indx*(self._obj.n >= nmin)
+                    indx=indx*(self._obj.shi_.n_ >= nmin)
                 else:
-                    indx=(self._obj.n >= nmin)
-            return self._obj.isel(n=indx) 
-        raise RuntimeError("No spherical harmonic index ('shi' or 'n') was found in the xarray object")
+                    indx=(self._obj.shi_.n_ >= nmin)
+            if type(da) is NoneType:
+                da=self._obj.isel(shi_=indx)
+            else:
+                da=da.isel(shi_=indx)
+         
+        if type(da) is not NoneType:
+            return da
+        else:
+            raise RuntimeError("No spherical harmonic index ('shi' or 'n') was found in the xarray object")
     
     @staticmethod
     def _initWithScalar(nmax,nmin=0,scalar=0,squeeze=True,name="cnm",auxcoords={},order='C'):

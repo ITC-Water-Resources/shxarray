@@ -10,6 +10,8 @@ from shxarray.io.binv_legacy import readBINV
 from shxarray.kernels.anisokernel import AnisoKernel
 import os
 
+
+
 def load_catalogue():
     catalogfile=os.path.join(defaultcache('grace-filter'),'inventory.xlsx')
     if not os.path.exists(catalogfile):
@@ -24,6 +26,7 @@ def load_catalogue():
 
 
 def load_ddk(ddkversion,trans=False):
+
     dfcat=load_catalogue()
     url=dfcat.loc[ddkversion].uri
     ddkfile=os.path.join(defaultcache('grace-filter'),os.path.basename(url))
@@ -34,8 +37,7 @@ def load_ddk(ddkversion,trans=False):
         with open(ddkfile,'wb') as fid:
             fid.write(r.content)
     df=readBINV(ddkfile,trans)
-
-    return AnisoKernel(df) 
+    return AnisoKernel(df)
 
         
 

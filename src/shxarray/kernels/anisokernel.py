@@ -9,23 +9,6 @@ from shxarray.shlib import Ynm
 # from dask.array.core import einsum_lookup
 import sparse
 
-# def einsumReplace(subscripts, *operands, out=None, dtype=None, order='K', casting='safe', optimize=False):
-    # """Mimics the interface of https://numpy.org/doc/stable/reference/generated/numpy.einsum.html, but uses the sparse.COO dot function"""
-    # if subscripts == "ab,cb->ac":
-        # return operands[0].dot(operands[1].T)
-    # elif subscripts == "ab,ca->bc":
-        # return operands[0].T.dot(operands[1].T)
-    # elif subscripts == "ab,bc->ac":
-        # return operands[0].dot(operands[1])
-    # elif subscripts == "ab,b->a":
-        # return operands[0].dot(operands[1])
-    # else:
-        # raise NotImplementedError(f"Don't know (yet) how to handle this einsum: {subscripts} with sparse.dot operations")
-
-# def einsumReplace(subscripts, *operands, **kwargs):
-    # """Mimics the interface of https://numpy.org/doc/stable/reference/generated/numpy.einsum.html, but uses the sparse.COO dot function"""
-    
-    # return sparse.einsum(subscripts,*operands,**kwargs)
 
 
 
@@ -38,8 +21,6 @@ class AnisoKernel:
     def __init__(self,dsobj):
         self._dskernel=dsobj
     
-        #also register the einsum functions which are needed to do the sparse dot functions
-        # einsum_lookup.register(sparse.COO,einsumReplace)
     @property
     def nmax(self):
         return self._dskernel.sh.nmax
@@ -52,7 +33,8 @@ class AnisoKernel:
     def __call__(self,dain:xr.DataArray):
         if "shi" not in dain.indexes:
             raise RuntimeError("al harmonic index not found in input, cannot apply kernel operator to object")
-        daout=xr.dot(dain,self._dskernel.mat,dims=["shi"]) 
+        # daout=xr.dot(dain,self._dskernel.mat,dims=["shi"]) 
+        daout=xr.dot(self._dskernel.mat,dain,dims=["shi"]) 
         #rename shi and convert to dense array
         daout=daout.sh.toggle_shi()
         daout=xr.DataArray(daout.data.todense(),coords=daout.coords)

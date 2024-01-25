@@ -179,8 +179,8 @@ def readBINV(file_or_obj,trans=False):
 
     if dictout["type"] in ['BDSYMV0_','BDFULLV0','BDSYMVN_','BDFULLVN']:
     #unpack in sparse matrix
-        mat = sparse.COO(coords, pack, shape=(nval1,nval1))
-        # mat=xr.core.indexing.LazilyIndexedArray(mat)
+        mat = sparse.COO(coords, pack, shape=(nval1,nval1),fill_value=0.0)
+        # mat=sparse.GCXS.from_coo(mat,compressed_axes=[1])
     else: 
         raise NotImplemented(f"Cannot Unpack a matrix of {dictout['type']}")
     

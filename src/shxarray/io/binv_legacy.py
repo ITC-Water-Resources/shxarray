@@ -61,7 +61,7 @@ def get_shmi(charar):
     shmi=SHindexBase.mi_fromtuples(nmt)
     return shmi
 
-def readBINV(file_or_obj,trans=False):
+def readBINV(file_or_obj,trans=False,nmax=-1):
     """Reads in a legacy binary file written using the fortran RLFTlbx"""
     dictout={}
     #default to assuming the file is in little endian
@@ -145,6 +145,11 @@ def readBINV(file_or_obj,trans=False):
 
     if names:
         dictout.update({ky.strip():val for ky,val in zip(names,vals)})
+    
+    truncate=False
+    if 'Lmax' in dictout:
+        if 0 <= nmax < dictout['Lmax']:
+            truncate = True
 
     #read side description data
     side1_d=np.fromfile(fid,dtype='|S24',count=nval1).astype('|U24')
@@ -177,6 +182,34 @@ def readBINV(file_or_obj,trans=False):
         #expliclity close (otherwise it's assumed the caller will handle closure)
         fid.close()
 
+    #possibly convert a SH side description in a (multi)-index
+    try:
+        mshi=get_shmi(side1_d)
+
+        if truncate:
+            # Truncate the input
+            #create an index vector restricting the maximum degree of the output
+            mshi2=xr.DataArray(mshi)
+            #index corresponding to the rows and columns
+            indx=mshi2.n <= nmax
+            #index vector within the packed array
+            pindx=indx[coords[0,:]].data*indx[coords[1,:]].data
+            
+            #get the subsets of the data
+            side1_d=side1_d[indx]
+            #new version
+            mshi=get_shmi(side1_d)
+            pack=pack[pindx]
+            oldcoords=coords[:,pindx]
+            idxnew=indx.cumsum()-1
+            coords=np.zeros(oldcoords.shape,dtype=np.int64)
+            coords[0,:]=idxnew[oldcoords[0,:]]
+            coords[1,:]=idxnew[oldcoords[1,:]]
+            nval1=len(mshi)
+
+    except KeyError:
+        pass
+    
     if dictout["type"] in ['BDSYMV0_','BDFULLV0','BDSYMVN_','BDFULLVN']:
     #unpack in sparse matrix
         mat = sparse.COO(coords, pack, shape=(nval1,nval1),fill_value=0.0)
@@ -184,11 +217,6 @@ def readBINV(file_or_obj,trans=False):
     else: 
         raise NotImplemented(f"Cannot Unpack a matrix of {dictout['type']}")
     
-    #possibly convert a SH side description in a (multi)-index
-    try:
-        mshi=get_shmi(side1_d)
-    except KeyError:
-        pass
      
     dsout=xr.Dataset(dict(mat=(["shi","shi_"],mat)),coords=dict(shi=(["shi"],mshi),shi_=(["shi_"],SHindexBase.mi_toggle(mshi))),attrs=dictout)
     #transform the data in dask 

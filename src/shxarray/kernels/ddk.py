@@ -25,7 +25,7 @@ def load_catalogue():
     return dfcat
 
 
-def load_ddk(ddkversion,trans=False):
+def load_ddk(ddkversion,trans=False,nmax=-1):
 
     dfcat=load_catalogue()
     url=dfcat.loc[ddkversion].uri
@@ -36,7 +36,8 @@ def load_ddk(ddkversion,trans=False):
         r=requests.get(url)
         with open(ddkfile,'wb') as fid:
             fid.write(r.content)
-    df=readBINV(ddkfile,trans)
+    df=readBINV(ddkfile,trans,nmax)
+
     return AnisoKernel(df)
 
         

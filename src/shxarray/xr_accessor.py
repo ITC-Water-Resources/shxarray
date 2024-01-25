@@ -74,7 +74,7 @@ class SHDaAccessor(ShXrBase):
                 trans=kwargs["transpose"]
             else:
                 trans=False
-            kernel=load_ddk(filtername,trans)
+            kernel=load_ddk(filtername,trans,self.nmax)
         elif filtername.startswith('Gauss'):
             if "halfwidth" in kwargs:
                 radius=kwargs["halfwidth"]

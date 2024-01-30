@@ -46,7 +46,7 @@ class GSMv6BackEntryPoint(BackendEntrypoint):
         try:
             strrep=str(filename_or_obj)
             # search for conventional file naming of GRACE
-            if re.search('G[SA][MBCA]-2[^\s]*.gz',strrep):
+            if re.search(r'G[SA][MBCA]-2[^\s]*.gz',strrep):
                 return True
         except AttributeError:
             return False

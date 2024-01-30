@@ -4,7 +4,6 @@
 #
 
 
-from types import NoneType
 import xarray as xr
 import numpy as np
 
@@ -107,12 +106,12 @@ class ShXrBase:
                     indx=indx*(self._obj.shi_.n_ >= nmin)
                 else:
                     indx=(self._obj.shi_.n_ >= nmin)
-            if type(da) is NoneType:
+            if da is None:
                 da=self._obj.isel(shi_=indx)
             else:
                 da=da.isel(shi_=indx)
          
-        if type(da) is not NoneType:
+        if da is not None:
             return da
         else:
             raise RuntimeError("No spherical harmonic index ('shi' or 'n') was found in the xarray object")

@@ -1,4 +1,8 @@
 #  Xarray Extension for working with spherical harmonic data
+[![Build](https://github.com/ITC-Water-Resources/shxarray/actions/workflows/python-publish.yml/badge.svg)](https://github.com/ITC-Water-Resources/shxarray/actions/workflows/python-publish.yml)
+[![PyPI version](https://badge.fury.io/py/shxarray.svg)](https://badge.fury.io/py/shxarray)
+[![Documentation Status](https://readthedocs.org/projects/shxarray/badge/?version=latest)](https://shxarray.wobbly.earth/latest/?badge=latest)
+
 This extension adds functionality to work with Spherical Harmonics to [Xarray](https://github.com/pydata/xarray).
 
 ## Features and functionality (in progress)
@@ -13,7 +17,10 @@ The tutorials in the [documentation](https://shxarray.wobbly.earth/en/latest/exa
 
 
 ## Installation
-This package will soon have some versions on the PyPi repository..
+You can install this package from PyPi using:
+```
+pip install shxarray
+```
 
 
 ## Development Installation

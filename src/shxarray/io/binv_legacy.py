@@ -29,7 +29,7 @@ def getBDcoords(ddict,trans):
     # mshy=mshy.reshape([mshy.size])
 
     #initialize coords array
-    coords=np.full([2,ddict['pval1']*ddict['pval2']],np.nan,dtype=np.int32)
+    coords=np.zeros([2,ddict['pval1']*ddict['pval2']],dtype=np.int64)
 
     blkstrt=0
     nshift=0

@@ -17,10 +17,11 @@ class AnisoKernel:
     Provides functionality to work with anisotropic spherical harmonic kernels
     """
     attr={"shtype":"shaniso"}
-    name="shanisokernel"
-    def __init__(self,dsobj):
+    def __init__(self,dsobj,name="aniso",truncate=True):
         self._dskernel=dsobj
-    
+        self.name=name 
+        self.truncate=truncate
+
     @property
     def nmax(self):
         return self._dskernel.sh.nmax
@@ -37,7 +38,12 @@ class AnisoKernel:
         daout=xr.dot(self._dskernel.mat,dain,dims=["shi"]) 
         #rename shi and convert to dense array
         daout=daout.sh.toggle_shi()
-        daout=xr.DataArray(daout.data.todense(),coords=daout.coords)
+        daout=xr.DataArray(daout.data.todense(),coords=daout.coords,name=self.name)
+        
+        if not self.truncate and self.nmin > 0:
+            #also add the unfiltered lower degree coefficients back to the results
+            daout=xr.concat([dain.sh.truncate(self.nmin-1),daout],dim="shi")
+
         return daout
 
     def position(self,lon,lat):

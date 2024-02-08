@@ -39,4 +39,14 @@ def find_lon(coordvars):
 def find_lat(coordvars):
     return find_coord(coordvars,['lat','Latitude','y','latitude'])
 
+cflookup={
+        "longitude":{'units':'degrees_east','standard_name':'longitude','long_name':'longitude'},
+        "latitude":{'units':'degrees_north','standard_name':'latitude','long_name':'latitude'}
+        }
+
+def get_cfatts(standard_name):
+    """Return CF attributes for certain coordinate types"""
+    return cflookup[standard_name]
+
+
 

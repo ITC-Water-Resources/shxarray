@@ -6,6 +6,8 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 from datetime import datetime
+import sys
+import os
 
 project = 'shxarray'
 copyright = str(datetime.now().year)+', Roelof Rietbroek'
@@ -16,7 +18,10 @@ release = 'alpha'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ['nbsphinx']
+
+#add shxarray to sys path 
+# sys.path.insert(0, os.path.abspath('../../src'))
+extensions = ['nbsphinx', 'sphinxcontrib.apidoc', 'sphinx.ext.autodoc','sphinx.ext.napoleon']
 # extensions = [
     # 'sphinxcontrib.apidoc',
     # 'sphinx.ext.viewcode',
@@ -28,8 +33,25 @@ extensions = ['nbsphinx']
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','**.ipynb_checkpoints']
 
+apidoc_template_dir='_templates'
+
+apidoc_module_dir = '../../src/shxarray'
+apidoc_output_dir = 'references'
+apidoc_separate_modules = False
+apidoc_module_first=True
+
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
+
+
+
+nbsphinx_prolog = """
+Download this Jupyter notebook from `github <https://github.com/ITC-Water-Resources/shxarray/blob/main/docs/source/notebooks/{{ env.doc2path(env.docname, base=None) }}>`_
+
+----
+"""
+
+

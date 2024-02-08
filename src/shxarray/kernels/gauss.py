@@ -13,7 +13,7 @@ class Gaussian(IsoKernelBase):
     name="gauss"
     def __init__(self,nmax,halfwidth):
         """
-        Create an isotropic kernel representing a unit load. According to Wahr et al 1988 with a cutoff criteria to avoid numerical instability
+        Create an isotropic kernel representing a unit load. According to Wahr et al 1998 with a cutoff criteria to avoid numerical instability
         :param nmax: maximum degree to resolve
         :param halfwidth: Halfwidth of the Gaussian kernel in m (at the Earth's surface)
         :return: A Isotropic Kernel object representing a unit load

@@ -14,7 +14,7 @@ from legendre cimport Ynm_cpp
 from libc.stdio cimport printf
 # from warnings import warn
 from scipy.linalg.cython_blas cimport dgemv
-
+from shxarray.cf import get_cfatts
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
@@ -31,14 +31,15 @@ cdef class Synthesis:
 
         if grid:
             #create a xrray dataset which spans the in and output
-            coords={"lat":("lat",lat),"lon":("lon",lon)}
+            coords={"lat":("lat",lat,get_cfatts('latitude')),"lon":("lon",lon,get_cfatts('longitude'))}
             self._dsobj=xr.Dataset(coords=coords)
         else:
             if len(lon) != len(lat):
                 raise RuntimeError("Synthesis on a one dimensional set of points requires equally sized lon and lat ")
 
-            coords={"lat":("nlonlat",lat),"lon":("nlonlat",lon)}
+            coords={"lat":("nlonlat",lat,get_cfatts('latitude')),"lon":("nlonlat",lon,get_cfatts('longitude'))}
             self._dsobj=xr.Dataset(coords=coords)
+
                      
     def __call__(self,dain:xr.DataArray):
         """Perform the spherical harmonic synthesis on an input xarray DataArray object""" 

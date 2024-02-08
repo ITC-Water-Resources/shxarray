@@ -11,8 +11,10 @@ Welcome to shxarray's documentation!
    :maxdepth: 2
    :caption: Contents:
    
-   examples.rst
-
+   introduction.rst   
+   installation.rst
+   tutorial.rst
+   references/shxarray.rst
 
 Indices and tables
 ==================

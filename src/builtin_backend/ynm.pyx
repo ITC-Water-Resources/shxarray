@@ -18,6 +18,7 @@ from libc.stdio cimport printf
 @cython.wraparound(False)
 @cython.initializedcheck(False)
 cdef class Ynm:
+    """Compute surface spherical harmonics in double precision"""
     cdef Ynm_cpp[double] _ynm
     cdef double[::1] data
     cdef public object _shindex

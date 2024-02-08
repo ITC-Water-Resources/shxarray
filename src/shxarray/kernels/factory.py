@@ -21,5 +21,5 @@ class KernelFactory:
         pass
 
     @staticmethod
-    def unitload(lon,lat):
+    def unit(lon,lat):
         pass

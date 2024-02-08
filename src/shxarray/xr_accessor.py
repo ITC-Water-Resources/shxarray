@@ -66,7 +66,8 @@ class SHDaAccessor(ShXrBase):
         :param filtername: currently 'DDKX' or 'Gauss'
         :param **kwargs:
             transpose (default=False): apply he transpose of the filter (only makes sense for anisotropic filters
-            halfwidth (int): specify the halfwidth in km's for the Gaussian filter, alternatively specify Gauss300
+            halfwidth (int): specify the halfwidth in km's for the Gaussian filter, alternatively specify in the format Gauss300
+            truncate (bool) (default=True): Truncate low degree coefficients which fall outside the filter. Set to False to keep unfiltered input
         """
         if filtername.startswith('DDK'):
             #load a dedicated DDK filter
@@ -74,7 +75,11 @@ class SHDaAccessor(ShXrBase):
                 trans=kwargs["transpose"]
             else:
                 trans=False
-            kernel=load_ddk(filtername,trans,self.nmax)
+            if "truncate" in kwargs:
+                truncate=kwargs["truncate"]
+            else:
+                truncate=True
+            kernel=load_ddk(filtername,trans,self.nmax,truncate)
         elif filtername.startswith('Gauss'):
             if "halfwidth" in kwargs:
                 radius=kwargs["halfwidth"]
@@ -116,6 +121,19 @@ class SHDaAccessor(ShXrBase):
 class SHDsAccessor(ShXrBase):
     def __init__(self, xarray_obj):
         super().__init__(xarray_obj)
+    
+    def synthesis(self,lon=np.arange(-180.0,180.0,1.0), lat=np.arange(-90.0,90.0,1.0),grid=True,engine="shlib"):
+        """Calls the spherical harmonic synthesis operation on all DataArrays which have a 'shi' index"""
+        #gather relevant das
+        das={ky:da for ky,da in self._obj.data_vars.items() if "shi" in da.coords}
+        dsout=None
+        for name,da in das.items():
+            daout=da.sh.synthesis(lon=lon, lat=lat,grid=grid,engine=engine)
+            if dsout is None:
+                dsout=daout.to_dataset(name=name)
+            else:
+                dsout[name]=daout
+        return dsout
     
     @staticmethod
     def zeros(nmax,nmin=0,squeeze=True,name="cnm",auxcoords={},order='C'):

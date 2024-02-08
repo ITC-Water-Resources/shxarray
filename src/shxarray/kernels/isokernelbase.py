@@ -53,7 +53,7 @@ class IsoKernelBase:
         #expand kernel to the same degrees as the input
         daexpand=self.expanddiag(dain.shi)
         daout=dain*daexpand
-        return daout
+        return daout.rename(self.name)
 
     def position(self,lon,lat):
         """

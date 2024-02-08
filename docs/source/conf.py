@@ -34,8 +34,9 @@ templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','**.ipynb_checkpoints']
 
 apidoc_template_dir='_templates'
-
-apidoc_module_dir = '../../src/shxarray'
+#figure out the actual installation directory
+import shxarray
+apidoc_module_dir=os.path.dirname(shxarray.__file__)
 apidoc_output_dir = 'references'
 apidoc_separate_modules = False
 apidoc_module_first=True

@@ -18,6 +18,8 @@ classifiers = [
     "Topic :: Scientific/Engineering",
     "Development Status :: 1 - Planning"
 ]
+dependencies = [ "pandas >= 2.0", "pyaml >= 23.9.0", "scipy", "xarray >= 2023.1.0",
+"numba", "sparse","importlib_metadata","requests","openpyxl"]
 
 #For some reason specifying the xarray-backend as below is not working in toml (it's added in setup.py)
 [project.entry-points."xarray.backends"]

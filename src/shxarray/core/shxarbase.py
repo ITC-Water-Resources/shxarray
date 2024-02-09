@@ -9,7 +9,6 @@ import numpy as np
 
 from .sh_indexing import SHindexBase,trig
 
-from shxarray.kernels.factory import gravFunc
 
 loaded_engines={}
 

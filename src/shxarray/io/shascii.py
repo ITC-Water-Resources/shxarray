@@ -8,7 +8,7 @@ from shxarray.core.time import decyear2dt
 import numpy as np
 import sys
 import gzip
-from shxarray.sh_indexing import SHindexBase
+from shxarray.core.sh_indexing import SHindexBase
 import re
 
 # def writeSHAscii(fileobj,ds,cnmv='cnm',sigcnmv=None):

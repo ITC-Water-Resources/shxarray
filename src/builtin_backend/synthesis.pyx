@@ -14,7 +14,7 @@ from legendre cimport Ynm_cpp
 from libc.stdio cimport printf
 # from warnings import warn
 from scipy.linalg.cython_blas cimport dgemv
-from shxarray.cf import get_cfatts
+from shxarray.core.cf import get_cfatts
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)

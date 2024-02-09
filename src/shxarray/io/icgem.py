@@ -20,9 +20,10 @@ import xarray as xr
 import re
 import sys
 import numpy as np
-from shxarray.sh_indexing import SHindexBase,trig
-from shxarray.logging import logger 
+from shxarray.core.sh_indexing import SHindexBase,trig
+from shxarray.core.logging import logger 
 from datetime import datetime,timedelta
+from shxarray.core.cf import get_cfatts
 
 def readIcgem(fileobj,nmaxstop=sys.maxsize):
     needsClosing=False
@@ -122,7 +123,6 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
 
     if needsClosing:
         fileobj.close()
-    
     if time:
         shp=["time","shi"]
         coords={"shi":SHindexBase.mi_fromtuples(nmt),"time":time}
@@ -135,5 +135,5 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
         cnm=cnm[0:ncount]
         sigcnm=sigcnm[0:ncount]
     
-    ds=xr.Dataset(data_vars=dict(cnm=(shp,cnm),sigcnm=(shp,sigcnm)),coords=coords,attrs=attr)
+    ds=xr.Dataset(data_vars=dict(cnm=(shp,cnm,get_cfatts("stokes")),sigcnm=(shp,sigcnm,get_cfatts("stokes stdv"))),coords=coords,attrs=attr)
     return ds

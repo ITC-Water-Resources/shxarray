@@ -3,7 +3,7 @@
 # Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2024
 #
 
-from shxarray.admin import defaultcache
+from shxarray.core.admin import defaultcache
 import requests
 import pandas as pd
 from shxarray.io.binv_legacy import readBINV

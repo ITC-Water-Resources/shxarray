@@ -3,23 +3,6 @@
 # Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2023
 #
 
-from shxarray.kernels.gravfunctionals import Stokes2Eqh
 
 
-class KernelFactory:
-    """Provides an interface to generate multiple isotropic kernels"""
-    @staticmethod
-    def stokes2eqh(knLove):
-        return Stokes2Eqh(knLove)
 
-    @staticmethod
-    def stokes2geoid():
-        pass
-
-    @staticmethod
-    def gauss(halfwidthkm):
-        pass
-
-    @staticmethod
-    def unit(lon,lat):
-        pass

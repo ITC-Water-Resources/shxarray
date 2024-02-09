@@ -10,7 +10,7 @@ import cython
 cimport numpy as np
 import xarray as xr
 from legendre cimport Ynm_cpp,mni
-from shxarray.sh_indexing import SHindexBase
+from shxarray.core.sh_indexing import SHindexBase
 from libc.stdio cimport printf
 
 

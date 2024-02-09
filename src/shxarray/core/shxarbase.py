@@ -9,19 +9,16 @@ import numpy as np
 
 from .sh_indexing import SHindexBase,trig
 
-
-from shxarray.kernels.factory import KernelFactory
+from shxarray.kernels.factory import gravFunc
 
 loaded_engines={}
 
-# version which is backward compatible
+# version which is backward compatible:
 from importlib_metadata import entry_points
 # For newer versions this may eventually need to be replaced with 
 # from importlib.metadata import entry_points
 
 class ShXrBase:
-    #inserts functionality to work with kernels
-    kernels=KernelFactory
     def __init__(self, xarray_obj):
         """Constructor takes an xarray object as conforming with the xarray accessor routines
         :param xarray_obj: Xarray.DataArray  representing the parent
@@ -36,7 +33,7 @@ class ShXrBase:
         :rtype: int
         """
         if "shi" in self._obj.indexes:
-            return self._obj.shi.n.min().item()
+           return self._obj.shi.n.min().item()
 
         if "n" in self._obj.indexes:
             return self._obj.n.min().item()
@@ -58,6 +55,14 @@ class ShXrBase:
         
         raise RuntimeError("Cannot return nmax, spherical harmonic index is not initialized") 
     
+    @property
+    def gravtype(self):
+        """Returns the registered gravitational type of the content"""
+        try:
+            return self._obj.attrs["gravtype"]
+        except KeyError:
+            # defaults to Stokes coefficients 
+            return "stokes"
    
     def truncate(self,nmax=None,nmin=None,dims=["shi"]):
         """

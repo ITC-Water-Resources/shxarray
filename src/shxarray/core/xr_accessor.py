@@ -4,16 +4,18 @@
 #
 
 import xarray as xr
-from shxarray.shxarbase import ShXrBase
+from shxarray.core.shxarbase import ShXrBase
 from shxarray.kernels.ddk import load_ddk
 from shxarray.kernels.gauss import Gaussian
 import numpy as np
+from shxarray.kernels.gravfunctionals import gravFunc
 
 @xr.register_dataarray_accessor("sh")
 class SHDaAccessor(ShXrBase):
     def __init__(self, xarray_obj):
         super().__init__(xarray_obj)
     
+
     @staticmethod
     def zeros(nmax,nmin=0,squeeze=True,name="cnm",auxcoords={},order='C'):
         """0-Initialize an spherical harmonic DataArray based on nmax and nmin"""
@@ -115,6 +117,14 @@ class SHDaAccessor(ShXrBase):
             dv=np.square(self._obj).sh.drop_shindex().set_xindex("n").groupby("n").sum()
         
         return dv 
+    
+    def tws(self,**kwargs):
+        kernel=gravFunc(self.gravtype,"tws",nmax=self.nmax,**kwargs)
+        return self.convolve(kernel)
+    
+    # def geoid(self,**kwargs):
+        # pass #return self.gravfunctional("geoid",**kwargs)
+
 
 
 @xr.register_dataset_accessor("sh")

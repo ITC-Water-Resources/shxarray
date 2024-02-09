@@ -4,7 +4,7 @@
 #
 
 import xarray as xr
-from shxarray.logging import logger
+from shxarray.core.logging import logger
 from shxarray.shlib import Ynm
 # from dask.array.core import einsum_lookup
 import sparse

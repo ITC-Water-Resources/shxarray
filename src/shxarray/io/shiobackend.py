@@ -3,7 +3,7 @@
 # Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2023
 
 from xarray.backends import BackendEntrypoint
-from shxarray.logging import logger 
+from shxarray.core.logging import logger 
 from shxarray.io.icgem import readIcgem
 from shxarray.io.gsmv6 import readGSMv6
 from shxarray.io.binv_legacy import readBINV

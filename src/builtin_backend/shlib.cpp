@@ -3853,7 +3853,6 @@ static const char __pyx_k_cfunc_to_py[] = "cfunc.to_py";
 static const char __pyx_k_collections[] = "collections";
 static const char __pyx_k_in_analysis[] = " in analysis";
 static const char __pyx_k_mro_entries[] = "__mro_entries__";
-static const char __pyx_k_shxarray_cf[] = "shxarray.cf";
 static const char __pyx_k_RuntimeError[] = "RuntimeError";
 static const char __pyx_k_get_axis_num[] = "get_axis_num";
 static const char __pyx_k_initializing[] = "_initializing";
@@ -3875,6 +3874,7 @@ static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
 static const char __pyx_k_pyx_PickleError[] = "__pyx_PickleError";
 static const char __pyx_k_setstate_cython[] = "__setstate_cython__";
 static const char __pyx_k_SHComputeBackend[] = "SHComputeBackend";
+static const char __pyx_k_shxarray_core_cf[] = "shxarray.core.cf";
 static const char __pyx_k_pyx_unpickle_Enum[] = "__pyx_unpickle_Enum";
 static const char __pyx_k_Pn___reduce_cython[] = "Pn.__reduce_cython__";
 static const char __pyx_k_asyncio_coroutines[] = "asyncio.coroutines";
@@ -3885,7 +3885,6 @@ static const char __pyx_k_W3j___reduce_cython[] = "W3j.__reduce_cython__";
 static const char __pyx_k_Ynm___reduce_cython[] = "Ynm.__reduce_cython__";
 static const char __pyx_k_Pn___setstate_cython[] = "Pn.__setstate_cython__";
 static const char __pyx_k_SHComputeBackendBase[] = "SHComputeBackendBase";
-static const char __pyx_k_shxarray_sh_indexing[] = "shxarray.sh_indexing";
 static const char __pyx_k_strided_and_indirect[] = "<strided and indirect>";
 static const char __pyx_k_Invalid_shape_in_axis[] = "Invalid shape in axis ";
 static const char __pyx_k_Pnm___setstate_cython[] = "Pnm.__setstate_cython__";
@@ -3894,25 +3893,27 @@ static const char __pyx_k_Ynm___setstate_cython[] = "Ynm.__setstate_cython__";
 static const char __pyx_k_contiguous_and_direct[] = "<contiguous and direct>";
 static const char __pyx_k_Cannot_index_with_type[] = "Cannot index with type '";
 static const char __pyx_k_MemoryView_of_r_object[] = "<MemoryView of %r object>";
-static const char __pyx_k_shxarray_shcomputebase[] = "shxarray.shcomputebase";
 static const char __pyx_k_MemoryView_of_r_at_0x_x[] = "<MemoryView of %r at 0x%x>";
 static const char __pyx_k_contiguous_and_indirect[] = "<contiguous and indirect>";
 static const char __pyx_k_Analysis___reduce_cython[] = "Analysis.__reduce_cython__";
 static const char __pyx_k_Dimension_d_is_not_direct[] = "Dimension %d is not direct";
 static const char __pyx_k_SHComputeBackend_analysis[] = "SHComputeBackend.analysis";
 static const char __pyx_k_Synthesis___reduce_cython[] = "Synthesis.__reduce_cython__";
+static const char __pyx_k_shxarray_core_sh_indexing[] = "shxarray.core.sh_indexing";
 static const char __pyx_k_Analysis___setstate_cython[] = "Analysis.__setstate_cython__";
 static const char __pyx_k_Index_out_of_bounds_axis_d[] = "Index out of bounds (axis %d)";
 static const char __pyx_k_SHComputeBackend_synthesis[] = "SHComputeBackend.synthesis";
 static const char __pyx_k_Step_may_not_be_zero_axis_d[] = "Step may not be zero (axis %d)";
 static const char __pyx_k_Synthesis___setstate_cython[] = "Synthesis.__setstate_cython__";
 static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cython.array";
+static const char __pyx_k_shxarray_core_shcomputebase[] = "shxarray.core.shcomputebase";
 static const char __pyx_k_src_builtin_backend_shlib_pyx[] = "src/builtin_backend/shlib.pyx";
 static const char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
 static const char __pyx_k_Pyx_CFunc_60767c__pair__lAngin[] = "__Pyx_CFunc_60767c__pair__lAngint__comma_int__rAng__lParensize_t__comma_int__rParennoexcept__space_nogil__etc_to_py_3idx_4nmax.<locals>.wrap";
 static const char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
 static const char __pyx_k_Can_only_handle_input_where_the[] = "Can only handle input where the shi dimension is first or last";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
+static const char __pyx_k_shlib_is_shxarray_default_binar[] = "\nshlib is shxarray default binary Cython backend. \nSome of the heavy lifting such as synthesis and analysis operations, is done using this the functions of this shared library.\n";
 static const char __pyx_k_All_dimensions_preceding_dimensi[] = "All dimensions preceding dimension %d must be indexed and not sliced";
 static const char __pyx_k_Buffer_view_does_not_expose_stri[] = "Buffer view does not expose strides";
 static const char __pyx_k_Can_only_create_a_buffer_that_is[] = "Can only create a buffer that is contiguous in memory.";
@@ -4366,9 +4367,9 @@ typedef struct {
   PyObject *__pyx_n_s_shi;
   PyObject *__pyx_n_u_shi;
   PyObject *__pyx_kp_u_shi_dimension_must_either_be_the;
-  PyObject *__pyx_n_s_shxarray_cf;
-  PyObject *__pyx_n_s_shxarray_sh_indexing;
-  PyObject *__pyx_n_s_shxarray_shcomputebase;
+  PyObject *__pyx_n_s_shxarray_core_cf;
+  PyObject *__pyx_n_s_shxarray_core_sh_indexing;
+  PyObject *__pyx_n_s_shxarray_core_shcomputebase;
   PyObject *__pyx_n_s_shxarray_shlib;
   PyObject *__pyx_n_s_size;
   PyObject *__pyx_n_s_sizes;
@@ -4763,9 +4764,9 @@ static int __pyx_m_clear(PyObject *m) {
   Py_CLEAR(clear_module_state->__pyx_n_s_shi);
   Py_CLEAR(clear_module_state->__pyx_n_u_shi);
   Py_CLEAR(clear_module_state->__pyx_kp_u_shi_dimension_must_either_be_the);
-  Py_CLEAR(clear_module_state->__pyx_n_s_shxarray_cf);
-  Py_CLEAR(clear_module_state->__pyx_n_s_shxarray_sh_indexing);
-  Py_CLEAR(clear_module_state->__pyx_n_s_shxarray_shcomputebase);
+  Py_CLEAR(clear_module_state->__pyx_n_s_shxarray_core_cf);
+  Py_CLEAR(clear_module_state->__pyx_n_s_shxarray_core_sh_indexing);
+  Py_CLEAR(clear_module_state->__pyx_n_s_shxarray_core_shcomputebase);
   Py_CLEAR(clear_module_state->__pyx_n_s_shxarray_shlib);
   Py_CLEAR(clear_module_state->__pyx_n_s_size);
   Py_CLEAR(clear_module_state->__pyx_n_s_sizes);
@@ -5138,9 +5139,9 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
   Py_VISIT(traverse_module_state->__pyx_n_s_shi);
   Py_VISIT(traverse_module_state->__pyx_n_u_shi);
   Py_VISIT(traverse_module_state->__pyx_kp_u_shi_dimension_must_either_be_the);
-  Py_VISIT(traverse_module_state->__pyx_n_s_shxarray_cf);
-  Py_VISIT(traverse_module_state->__pyx_n_s_shxarray_sh_indexing);
-  Py_VISIT(traverse_module_state->__pyx_n_s_shxarray_shcomputebase);
+  Py_VISIT(traverse_module_state->__pyx_n_s_shxarray_core_cf);
+  Py_VISIT(traverse_module_state->__pyx_n_s_shxarray_core_sh_indexing);
+  Py_VISIT(traverse_module_state->__pyx_n_s_shxarray_core_shcomputebase);
   Py_VISIT(traverse_module_state->__pyx_n_s_shxarray_shlib);
   Py_VISIT(traverse_module_state->__pyx_n_s_size);
   Py_VISIT(traverse_module_state->__pyx_n_s_sizes);
@@ -5563,9 +5564,9 @@ static int __pyx_m_traverse(PyObject *m, visitproc visit, void *arg) {
 #define __pyx_n_s_shi __pyx_mstate_global->__pyx_n_s_shi
 #define __pyx_n_u_shi __pyx_mstate_global->__pyx_n_u_shi
 #define __pyx_kp_u_shi_dimension_must_either_be_the __pyx_mstate_global->__pyx_kp_u_shi_dimension_must_either_be_the
-#define __pyx_n_s_shxarray_cf __pyx_mstate_global->__pyx_n_s_shxarray_cf
-#define __pyx_n_s_shxarray_sh_indexing __pyx_mstate_global->__pyx_n_s_shxarray_sh_indexing
-#define __pyx_n_s_shxarray_shcomputebase __pyx_mstate_global->__pyx_n_s_shxarray_shcomputebase
+#define __pyx_n_s_shxarray_core_cf __pyx_mstate_global->__pyx_n_s_shxarray_core_cf
+#define __pyx_n_s_shxarray_core_sh_indexing __pyx_mstate_global->__pyx_n_s_shxarray_core_sh_indexing
+#define __pyx_n_s_shxarray_core_shcomputebase __pyx_mstate_global->__pyx_n_s_shxarray_core_shcomputebase
 #define __pyx_n_s_shxarray_shlib __pyx_mstate_global->__pyx_n_s_shxarray_shlib
 #define __pyx_n_s_size __pyx_mstate_global->__pyx_n_s_size
 #define __pyx_n_s_sizes __pyx_mstate_global->__pyx_n_s_sizes
@@ -31752,7 +31753,7 @@ static PyObject *__pyx_pf_8shxarray_5shlib_8Analysis_6__setstate_cython__(CYTHON
   return __pyx_r;
 }
 
-/* "src/builtin_backend/shlib.pyx":15
+/* "src/builtin_backend/shlib.pyx":19
  * 
  * class SHComputeBackend(SHComputeBackendBase):
  *     def synthesis(self,dain,lon, lat,grid):             # <<<<<<<<<<<<<<
@@ -31825,7 +31826,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 15, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 19, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -31833,9 +31834,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 15, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 19, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("synthesis", 1, 5, 5, 1); __PYX_ERR(3, 15, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("synthesis", 1, 5, 5, 1); __PYX_ERR(3, 19, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -31843,9 +31844,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[2]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 15, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 19, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("synthesis", 1, 5, 5, 2); __PYX_ERR(3, 15, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("synthesis", 1, 5, 5, 2); __PYX_ERR(3, 19, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
@@ -31853,9 +31854,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[3]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 15, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 19, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("synthesis", 1, 5, 5, 3); __PYX_ERR(3, 15, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("synthesis", 1, 5, 5, 3); __PYX_ERR(3, 19, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  4:
@@ -31863,14 +31864,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[4]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 15, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 19, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("synthesis", 1, 5, 5, 4); __PYX_ERR(3, 15, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("synthesis", 1, 5, 5, 4); __PYX_ERR(3, 19, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "synthesis") < 0)) __PYX_ERR(3, 15, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "synthesis") < 0)) __PYX_ERR(3, 19, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 5)) {
       goto __pyx_L5_argtuple_error;
@@ -31889,7 +31890,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("synthesis", 1, 5, 5, __pyx_nargs); __PYX_ERR(3, 15, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("synthesis", 1, 5, 5, __pyx_nargs); __PYX_ERR(3, 19, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -31929,31 +31930,31 @@ static PyObject *__pyx_pf_8shxarray_5shlib_16SHComputeBackend_synthesis(CYTHON_U
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("synthesis", 1);
 
-  /* "src/builtin_backend/shlib.pyx":16
+  /* "src/builtin_backend/shlib.pyx":20
  * class SHComputeBackend(SHComputeBackendBase):
  *     def synthesis(self,dain,lon, lat,grid):
  *         syn=Synthesis(lon,lat,grid)             # <<<<<<<<<<<<<<
  *         return syn(dain)
  * 
  */
-  __pyx_t_1 = PyTuple_New(3); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 16, __pyx_L1_error)
+  __pyx_t_1 = PyTuple_New(3); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 20, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __Pyx_INCREF(__pyx_v_lon);
   __Pyx_GIVEREF(__pyx_v_lon);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_lon)) __PYX_ERR(3, 16, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_v_lon)) __PYX_ERR(3, 20, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_lat);
   __Pyx_GIVEREF(__pyx_v_lat);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_v_lat)) __PYX_ERR(3, 16, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 1, __pyx_v_lat)) __PYX_ERR(3, 20, __pyx_L1_error);
   __Pyx_INCREF(__pyx_v_grid);
   __Pyx_GIVEREF(__pyx_v_grid);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 2, __pyx_v_grid)) __PYX_ERR(3, 16, __pyx_L1_error);
-  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_8shxarray_5shlib_Synthesis), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(3, 16, __pyx_L1_error)
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_1, 2, __pyx_v_grid)) __PYX_ERR(3, 20, __pyx_L1_error);
+  __pyx_t_2 = __Pyx_PyObject_Call(((PyObject *)__pyx_ptype_8shxarray_5shlib_Synthesis), __pyx_t_1, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(3, 20, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_v_syn = ((struct __pyx_obj_8shxarray_5shlib_Synthesis *)__pyx_t_2);
   __pyx_t_2 = 0;
 
-  /* "src/builtin_backend/shlib.pyx":17
+  /* "src/builtin_backend/shlib.pyx":21
  *     def synthesis(self,dain,lon, lat,grid):
  *         syn=Synthesis(lon,lat,grid)
  *         return syn(dain)             # <<<<<<<<<<<<<<
@@ -31980,7 +31981,7 @@ static PyObject *__pyx_pf_8shxarray_5shlib_16SHComputeBackend_synthesis(CYTHON_U
     PyObject *__pyx_callargs[2] = {__pyx_t_3, __pyx_v_dain};
     __pyx_t_2 = __Pyx_PyObject_FastCall(__pyx_t_1, __pyx_callargs+1-__pyx_t_4, 1+__pyx_t_4);
     __Pyx_XDECREF(__pyx_t_3); __pyx_t_3 = 0;
-    if (unlikely(!__pyx_t_2)) __PYX_ERR(3, 17, __pyx_L1_error)
+    if (unlikely(!__pyx_t_2)) __PYX_ERR(3, 21, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   }
@@ -31988,7 +31989,7 @@ static PyObject *__pyx_pf_8shxarray_5shlib_16SHComputeBackend_synthesis(CYTHON_U
   __pyx_t_2 = 0;
   goto __pyx_L0;
 
-  /* "src/builtin_backend/shlib.pyx":15
+  /* "src/builtin_backend/shlib.pyx":19
  * 
  * class SHComputeBackend(SHComputeBackendBase):
  *     def synthesis(self,dain,lon, lat,grid):             # <<<<<<<<<<<<<<
@@ -32010,7 +32011,7 @@ static PyObject *__pyx_pf_8shxarray_5shlib_16SHComputeBackend_synthesis(CYTHON_U
   return __pyx_r;
 }
 
-/* "src/builtin_backend/shlib.pyx":20
+/* "src/builtin_backend/shlib.pyx":24
  * 
  * 
  *     def analysis(self,dain,nmax,method):             # <<<<<<<<<<<<<<
@@ -32080,7 +32081,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 20, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 24, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -32088,9 +32089,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 20, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 24, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("analysis", 1, 4, 4, 1); __PYX_ERR(3, 20, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("analysis", 1, 4, 4, 1); __PYX_ERR(3, 24, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -32098,9 +32099,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[2]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 20, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 24, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("analysis", 1, 4, 4, 2); __PYX_ERR(3, 20, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("analysis", 1, 4, 4, 2); __PYX_ERR(3, 24, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
@@ -32108,14 +32109,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[3]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 20, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(3, 24, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("analysis", 1, 4, 4, 3); __PYX_ERR(3, 20, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("analysis", 1, 4, 4, 3); __PYX_ERR(3, 24, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "analysis") < 0)) __PYX_ERR(3, 20, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "analysis") < 0)) __PYX_ERR(3, 24, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 4)) {
       goto __pyx_L5_argtuple_error;
@@ -32132,7 +32133,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("analysis", 1, 4, 4, __pyx_nargs); __PYX_ERR(3, 20, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("analysis", 1, 4, 4, __pyx_nargs); __PYX_ERR(3, 24, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -32176,7 +32177,7 @@ static PyObject *__pyx_pf_8shxarray_5shlib_16SHComputeBackend_2analysis(CYTHON_U
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("analysis", 1);
 
-  /* "src/builtin_backend/shlib.pyx":21
+  /* "src/builtin_backend/shlib.pyx":25
  * 
  *     def analysis(self,dain,nmax,method):
  *         if method not in ['integrate']:             # <<<<<<<<<<<<<<
@@ -32185,19 +32186,19 @@ static PyObject *__pyx_pf_8shxarray_5shlib_16SHComputeBackend_2analysis(CYTHON_U
  */
   __Pyx_INCREF(__pyx_v_method);
   __pyx_t_1 = __pyx_v_method;
-  __pyx_t_2 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_n_u_integrate, Py_NE)); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(3, 21, __pyx_L1_error)
+  __pyx_t_2 = (__Pyx_PyUnicode_Equals(__pyx_t_1, __pyx_n_u_integrate, Py_NE)); if (unlikely((__pyx_t_2 < 0))) __PYX_ERR(3, 25, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __pyx_t_3 = __pyx_t_2;
   if (unlikely(__pyx_t_3)) {
 
-    /* "src/builtin_backend/shlib.pyx":22
+    /* "src/builtin_backend/shlib.pyx":26
  *     def analysis(self,dain,nmax,method):
  *         if method not in ['integrate']:
  *             raise RuntimeError (f"SHComputeBackend does not support {method} in analysis")             # <<<<<<<<<<<<<<
  *         ana=Analysis(nmax)
  *         return ana(dain)
  */
-    __pyx_t_1 = PyTuple_New(3); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 22, __pyx_L1_error)
+    __pyx_t_1 = PyTuple_New(3); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 26, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __pyx_t_4 = 0;
     __pyx_t_5 = 127;
@@ -32205,7 +32206,7 @@ static PyObject *__pyx_pf_8shxarray_5shlib_16SHComputeBackend_2analysis(CYTHON_U
     __pyx_t_4 += 34;
     __Pyx_GIVEREF(__pyx_kp_u_SHComputeBackend_does_not_suppor);
     PyTuple_SET_ITEM(__pyx_t_1, 0, __pyx_kp_u_SHComputeBackend_does_not_suppor);
-    __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_v_method, __pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(3, 22, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyObject_FormatSimple(__pyx_v_method, __pyx_empty_unicode); if (unlikely(!__pyx_t_6)) __PYX_ERR(3, 26, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __pyx_t_5 = (__Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6) > __pyx_t_5) ? __Pyx_PyUnicode_MAX_CHAR_VALUE(__pyx_t_6) : __pyx_t_5;
     __pyx_t_4 += __Pyx_PyUnicode_GET_LENGTH(__pyx_t_6);
@@ -32216,17 +32217,17 @@ static PyObject *__pyx_pf_8shxarray_5shlib_16SHComputeBackend_2analysis(CYTHON_U
     __pyx_t_4 += 12;
     __Pyx_GIVEREF(__pyx_kp_u_in_analysis);
     PyTuple_SET_ITEM(__pyx_t_1, 2, __pyx_kp_u_in_analysis);
-    __pyx_t_6 = __Pyx_PyUnicode_Join(__pyx_t_1, 3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(3, 22, __pyx_L1_error)
+    __pyx_t_6 = __Pyx_PyUnicode_Join(__pyx_t_1, 3, __pyx_t_4, __pyx_t_5); if (unlikely(!__pyx_t_6)) __PYX_ERR(3, 26, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_6);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_RuntimeError, __pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 22, __pyx_L1_error)
+    __pyx_t_1 = __Pyx_PyObject_CallOneArg(__pyx_builtin_RuntimeError, __pyx_t_6); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 26, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
     __Pyx_Raise(__pyx_t_1, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
-    __PYX_ERR(3, 22, __pyx_L1_error)
+    __PYX_ERR(3, 26, __pyx_L1_error)
 
-    /* "src/builtin_backend/shlib.pyx":21
+    /* "src/builtin_backend/shlib.pyx":25
  * 
  *     def analysis(self,dain,nmax,method):
  *         if method not in ['integrate']:             # <<<<<<<<<<<<<<
@@ -32235,19 +32236,19 @@ static PyObject *__pyx_pf_8shxarray_5shlib_16SHComputeBackend_2analysis(CYTHON_U
  */
   }
 
-  /* "src/builtin_backend/shlib.pyx":23
+  /* "src/builtin_backend/shlib.pyx":27
  *         if method not in ['integrate']:
  *             raise RuntimeError (f"SHComputeBackend does not support {method} in analysis")
  *         ana=Analysis(nmax)             # <<<<<<<<<<<<<<
  *         return ana(dain)
  * 
  */
-  __pyx_t_1 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_8shxarray_5shlib_Analysis), __pyx_v_nmax); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 23, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyObject_CallOneArg(((PyObject *)__pyx_ptype_8shxarray_5shlib_Analysis), __pyx_v_nmax); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
   __pyx_v_ana = ((struct __pyx_obj_8shxarray_5shlib_Analysis *)__pyx_t_1);
   __pyx_t_1 = 0;
 
-  /* "src/builtin_backend/shlib.pyx":24
+  /* "src/builtin_backend/shlib.pyx":28
  *             raise RuntimeError (f"SHComputeBackend does not support {method} in analysis")
  *         ana=Analysis(nmax)
  *         return ana(dain)             # <<<<<<<<<<<<<<
@@ -32274,7 +32275,7 @@ static PyObject *__pyx_pf_8shxarray_5shlib_16SHComputeBackend_2analysis(CYTHON_U
     PyObject *__pyx_callargs[2] = {__pyx_t_7, __pyx_v_dain};
     __pyx_t_1 = __Pyx_PyObject_FastCall(__pyx_t_6, __pyx_callargs+1-__pyx_t_8, 1+__pyx_t_8);
     __Pyx_XDECREF(__pyx_t_7); __pyx_t_7 = 0;
-    if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 24, __pyx_L1_error)
+    if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 28, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_1);
     __Pyx_DECREF(__pyx_t_6); __pyx_t_6 = 0;
   }
@@ -32282,7 +32283,7 @@ static PyObject *__pyx_pf_8shxarray_5shlib_16SHComputeBackend_2analysis(CYTHON_U
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "src/builtin_backend/shlib.pyx":20
+  /* "src/builtin_backend/shlib.pyx":24
  * 
  * 
  *     def analysis(self,dain,nmax,method):             # <<<<<<<<<<<<<<
@@ -34746,9 +34747,9 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
     {&__pyx_n_s_shi, __pyx_k_shi, sizeof(__pyx_k_shi), 0, 0, 1, 1},
     {&__pyx_n_u_shi, __pyx_k_shi, sizeof(__pyx_k_shi), 0, 1, 0, 1},
     {&__pyx_kp_u_shi_dimension_must_either_be_the, __pyx_k_shi_dimension_must_either_be_the, sizeof(__pyx_k_shi_dimension_must_either_be_the), 0, 1, 0, 0},
-    {&__pyx_n_s_shxarray_cf, __pyx_k_shxarray_cf, sizeof(__pyx_k_shxarray_cf), 0, 0, 1, 1},
-    {&__pyx_n_s_shxarray_sh_indexing, __pyx_k_shxarray_sh_indexing, sizeof(__pyx_k_shxarray_sh_indexing), 0, 0, 1, 1},
-    {&__pyx_n_s_shxarray_shcomputebase, __pyx_k_shxarray_shcomputebase, sizeof(__pyx_k_shxarray_shcomputebase), 0, 0, 1, 1},
+    {&__pyx_n_s_shxarray_core_cf, __pyx_k_shxarray_core_cf, sizeof(__pyx_k_shxarray_core_cf), 0, 0, 1, 1},
+    {&__pyx_n_s_shxarray_core_sh_indexing, __pyx_k_shxarray_core_sh_indexing, sizeof(__pyx_k_shxarray_core_sh_indexing), 0, 0, 1, 1},
+    {&__pyx_n_s_shxarray_core_shcomputebase, __pyx_k_shxarray_core_shcomputebase, sizeof(__pyx_k_shxarray_core_shcomputebase), 0, 0, 1, 1},
     {&__pyx_n_s_shxarray_shlib, __pyx_k_shxarray_shlib, sizeof(__pyx_k_shxarray_shlib), 0, 0, 1, 1},
     {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
     {&__pyx_n_s_sizes, __pyx_k_sizes, sizeof(__pyx_k_sizes), 0, 0, 1, 1},
@@ -35204,29 +35205,29 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  */
   __pyx_codeobj__58 = (PyObject*)__Pyx_PyCode_New(2, 0, 0, 2, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__40, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_stringsource, __pyx_n_s_setstate_cython, 3, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__58)) __PYX_ERR(0, 3, __pyx_L1_error)
 
-  /* "src/builtin_backend/shlib.pyx":15
+  /* "src/builtin_backend/shlib.pyx":19
  * 
  * class SHComputeBackend(SHComputeBackendBase):
  *     def synthesis(self,dain,lon, lat,grid):             # <<<<<<<<<<<<<<
  *         syn=Synthesis(lon,lat,grid)
  *         return syn(dain)
  */
-  __pyx_tuple__59 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_dain, __pyx_n_s_lon, __pyx_n_s_lat, __pyx_n_s_grid, __pyx_n_s_syn); if (unlikely(!__pyx_tuple__59)) __PYX_ERR(3, 15, __pyx_L1_error)
+  __pyx_tuple__59 = PyTuple_Pack(6, __pyx_n_s_self, __pyx_n_s_dain, __pyx_n_s_lon, __pyx_n_s_lat, __pyx_n_s_grid, __pyx_n_s_syn); if (unlikely(!__pyx_tuple__59)) __PYX_ERR(3, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__59);
   __Pyx_GIVEREF(__pyx_tuple__59);
-  __pyx_codeobj__60 = (PyObject*)__Pyx_PyCode_New(5, 0, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__59, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_builtin_backend_shlib_pyx, __pyx_n_s_synthesis, 15, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__60)) __PYX_ERR(3, 15, __pyx_L1_error)
+  __pyx_codeobj__60 = (PyObject*)__Pyx_PyCode_New(5, 0, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__59, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_builtin_backend_shlib_pyx, __pyx_n_s_synthesis, 19, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__60)) __PYX_ERR(3, 19, __pyx_L1_error)
 
-  /* "src/builtin_backend/shlib.pyx":20
+  /* "src/builtin_backend/shlib.pyx":24
  * 
  * 
  *     def analysis(self,dain,nmax,method):             # <<<<<<<<<<<<<<
  *         if method not in ['integrate']:
  *             raise RuntimeError (f"SHComputeBackend does not support {method} in analysis")
  */
-  __pyx_tuple__61 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_dain, __pyx_n_s_nmax, __pyx_n_s_method, __pyx_n_s_ana); if (unlikely(!__pyx_tuple__61)) __PYX_ERR(3, 20, __pyx_L1_error)
+  __pyx_tuple__61 = PyTuple_Pack(5, __pyx_n_s_self, __pyx_n_s_dain, __pyx_n_s_nmax, __pyx_n_s_method, __pyx_n_s_ana); if (unlikely(!__pyx_tuple__61)) __PYX_ERR(3, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__61);
   __Pyx_GIVEREF(__pyx_tuple__61);
-  __pyx_codeobj__62 = (PyObject*)__Pyx_PyCode_New(4, 0, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__61, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_builtin_backend_shlib_pyx, __pyx_n_s_analysis, 20, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__62)) __PYX_ERR(3, 20, __pyx_L1_error)
+  __pyx_codeobj__62 = (PyObject*)__Pyx_PyCode_New(4, 0, 0, 5, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__61, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_builtin_backend_shlib_pyx, __pyx_n_s_analysis, 24, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__62)) __PYX_ERR(3, 24, __pyx_L1_error)
   __Pyx_RefNannyFinishContext();
   return 0;
   __pyx_L1_error:;
@@ -35765,7 +35766,7 @@ namespace {
   {
       PyModuleDef_HEAD_INIT,
       "shlib",
-      0, /* m_doc */
+      __pyx_k_shlib_is_shxarray_default_binar, /* m_doc */
     #if CYTHON_PEP489_MULTI_PHASE_INIT
       0, /* m_size */
     #elif CYTHON_USE_MODULE_STATE
@@ -35933,7 +35934,7 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_shlib(PyObject *__pyx_pyinit_modul
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("shlib", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("shlib", __pyx_methods, __pyx_k_shlib_is_shxarray_default_binar, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   if (unlikely(!__pyx_m)) __PYX_ERR(3, 1, __pyx_L1_error)
   #elif CYTHON_USE_MODULE_STATE
   __pyx_t_1 = PyModule_Create(&__pyx_moduledef); if (unlikely(!__pyx_t_1)) __PYX_ERR(3, 1, __pyx_L1_error)
@@ -36674,7 +36675,7 @@ if (!__Pyx_RefNanny) {
  * cimport numpy as np
  * import xarray as xr             # <<<<<<<<<<<<<<
  * from legendre cimport Ynm_cpp,mni
- * from shxarray.sh_indexing import SHindexBase
+ * from shxarray.core.sh_indexing import SHindexBase
  */
   __pyx_t_7 = __Pyx_ImportDottedModule(__pyx_n_s_xarray, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 11, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -36684,7 +36685,7 @@ if (!__Pyx_RefNanny) {
   /* "src/builtin_backend/ynm.pyx":13
  * import xarray as xr
  * from legendre cimport Ynm_cpp,mni
- * from shxarray.sh_indexing import SHindexBase             # <<<<<<<<<<<<<<
+ * from shxarray.core.sh_indexing import SHindexBase             # <<<<<<<<<<<<<<
  * from libc.stdio cimport printf
  * 
  */
@@ -36693,7 +36694,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_INCREF(__pyx_n_s_SHindexBase);
   __Pyx_GIVEREF(__pyx_n_s_SHindexBase);
   if (__Pyx_PyList_SET_ITEM(__pyx_t_7, 0, __pyx_n_s_SHindexBase)) __PYX_ERR(2, 13, __pyx_L1_error);
-  __pyx_t_4 = __Pyx_Import(__pyx_n_s_shxarray_sh_indexing, __pyx_t_7, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(2, 13, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_Import(__pyx_n_s_shxarray_core_sh_indexing, __pyx_t_7, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(2, 13, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_t_7 = __Pyx_ImportFrom(__pyx_t_4, __pyx_n_s_SHindexBase); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 13, __pyx_L1_error)
@@ -36738,7 +36739,7 @@ if (!__Pyx_RefNanny) {
   /* "src/builtin_backend/synthesis.pyx":17
  * # from warnings import warn
  * from scipy.linalg.cython_blas cimport dgemv
- * from shxarray.cf import get_cfatts             # <<<<<<<<<<<<<<
+ * from shxarray.core.cf import get_cfatts             # <<<<<<<<<<<<<<
  * @cython.boundscheck(False)
  * @cython.wraparound(False)
  */
@@ -36747,7 +36748,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_INCREF(__pyx_n_s_get_cfatts);
   __Pyx_GIVEREF(__pyx_n_s_get_cfatts);
   if (__Pyx_PyList_SET_ITEM(__pyx_t_4, 0, __pyx_n_s_get_cfatts)) __PYX_ERR(6, 17, __pyx_L1_error);
-  __pyx_t_7 = __Pyx_Import(__pyx_n_s_shxarray_cf, __pyx_t_4, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 17, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_Import(__pyx_n_s_shxarray_core_cf, __pyx_t_4, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_7, __pyx_n_s_get_cfatts); if (unlikely(!__pyx_t_4)) __PYX_ERR(6, 17, __pyx_L1_error)
@@ -36792,8 +36793,8 @@ if (!__Pyx_RefNanny) {
   /* "src/builtin_backend/analysis.pyx":17
  * from libc.stdio cimport printf
  * from openmp cimport omp_lock_t,omp_init_lock,omp_set_lock,omp_unset_lock
- * from shxarray.sh_indexing import SHindexBase             # <<<<<<<<<<<<<<
- * from shxarray.cf import find_lon,find_lat
+ * from shxarray.core.sh_indexing import SHindexBase             # <<<<<<<<<<<<<<
+ * from shxarray.core.cf import find_lon,find_lat
  * from scipy.linalg.cython_blas cimport dger
  */
   __pyx_t_7 = PyList_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(7, 17, __pyx_L1_error)
@@ -36801,7 +36802,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_INCREF(__pyx_n_s_SHindexBase);
   __Pyx_GIVEREF(__pyx_n_s_SHindexBase);
   if (__Pyx_PyList_SET_ITEM(__pyx_t_7, 0, __pyx_n_s_SHindexBase)) __PYX_ERR(7, 17, __pyx_L1_error);
-  __pyx_t_4 = __Pyx_Import(__pyx_n_s_shxarray_sh_indexing, __pyx_t_7, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(7, 17, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_Import(__pyx_n_s_shxarray_core_sh_indexing, __pyx_t_7, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(7, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __pyx_t_7 = __Pyx_ImportFrom(__pyx_t_4, __pyx_n_s_SHindexBase); if (unlikely(!__pyx_t_7)) __PYX_ERR(7, 17, __pyx_L1_error)
@@ -36812,8 +36813,8 @@ if (!__Pyx_RefNanny) {
 
   /* "src/builtin_backend/analysis.pyx":18
  * from openmp cimport omp_lock_t,omp_init_lock,omp_set_lock,omp_unset_lock
- * from shxarray.sh_indexing import SHindexBase
- * from shxarray.cf import find_lon,find_lat             # <<<<<<<<<<<<<<
+ * from shxarray.core.sh_indexing import SHindexBase
+ * from shxarray.core.cf import find_lon,find_lat             # <<<<<<<<<<<<<<
  * from scipy.linalg.cython_blas cimport dger
  * from libc.math cimport cos
  */
@@ -36825,7 +36826,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_INCREF(__pyx_n_s_find_lat);
   __Pyx_GIVEREF(__pyx_n_s_find_lat);
   if (__Pyx_PyList_SET_ITEM(__pyx_t_4, 1, __pyx_n_s_find_lat)) __PYX_ERR(7, 18, __pyx_L1_error);
-  __pyx_t_7 = __Pyx_Import(__pyx_n_s_shxarray_cf, __pyx_t_4, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(7, 18, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_Import(__pyx_n_s_shxarray_core_cf, __pyx_t_4, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(7, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   __pyx_t_4 = __Pyx_ImportFrom(__pyx_t_7, __pyx_n_s_find_lon); if (unlikely(!__pyx_t_4)) __PYX_ERR(7, 18, __pyx_L1_error)
@@ -36859,86 +36860,86 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_setstate_cython, __pyx_t_7) < 0) __PYX_ERR(0, 3, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "src/builtin_backend/shlib.pyx":12
+  /* "src/builtin_backend/shlib.pyx":16
  * include "analysis.pyx"
  * 
- * from shxarray.shcomputebase import SHComputeBackendBase             # <<<<<<<<<<<<<<
+ * from shxarray.core.shcomputebase import SHComputeBackendBase             # <<<<<<<<<<<<<<
  * 
  * class SHComputeBackend(SHComputeBackendBase):
  */
-  __pyx_t_7 = PyList_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 12, __pyx_L1_error)
+  __pyx_t_7 = PyList_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_INCREF(__pyx_n_s_SHComputeBackendBase);
   __Pyx_GIVEREF(__pyx_n_s_SHComputeBackendBase);
-  if (__Pyx_PyList_SET_ITEM(__pyx_t_7, 0, __pyx_n_s_SHComputeBackendBase)) __PYX_ERR(3, 12, __pyx_L1_error);
-  __pyx_t_4 = __Pyx_Import(__pyx_n_s_shxarray_shcomputebase, __pyx_t_7, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(3, 12, __pyx_L1_error)
+  if (__Pyx_PyList_SET_ITEM(__pyx_t_7, 0, __pyx_n_s_SHComputeBackendBase)) __PYX_ERR(3, 16, __pyx_L1_error);
+  __pyx_t_4 = __Pyx_Import(__pyx_n_s_shxarray_core_shcomputebase, __pyx_t_7, 0); if (unlikely(!__pyx_t_4)) __PYX_ERR(3, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_ImportFrom(__pyx_t_4, __pyx_n_s_SHComputeBackendBase); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 12, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_ImportFrom(__pyx_t_4, __pyx_n_s_SHComputeBackendBase); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 16, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_SHComputeBackendBase, __pyx_t_7) < 0) __PYX_ERR(3, 12, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_SHComputeBackendBase, __pyx_t_7) < 0) __PYX_ERR(3, 16, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "src/builtin_backend/shlib.pyx":14
- * from shxarray.shcomputebase import SHComputeBackendBase
+  /* "src/builtin_backend/shlib.pyx":18
+ * from shxarray.core.shcomputebase import SHComputeBackendBase
  * 
  * class SHComputeBackend(SHComputeBackendBase):             # <<<<<<<<<<<<<<
  *     def synthesis(self,dain,lon, lat,grid):
  *         syn=Synthesis(lon,lat,grid)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_SHComputeBackendBase); if (unlikely(!__pyx_t_4)) __PYX_ERR(3, 14, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_4, __pyx_n_s_SHComputeBackendBase); if (unlikely(!__pyx_t_4)) __PYX_ERR(3, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_7 = PyTuple_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 14, __pyx_L1_error)
+  __pyx_t_7 = PyTuple_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_GIVEREF(__pyx_t_4);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4)) __PYX_ERR(3, 14, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_7, 0, __pyx_t_4)) __PYX_ERR(3, 18, __pyx_L1_error);
   __pyx_t_4 = 0;
-  __pyx_t_4 = __Pyx_PEP560_update_bases(__pyx_t_7); if (unlikely(!__pyx_t_4)) __PYX_ERR(3, 14, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PEP560_update_bases(__pyx_t_7); if (unlikely(!__pyx_t_4)) __PYX_ERR(3, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_CalculateMetaclass(NULL, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(3, 14, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_CalculateMetaclass(NULL, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(3, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
-  __pyx_t_9 = __Pyx_Py3MetaclassPrepare(__pyx_t_5, __pyx_t_4, __pyx_n_s_SHComputeBackend, __pyx_n_s_SHComputeBackend, (PyObject *) NULL, __pyx_n_s_shxarray_shlib, (PyObject *) NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(3, 14, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_Py3MetaclassPrepare(__pyx_t_5, __pyx_t_4, __pyx_n_s_SHComputeBackend, __pyx_n_s_SHComputeBackend, (PyObject *) NULL, __pyx_n_s_shxarray_shlib, (PyObject *) NULL); if (unlikely(!__pyx_t_9)) __PYX_ERR(3, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   if (__pyx_t_4 != __pyx_t_7) {
-    if (unlikely((PyDict_SetItemString(__pyx_t_9, "__orig_bases__", __pyx_t_7) < 0))) __PYX_ERR(3, 14, __pyx_L1_error)
+    if (unlikely((PyDict_SetItemString(__pyx_t_9, "__orig_bases__", __pyx_t_7) < 0))) __PYX_ERR(3, 18, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "src/builtin_backend/shlib.pyx":15
+  /* "src/builtin_backend/shlib.pyx":19
  * 
  * class SHComputeBackend(SHComputeBackendBase):
  *     def synthesis(self,dain,lon, lat,grid):             # <<<<<<<<<<<<<<
  *         syn=Synthesis(lon,lat,grid)
  *         return syn(dain)
  */
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_8shxarray_5shlib_16SHComputeBackend_1synthesis, 0, __pyx_n_s_SHComputeBackend_synthesis, NULL, __pyx_n_s_shxarray_shlib, __pyx_d, ((PyObject *)__pyx_codeobj__60)); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 15, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_8shxarray_5shlib_16SHComputeBackend_1synthesis, 0, __pyx_n_s_SHComputeBackend_synthesis, NULL, __pyx_n_s_shxarray_shlib, __pyx_d, ((PyObject *)__pyx_codeobj__60)); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 19, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (__Pyx_SetNameInClass(__pyx_t_9, __pyx_n_s_synthesis, __pyx_t_7) < 0) __PYX_ERR(3, 15, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_9, __pyx_n_s_synthesis, __pyx_t_7) < 0) __PYX_ERR(3, 19, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "src/builtin_backend/shlib.pyx":20
+  /* "src/builtin_backend/shlib.pyx":24
  * 
  * 
  *     def analysis(self,dain,nmax,method):             # <<<<<<<<<<<<<<
  *         if method not in ['integrate']:
  *             raise RuntimeError (f"SHComputeBackend does not support {method} in analysis")
  */
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_8shxarray_5shlib_16SHComputeBackend_3analysis, 0, __pyx_n_s_SHComputeBackend_analysis, NULL, __pyx_n_s_shxarray_shlib, __pyx_d, ((PyObject *)__pyx_codeobj__62)); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 20, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_8shxarray_5shlib_16SHComputeBackend_3analysis, 0, __pyx_n_s_SHComputeBackend_analysis, NULL, __pyx_n_s_shxarray_shlib, __pyx_d, ((PyObject *)__pyx_codeobj__62)); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 24, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (__Pyx_SetNameInClass(__pyx_t_9, __pyx_n_s_analysis, __pyx_t_7) < 0) __PYX_ERR(3, 20, __pyx_L1_error)
+  if (__Pyx_SetNameInClass(__pyx_t_9, __pyx_n_s_analysis, __pyx_t_7) < 0) __PYX_ERR(3, 24, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "src/builtin_backend/shlib.pyx":14
- * from shxarray.shcomputebase import SHComputeBackendBase
+  /* "src/builtin_backend/shlib.pyx":18
+ * from shxarray.core.shcomputebase import SHComputeBackendBase
  * 
  * class SHComputeBackend(SHComputeBackendBase):             # <<<<<<<<<<<<<<
  *     def synthesis(self,dain,lon, lat,grid):
  *         syn=Synthesis(lon,lat,grid)
  */
-  __pyx_t_7 = __Pyx_Py3ClassCreate(__pyx_t_5, __pyx_n_s_SHComputeBackend, __pyx_t_4, __pyx_t_9, NULL, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 14, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_Py3ClassCreate(__pyx_t_5, __pyx_n_s_SHComputeBackend, __pyx_t_4, __pyx_t_9, NULL, 0, 0); if (unlikely(!__pyx_t_7)) __PYX_ERR(3, 18, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_SHComputeBackend, __pyx_t_7) < 0) __PYX_ERR(3, 14, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_SHComputeBackend, __pyx_t_7) < 0) __PYX_ERR(3, 18, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;

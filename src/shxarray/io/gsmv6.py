@@ -5,12 +5,13 @@
 
 import gzip
 import xarray as xr
-from shxarray.sh_indexing import SHindexBase,trig
+from shxarray.core.sh_indexing import SHindexBase,trig
 import re
 import sys
 from io import BytesIO
 import yaml
 import numpy as np
+from shxarray.core.cf import get_cfatts
 
 def readGSMv6(fileobj,nmaxstop=sys.maxsize):
     needsClosing=False
@@ -102,5 +103,5 @@ def readGSMv6(fileobj,nmaxstop=sys.maxsize):
         cnm=cnm[0:ncount]
         sigcnm=sigcnm[0:ncount]
     
-    ds=xr.Dataset(data_vars=dict(cnm=(shp,cnm),sigcnm=(shp,sigcnm)),coords=coords,attrs=attr)
+    ds=xr.Dataset(data_vars=dict(cnm=(shp,cnm,get_cfatts("stokes")),sigcnm=(shp,sigcnm,get_cfatts("stokes stdv"))),coords=coords,attrs=attr)
     return ds

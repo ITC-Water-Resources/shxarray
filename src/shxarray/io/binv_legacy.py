@@ -11,7 +11,7 @@
 import struct
 import numpy as np
 import re
-from shxarray.sh_indexing import SHindexBase
+from shxarray.core.sh_indexing import SHindexBase
 import xarray as xr
 import sparse
 

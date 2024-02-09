@@ -41,12 +41,14 @@ def find_lat(coordvars):
 
 cflookup={
         "longitude":{'units':'degrees_east','standard_name':'longitude','long_name':'longitude'},
-        "latitude":{'units':'degrees_north','standard_name':'latitude','long_name':'latitude'}
+        "latitude":{'units':'degrees_north','standard_name':'latitude','long_name':'latitude'},
+        "stokes":{'units':'-',"long_name":"Stokes Coefficients","gravtype":"stokes"},
+        "stokes stdv":{'units':'-',"long_name":"Standard deviation of the Stokes Coefficients","gravtype":"stokes"},
+        "tws":{'units':'m',"long_name":"Total water storage","gravtype":"tws"},
+        
         }
 
 def get_cfatts(standard_name):
     """Return CF attributes for certain coordinate types"""
     return cflookup[standard_name]
-
-
 

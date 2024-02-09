@@ -14,8 +14,8 @@ from cython.parallel cimport parallel, prange
 from legendre cimport Ynm_cpp
 from libc.stdio cimport printf
 from openmp cimport omp_lock_t,omp_init_lock,omp_set_lock,omp_unset_lock
-from shxarray.sh_indexing import SHindexBase
-from shxarray.cf import find_lon,find_lat
+from shxarray.core.sh_indexing import SHindexBase
+from shxarray.core.cf import find_lon,find_lat
 from scipy.linalg.cython_blas cimport dger
 from libc.math cimport cos
 

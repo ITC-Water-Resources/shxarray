@@ -6,29 +6,17 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 from datetime import datetime
-import sys
 import os
 
 project = 'shxarray'
 copyright = str(datetime.now().year)+', Roelof Rietbroek'
 author = 'Roelof Rietbroek'
 
-release = 'alpha'
-
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
 
-#add shxarray to sys path 
-# sys.path.insert(0, os.path.abspath('../../src'))
 extensions = ['nbsphinx', 'sphinxcontrib.apidoc', 'sphinx.ext.autodoc','sphinx.ext.napoleon']
-# extensions = [
-    # 'sphinxcontrib.apidoc',
-    # 'sphinx.ext.viewcode',
-    # 'sphinx.ext.githubpages',
-    # 'sphinxcontrib.autoprogram',
-    # 'nbsphinx','sphinx.ext.napoleon',
-# ]
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store','**.ipynb_checkpoints']
@@ -37,10 +25,11 @@ apidoc_template_dir='_templates'
 #figure out the actual installation directory
 import shxarray
 apidoc_module_dir=os.path.dirname(shxarray.__file__)
+
 apidoc_output_dir = 'references'
 apidoc_separate_modules = False
 apidoc_module_first=True
-
+apidoc_toc_file=False
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output

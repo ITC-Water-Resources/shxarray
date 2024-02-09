@@ -6,7 +6,7 @@
 
 import pytest
 import shxarray
-from shxarray.sh_indexing import SHindexBase
+from shxarray.core.sh_indexing import SHindexBase
 import numpy as np
 
 import xarray as xr

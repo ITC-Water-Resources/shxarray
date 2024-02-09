@@ -4,9 +4,10 @@
 #
 
 import xarray as xr
-from shxarray.logging import logger
+from shxarray.core.logging import logger
 from scipy.sparse import diags
 from shxarray.shlib import Ynm
+from shxarray.core.cf import get_cfatts
 
 class IsoKernelBase:
     """
@@ -14,6 +15,7 @@ class IsoKernelBase:
     """
     attr={"shtype":"shiso","kernelstate":"collapsed"}
     name="shkernel"
+    transform=None
     def __init__(self):
         self._dsiso=None
     
@@ -38,7 +40,7 @@ class IsoKernelBase:
             coeff=self._dsiso.interp(n=shindex.n)
         else:
             coeff=self._dsiso.sel(n=shindex.n)
-    
+         
         return xr.DataArray(coeff.data,coords=dict(shi=shindex))
 
 
@@ -53,7 +55,17 @@ class IsoKernelBase:
         #expand kernel to the same degrees as the input
         daexpand=self.expanddiag(dain.shi)
         daout=dain*daexpand
-        return daout.rename(self.name)
+        if self.transform is not None:
+            name=self.transform[1]
+        else:
+            name=self.name
+        try:
+            #try to update the dataarray attributes
+            daout.attrs.update(get_cfatts(name))
+        except:
+            pass
+
+        return daout.rename(name)
 
     def position(self,lon,lat):
         """

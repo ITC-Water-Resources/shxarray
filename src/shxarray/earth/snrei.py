@@ -3,8 +3,8 @@
 # Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2023
 #
 
-from shxarray.logging import logger
-from shxarray.admin import defaultcache
+from shxarray.core.logging import logger
+from shxarray.core.admin import defaultcache
 import xarray as xr
 import os
 import requests
@@ -42,7 +42,7 @@ def change_frame(dsLove,frame):
 
 
 
-def snrei_load(model,dbfile_or_con,frame="CF"):
+def snrei_load(model,dbfile_or_con,frame="CF",nmax=None):
     """Loads (load) Love numbers"""
     if dbfile_or_con is None:
         #create a default filename
@@ -60,7 +60,8 @@ def snrei_load(model,dbfile_or_con,frame="CF"):
         res=dbfile_or_con.execute(qry).first()[0]
 
     dsout=xr.Dataset.from_dict(res).rename({"degree":"n"})
-
+    if nmax is not None:
+        dsout=dsout.sel(n=slice(0,nmax))
     #possibly convert to a different isomorphic reference frame
     dsout=change_frame(dsout,frame)
     return dsout
@@ -70,8 +71,8 @@ def snrei_load(model,dbfile_or_con,frame="CF"):
 
 class SnreiFactory:
     @staticmethod
-    def load(model="PREM",dbfile_or_con=None,frame="CF"):
-        return snrei_load(model,dbfile_or_con,frame)
+    def load(model="PREM",dbfile_or_con=None,frame="CF",nmax=None):
+        return snrei_load(model=model,dbfile_or_con=dbfile_or_con,frame=frame,nmax=nmax)
 
 
 

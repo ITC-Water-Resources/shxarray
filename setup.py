@@ -7,6 +7,7 @@
 
 
 from setuptools import setup,Extension
+from setuptools_scm import get_version
 from Cython.Build import cythonize
 import Cython.Compiler.Options
 import os 
@@ -44,5 +45,6 @@ if useCython:
     extensions=cythonize(extensions,language_level=3,annotate=True,gdb_debug=debug)
 
 setup(
+    version = get_version(root='.', relative_to=__file__),
     ext_modules=extensions
     )

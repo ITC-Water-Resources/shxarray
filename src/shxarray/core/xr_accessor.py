@@ -26,6 +26,24 @@ class SHDaAccessor(ShXrBase):
         """1-Initialize an spherical harmonic DataArray based on nmax and nmin"""
         return ShXrBase._initWithScalar(nmax,nmin,1,squeeze,name,auxcoords,order=order)
     
+    @staticmethod
+    def wigner3j(j2,j3,m2,m3, engine="shlib"):
+        #dispatch to compute engine
+        eng=ShXrBase._eng(engine)
+        return eng.wigner3j(j2,j3,m2,m3)
+    
+    @staticmethod
+    def gauntReal(n2,n3,m2,m3, engine="shlib"):
+        #dispatch to compute engine
+        eng=ShXrBase._eng(engine)
+        return eng.gauntReal(n2,n3,m2,m3)
+    
+    @staticmethod
+    def gaunt(n2,n3,m2,m3, engine="shlib"):
+        #dispatch to compute engine
+        eng=ShXrBase._eng(engine)
+        return eng.gaunt(n2,n3,m2,m3)
+    
     def synthesis(self,lon=np.arange(-180.0,180.0,1.0), lat=np.arange(-90.0,90.0,1.0),grid=True,engine="shlib"):
         """
         Apply spherical harmonic synthesis on a set of longitude, latitude points

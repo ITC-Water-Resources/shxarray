@@ -1,6 +1,6 @@
 /*! \file
  \brief 
- \copyright Roelof Rietbroek 2023
+ \copyright Roelof Rietbroek 2024
  \license
  This file is part of shxarray.
  */
@@ -13,8 +13,9 @@
 #include <map>
 #include <iostream>
 #include "Helpers.hpp"
+
 #ifndef FR_SH_WIGNER3j_HPP_
-#define FR_SH_WIGNER3J_HPP_
+#define FR_SH_WIGNER3j_HPP_
 
 
 
@@ -29,6 +30,10 @@ template<class ftype>
             Wigner3j(int j2,int j3,int m2, int m3);
 	    const std::vector<ftype> get()const{return w3j_;}
             ftype operator[](int j)const{return w3j_[j-jmin_];}
+            int jmin()const{return jmin_;}
+            int jmax()const{return jmax_;}
+            int m()const{return m1_;}
+            const std::vector<int> n()const;
         private:
             int j2_=-1;
             int j3_=-1;
@@ -39,6 +44,7 @@ template<class ftype>
             int jmax_=-1;
             int sz_=0;
             std::vector<ftype> w3j_{};
+
             inline int jindex(int j)const{return j-jmin_;}
             void recursion();
             int signjmax()const{return csphase(j2_-j3_-m1_);}
@@ -46,6 +52,12 @@ template<class ftype>
                 ftype frac1;
                 ftype frac2;
             };
+            struct cache{
+                ftype current;
+                ftype previous;
+                ftype tmp;
+            };
+
            struct scales downward_scales(int j)const; 
            struct scales upward_scales(int j)const; 
     };
@@ -53,13 +65,13 @@ template<class ftype>
 
 
 template<class ftype>
-Wigner3j<ftype>::Wigner3j(int j2,int j3,int m2, int m3):j2_(j2),j3_(j3),m1_(-m2-m3),m2_(m2),m3_(m3),jmin_(std::max(std::abs(j2-j3),std::abs(m2+m3))),jmax_(j2+j3),sz_(jmax_-jmin_+1),w3j_(sz_,0.0)
+Wigner3j<ftype>::Wigner3j(int j2,int j3,int m2, int m3):j2_(j2),j3_(j3),m1_(-m2-m3),m2_(m2),m3_(m3),jmin_(std::max(std::abs(j2-j3),std::abs(m2+m3))),jmax_(j2+j3),sz_(jmax_-jmin_+1),w3j_(std::max(sz_,1),0.0)
 {
     
     //std::cout << jmin_ <<" "<< jmax_ << " "<< sz_ << std::endl; 
-    assert(jmax_ >= jmin_); 
+    assert(jmin_<= jmax_); 
 
-    //Note vector is initialized to zero, so check here for quick returns of zeros
+    //Note vector is d to zero, so check here for quick returns of zeros
     //
     if (std::abs(m2_) > j2_ || std::abs(m3_) > j3_){
         return;
@@ -83,7 +95,13 @@ template <class ftype>
 void Wigner3j<ftype>::recursion(){
     ftype ratio=1.0;
     /* initialize values  at the end*/
-    w3j_[jindex(jmax_)]=1e-4; /// !values at the boundaries are generally small !the scale 1d-3 is just an initial order of magnitude
+    
+    /* Cache values holding the last values of the downward path*/ 
+    struct cache down{1e-4,1e-4,1e-4};
+    
+    w3j_[jindex(jmax_)]=down.current; /// !values at the boundaries are generally small !the scale 1d-4 is just an initial order of magnitude
+    
+    
     /* start with a downward recursion in the non-classical region*/
     int j; 
     for(j=jmax_;j!=jmin_+1;j--){
@@ -96,18 +114,25 @@ void Wigner3j<ftype>::recursion(){
             
             break;
         }
-        w3j_[jindex(j-1)]=ratio*w3j_[jindex(j)];
+        /*update downward cache*/
+        down.previous=down.current;
+        down.current*=ratio;
+
+        /*insert in the output*/
+        w3j_[jindex(j-1)]=down.current;
     }
     
     int jupper_classical=j;
-    ftype ValueUpper_classical=w3j_[jindex(jupper_classical)];
 
     /* upward recursion in non-classical region */
 
 
     ///initial bottom value (copy value from the top)
     ratio=1.0;
-    w3j_[jindex(jmin_)]=w3j_[jindex(jmax_)];
+    struct cache up{1e-4,1e-4,1e-4};
+
+    w3j_[jindex(jmin_)]=up.current;
+
     for(j=jmin_;j!=jupper_classical;j++){
         
        struct scales factor= upward_scales(j);
@@ -118,46 +143,36 @@ void Wigner3j<ftype>::recursion(){
             
             break;
         }
-        w3j_[jindex(j+1)]=ratio*w3j_[jindex(j)];
+        
+        /*update upward cache*/
+        up.previous=up.current;
+        up.current*=ratio;
+        /*insert in the output data*/
+        w3j_[jindex(j+1)]=up.current;
     }
     
     int jlower_classical=j;
 
-    ftype ValueLower_classical=w3j_[jindex(jlower_classical)];
+    /*Continue upward recursion but in classical sense */   
 
-    /* perform the classical recursion in the direction which has the least amount of total recursion steps*/
-    if (jmax_-jlower_classical < jupper_classical-jmin_){
-    /*use downward classical recursion */   
-        for(j=jupper_classical;j!=jlower_classical;j--){
-            
-            struct scales factor= downward_scales(j);
-            //std::cout << "downward classical recursion " <<j<<" "<<factor.frac1 <<" "<<factor.frac2<< std::endl; 
-            w3j_[jindex(j-1)]=-factor.frac2*w3j_[jindex(j)]-factor.frac1*w3j_[jindex(j+1)];
-        }
-
-        /* rescale lower part to match scale at jlower_classical*/
-        ftype scale=w3j_[jindex(jlower_classical)]/ValueLower_classical;
-        for(int i=0;i<jindex(jlower_classical);i++){
-            w3j_[i]*=scale;
-        }
-
-    }else{
-    /*use upward classical recursion */   
-
-        for(j=jlower_classical;j<jupper_classical;j++){
-            
-        //std::cout << "upward classical recursion" <<j<< std::endl; 
-           struct scales factor= upward_scales(j);
-            w3j_[jindex(j+1)]=-factor.frac2*w3j_[jindex(j)]-factor.frac1*w3j_[jindex(j-1)];
-        }
-    
-
-        /* rescale upper part to match scale at jupper_classical*/
-        ftype scale=w3j_[jindex(jupper_classical)]/ValueUpper_classical;
-        for(int i=jindex(jupper_classical+1);i<=jindex(jmax_);i++){
-            w3j_[i]*=scale;
-        }
+    for(j=jlower_classical;j<jupper_classical;j++){
+        
+    //std::cout << "upward classical recursion" <<j<< std::endl; 
+       struct scales factor= upward_scales(j);
+        up.tmp=-factor.frac2*up.current-factor.frac1*up.previous;
+        up.previous=up.current;
+        up.current=up.tmp;
+        w3j_[jindex(j+1)]=up.current;
     }
+
+
+    /* rescale upper part to match scale at jupper_classical*/
+    ftype scale=up.current/down.current;
+    //std::cout << "rescale upper region" << scale << std::endl; 
+    for(int i=jindex(jupper_classical+1);i<=jindex(jmax_);i++){
+        w3j_[i]*=scale;
+    }
+    
     /* apply an additional scaling to normalize the whole vector */
 
     ftype norm = 0.0;
@@ -172,6 +187,8 @@ void Wigner3j<ftype>::recursion(){
         norm*=-1.0;
         //std::cout << "negating norm " << norm << std::endl;
     }
+    
+    //std::cout << "negating norm " << norm << std::endl;
 
     for(auto && it: w3j_){
         it*=norm;

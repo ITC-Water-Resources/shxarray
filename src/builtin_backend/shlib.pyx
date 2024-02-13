@@ -9,6 +9,7 @@ Some of the heavy lifting such as synthesis and analysis operations, is done usi
 
 include "legendre.pyx" 
 include "wigner3j.pyx"
+include "gaunt.pyx"
 include "ynm.pyx"
 include "synthesis.pyx"
 include "analysis.pyx"
@@ -26,5 +27,12 @@ class SHComputeBackend(SHComputeBackendBase):
             raise RuntimeError (f"SHComputeBackend does not support {method} in analysis")
         ana=Analysis(nmax)
         return ana(dain)
+    
+    def gaunt(self,n2,n3,m2,m3):
+        return getGaunt(n2,n3,m2,m3)
 
+    def gauntReal(self,n2,n3,m2,m3):
+        return getGauntReal(n2,n3,m2,m3)
 
+    def wigner3j(self,j2,j3,m2,m3):
+        return getWigner3j(j2,j3,m2,m3)

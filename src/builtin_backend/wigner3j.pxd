@@ -14,15 +14,19 @@ cdef extern from "Wigner3j.hpp":
         Wigner3j(int j2,int j3,int m2, int m3) except +
         vector[T] get() except+
         T operator[](int j)except+
+        int jmin()
+        int jmax()
+        int m()
 
-    cdef cppclass Gaunt[T]:
-        Gaunt() except +
-        Gaunt(int n2,int n3,int m2, int m3) except +
-        vector[T] get() except+
-        T operator[](int j)except+
-        int m()except+
-        int nmin()except+
-        int nmax()except+
+# cdef extern from "Gaunt.hpp"
+    # cdef cppclass Gaunt[T]:
+        # Gaunt() except +
+        # Gaunt(int n2,int n3,int m2, int m3) except +
+        # vector[T] get() except+
+        # T operator[](int j)except+
+        # int m()except+
+        # int nmin()except+
+        # int nmax()except+
 # End of interface declaration
 
 

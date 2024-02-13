@@ -11,22 +11,16 @@ from wigner3j cimport Wigner3j
 from cython.operator cimport dereference as deref
 # import numpy as np 
 cimport numpy as np
-from libc.math cimport sqrt
+import xarray as xr
+import pandas as pd
 
-# Cython wrapper class
-cdef class W3j:
-    """Double precision Wigner 3J symbols"""
-    cdef Wigner3j[double]*w3j_ptr  # Pointer to the wrapped C++ class
-    def __cinit__(self, int j2,int j3,int m2, int m3):
-        self.w3j_ptr = new Wigner3j[double](j2,j3,m2,m3)
-    
-    def __dealloc__(self):
-        del self.w3j_ptr
-
-    def __getitem__(self,int j):
-        return deref(self.w3j_ptr)[j]
-
-    property data:
-        def __get__(self):
-            return np.asarray(deref(self.w3j_ptr).get())
+def getWigner3j(j2,j3,m2,m3):
+    """
+    Compute non-zero Wigner3J symbols with their valid (j1,m1) for j2,j3,m2,m3 input
+    """
+    w3j = Wigner3j[double](j2,j3,m2,m3)
+    assert(w3j.jmin() <= w3j.jmax())
+    m=w3j.m()
+    jm=pd.MultiIndex.from_tuples([(j,m) for j in range(w3j.jmin(),w3j.jmax()+1)],names=("j","m")) 
+    return xr.DataArray(w3j.get(), coords=dict(jm=jm),dims=["jm"])
 

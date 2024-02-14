@@ -19,7 +19,7 @@ if sys.platform.startswith("win"):
 else:
     openmp_arg = '-fopenmp'
 
-debug=True
+debug=False
 #don't necessarily use cython
 if "USE_CYTHON" in os.environ:
     useCython=True

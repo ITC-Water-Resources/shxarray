@@ -10,6 +10,7 @@ from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 # C++ / Cython interface declaration 
 
+
 cdef extern from "Gaunt.hpp":
     cdef cppclass Gaunt[T]:
         Gaunt() except +

@@ -14,6 +14,9 @@ cimport numpy as np
 import xarray as xr
 import pandas as pd
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
 def getWigner3j(j2,j3,m2,m3):
     """
     Compute non-zero Wigner3J symbols with their valid (j1,m1) for j2,j3,m2,m3 input

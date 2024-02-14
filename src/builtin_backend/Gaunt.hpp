@@ -97,14 +97,20 @@ class GauntReal{
                 return 0+0j;
             }
             else if (mu ==  0){
-                return kronecker(m,0)*kronecker(mu,0) + 0j;
+                return 1 + 0j;
             }else if (mu > 0){
                 ///real elements only
-                return M_SQRT1_2*(kronecker(m,mu)+csphase(m)*kronecker(m,-mu))+0j; 
+                //according to Homeier et al 1996
+                //return M_SQRT1_2*(kronecker(m,mu)+csphase(m)*kronecker(m,-mu))+0j; 
+                //according to sympy(https://docs.sympy.org/latest/modules/physics/wigner.html#sympy.physics.wigner.gaunt)
+                return M_SQRT1_2*(kronecker(m,mu)+csphase(mu)*kronecker(m,-mu))+0j; 
             }else{
                 ///mu < 0
                 ///purely imaginary elements only
-                return  1j*M_SQRT1_2*(csphase(m)*kronecker(m,mu)+kronecker(m,-mu)); 
+                //according to Homeier et al 1996
+                //return  1j*M_SQRT1_2*(csphase(m)*kronecker(m,mu)+kronecker(m,-mu)); 
+                //according to sympy(https://docs.sympy.org/latest/modules/physics/wigner.html#sympy.physics.wigner.gaunt)
+                return  1j*M_SQRT1_2*(csphase(m)*kronecker(-m,mu)-kronecker(m,mu)*csphase(mu-m)); 
             }
         }
         enum ABCcase{A,B,Bt,C}mcase;

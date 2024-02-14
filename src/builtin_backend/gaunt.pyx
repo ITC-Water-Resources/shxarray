@@ -14,6 +14,9 @@ cimport numpy as np
 import xarray as xr
 import pandas as pd
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
 def getGaunt(n2,n3,m2,m3):
     """
     Compute non-zero Gaunt coefficients for valid values of n1 and m1
@@ -24,6 +27,9 @@ def getGaunt(n2,n3,m2,m3):
     nm=pd.MultiIndex.from_tuples([(n,m) for n in range(gaunt.nmin(),gaunt.nmax()+1,2)],names=("n","m")) 
     return xr.DataArray(gaunt.get(), coords=dict(nm=nm),dims=["nm"])
 
+@cython.boundscheck(False)
+@cython.wraparound(False)
+@cython.initializedcheck(False)
 def getGauntReal(n2,n3,m2,m3):
     """
     Compute non-zero Real Gaunt coefficients for valid values of n1 and m1

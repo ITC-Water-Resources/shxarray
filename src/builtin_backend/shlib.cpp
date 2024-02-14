@@ -22,10 +22,10 @@
             "src/builtin_backend/Ynm.hpp"
         ],
         "extra_compile_args": [
-            "-fopenmp"
+            "-fopenmp -march=native"
         ],
         "extra_link_args": [
-            "-fopenmp"
+            "-fopenmp -march=native"
         ],
         "include_dirs": [
             "src/builtin_backend",
@@ -23465,9 +23465,9 @@ static PyObject *__pyx_pf_8shxarray_5shlib_3Pnm_18__setstate_cython__(CYTHON_UNU
 /* "src/builtin_backend/wigner3j.pyx":17
  * import pandas as pd
  * 
- * def getWigner3j(j2,j3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Wigner3J symbols with their valid (j1,m1) for j2,j3,m2,m3 input
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
 
 /* Python wrapper */
@@ -23639,26 +23639,26 @@ static PyObject *__pyx_pf_8shxarray_5shlib_getWigner3j(CYTHON_UNUSED PyObject *_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("getWigner3j", 1);
 
-  /* "src/builtin_backend/wigner3j.pyx":21
+  /* "src/builtin_backend/wigner3j.pyx":24
  *     Compute non-zero Wigner3J symbols with their valid (j1,m1) for j2,j3,m2,m3 input
  *     """
  *     w3j = Wigner3j[double](j2,j3,m2,m3)             # <<<<<<<<<<<<<<
  *     assert(w3j.jmin() <= w3j.jmax())
  *     m=w3j.m()
  */
-  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_j2); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 21, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_j3); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 21, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_m2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 21, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_v_m3); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 21, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_j2); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 24, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_j3); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 24, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_m2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 24, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_v_m3); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(2, 24, __pyx_L1_error)
   try {
     __pyx_t_5 = Wigner3j<double> (__pyx_t_1, __pyx_t_2, __pyx_t_3, __pyx_t_4);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(2, 21, __pyx_L1_error)
+    __PYX_ERR(2, 24, __pyx_L1_error)
   }
   __pyx_v_w3j = __PYX_STD_MOVE_IF_SUPPORTED(__pyx_t_5);
 
-  /* "src/builtin_backend/wigner3j.pyx":22
+  /* "src/builtin_backend/wigner3j.pyx":25
  *     """
  *     w3j = Wigner3j[double](j2,j3,m2,m3)
  *     assert(w3j.jmin() <= w3j.jmax())             # <<<<<<<<<<<<<<
@@ -23670,14 +23670,14 @@ static PyObject *__pyx_pf_8shxarray_5shlib_getWigner3j(CYTHON_UNUSED PyObject *_
     __pyx_t_6 = (__pyx_v_w3j.jmin() <= __pyx_v_w3j.jmax());
     if (unlikely(!__pyx_t_6)) {
       __Pyx_Raise(__pyx_builtin_AssertionError, 0, 0, 0);
-      __PYX_ERR(2, 22, __pyx_L1_error)
+      __PYX_ERR(2, 25, __pyx_L1_error)
     }
   }
   #else
-  if ((1)); else __PYX_ERR(2, 22, __pyx_L1_error)
+  if ((1)); else __PYX_ERR(2, 25, __pyx_L1_error)
   #endif
 
-  /* "src/builtin_backend/wigner3j.pyx":23
+  /* "src/builtin_backend/wigner3j.pyx":26
  *     w3j = Wigner3j[double](j2,j3,m2,m3)
  *     assert(w3j.jmin() <= w3j.jmax())
  *     m=w3j.m()             # <<<<<<<<<<<<<<
@@ -23686,53 +23686,53 @@ static PyObject *__pyx_pf_8shxarray_5shlib_getWigner3j(CYTHON_UNUSED PyObject *_
  */
   __pyx_v_m = __pyx_v_w3j.m();
 
-  /* "src/builtin_backend/wigner3j.pyx":24
+  /* "src/builtin_backend/wigner3j.pyx":27
  *     assert(w3j.jmin() <= w3j.jmax())
  *     m=w3j.m()
  *     jm=pd.MultiIndex.from_tuples([(j,m) for j in range(w3j.jmin(),w3j.jmax()+1)],names=("j","m"))             # <<<<<<<<<<<<<<
  *     return xr.DataArray(w3j.get(), coords=dict(jm=jm),dims=["jm"])
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_pd); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 24, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_pd); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_MultiIndex); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 24, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_MultiIndex); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_from_tuples); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 24, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_from_tuples); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   { /* enter inner scope */
-    __pyx_t_8 = PyList_New(0); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 24, __pyx_L1_error)
+    __pyx_t_8 = PyList_New(0); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 27, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     __pyx_t_9 = (__pyx_v_w3j.jmax() + 1);
     __pyx_t_10 = __pyx_t_9;
     for (__pyx_t_11 = __pyx_v_w3j.jmin(); __pyx_t_11 < __pyx_t_10; __pyx_t_11+=1) {
       __pyx_8genexpr1__pyx_v_j = __pyx_t_11;
-      __pyx_t_12 = __Pyx_PyInt_From_long(__pyx_8genexpr1__pyx_v_j); if (unlikely(!__pyx_t_12)) __PYX_ERR(2, 24, __pyx_L1_error)
+      __pyx_t_12 = __Pyx_PyInt_From_long(__pyx_8genexpr1__pyx_v_j); if (unlikely(!__pyx_t_12)) __PYX_ERR(2, 27, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_m); if (unlikely(!__pyx_t_13)) __PYX_ERR(2, 24, __pyx_L1_error)
+      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_m); if (unlikely(!__pyx_t_13)) __PYX_ERR(2, 27, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_14 = PyTuple_New(2); if (unlikely(!__pyx_t_14)) __PYX_ERR(2, 24, __pyx_L1_error)
+      __pyx_t_14 = PyTuple_New(2); if (unlikely(!__pyx_t_14)) __PYX_ERR(2, 27, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_14);
       __Pyx_GIVEREF(__pyx_t_12);
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_12)) __PYX_ERR(2, 24, __pyx_L1_error);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_12)) __PYX_ERR(2, 27, __pyx_L1_error);
       __Pyx_GIVEREF(__pyx_t_13);
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 1, __pyx_t_13)) __PYX_ERR(2, 24, __pyx_L1_error);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 1, __pyx_t_13)) __PYX_ERR(2, 27, __pyx_L1_error);
       __pyx_t_12 = 0;
       __pyx_t_13 = 0;
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_8, (PyObject*)__pyx_t_14))) __PYX_ERR(2, 24, __pyx_L1_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_8, (PyObject*)__pyx_t_14))) __PYX_ERR(2, 27, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
     }
   } /* exit inner scope */
-  __pyx_t_14 = PyTuple_New(1); if (unlikely(!__pyx_t_14)) __PYX_ERR(2, 24, __pyx_L1_error)
+  __pyx_t_14 = PyTuple_New(1); if (unlikely(!__pyx_t_14)) __PYX_ERR(2, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_GIVEREF(__pyx_t_8);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_8)) __PYX_ERR(2, 24, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_8)) __PYX_ERR(2, 27, __pyx_L1_error);
   __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 24, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_names, __pyx_tuple__19) < 0) __PYX_ERR(2, 24, __pyx_L1_error)
-  __pyx_t_13 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_14, __pyx_t_8); if (unlikely(!__pyx_t_13)) __PYX_ERR(2, 24, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_names, __pyx_tuple__19) < 0) __PYX_ERR(2, 27, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_14, __pyx_t_8); if (unlikely(!__pyx_t_13)) __PYX_ERR(2, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
@@ -23740,46 +23740,46 @@ static PyObject *__pyx_pf_8shxarray_5shlib_getWigner3j(CYTHON_UNUSED PyObject *_
   __pyx_v_jm = __pyx_t_13;
   __pyx_t_13 = 0;
 
-  /* "src/builtin_backend/wigner3j.pyx":25
+  /* "src/builtin_backend/wigner3j.pyx":28
  *     m=w3j.m()
  *     jm=pd.MultiIndex.from_tuples([(j,m) for j in range(w3j.jmin(),w3j.jmax()+1)],names=("j","m"))
  *     return xr.DataArray(w3j.get(), coords=dict(jm=jm),dims=["jm"])             # <<<<<<<<<<<<<<
  * 
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_xr); if (unlikely(!__pyx_t_13)) __PYX_ERR(2, 25, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_xr); if (unlikely(!__pyx_t_13)) __PYX_ERR(2, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_DataArray); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 25, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_DataArray); if (unlikely(!__pyx_t_8)) __PYX_ERR(2, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   try {
     __pyx_t_15 = __pyx_v_w3j.get();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(2, 25, __pyx_L1_error)
+    __PYX_ERR(2, 28, __pyx_L1_error)
   }
-  __pyx_t_13 = __pyx_convert_vector_to_py_double(__pyx_t_15); if (unlikely(!__pyx_t_13)) __PYX_ERR(2, 25, __pyx_L1_error)
+  __pyx_t_13 = __pyx_convert_vector_to_py_double(__pyx_t_15); if (unlikely(!__pyx_t_13)) __PYX_ERR(2, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_14 = PyTuple_New(1); if (unlikely(!__pyx_t_14)) __PYX_ERR(2, 25, __pyx_L1_error)
+  __pyx_t_14 = PyTuple_New(1); if (unlikely(!__pyx_t_14)) __PYX_ERR(2, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_GIVEREF(__pyx_t_13);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_13)) __PYX_ERR(2, 25, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_13)) __PYX_ERR(2, 28, __pyx_L1_error);
   __pyx_t_13 = 0;
-  __pyx_t_13 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_13)) __PYX_ERR(2, 25, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_13)) __PYX_ERR(2, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 25, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_jm, __pyx_v_jm) < 0) __PYX_ERR(2, 25, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_coords, __pyx_t_7) < 0) __PYX_ERR(2, 25, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_jm, __pyx_v_jm) < 0) __PYX_ERR(2, 28, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_coords, __pyx_t_7) < 0) __PYX_ERR(2, 28, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PyList_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 25, __pyx_L1_error)
+  __pyx_t_7 = PyList_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_INCREF(__pyx_n_u_jm);
   __Pyx_GIVEREF(__pyx_n_u_jm);
-  if (__Pyx_PyList_SET_ITEM(__pyx_t_7, 0, __pyx_n_u_jm)) __PYX_ERR(2, 25, __pyx_L1_error);
-  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_dims, __pyx_t_7) < 0) __PYX_ERR(2, 25, __pyx_L1_error)
+  if (__Pyx_PyList_SET_ITEM(__pyx_t_7, 0, __pyx_n_u_jm)) __PYX_ERR(2, 28, __pyx_L1_error);
+  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_dims, __pyx_t_7) < 0) __PYX_ERR(2, 28, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_14, __pyx_t_13); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 25, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_14, __pyx_t_13); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
@@ -23791,9 +23791,9 @@ static PyObject *__pyx_pf_8shxarray_5shlib_getWigner3j(CYTHON_UNUSED PyObject *_
   /* "src/builtin_backend/wigner3j.pyx":17
  * import pandas as pd
  * 
- * def getWigner3j(j2,j3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Wigner3J symbols with their valid (j1,m1) for j2,j3,m2,m3 input
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
 
   /* function exit code */
@@ -23815,9 +23815,9 @@ static PyObject *__pyx_pf_8shxarray_5shlib_getWigner3j(CYTHON_UNUSED PyObject *_
 /* "src/builtin_backend/gaunt.pyx":17
  * import pandas as pd
  * 
- * def getGaunt(n2,n3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Gaunt coefficients for valid values of n1 and m1
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
 
 /* Python wrapper */
@@ -23989,26 +23989,26 @@ static PyObject *__pyx_pf_8shxarray_5shlib_2getGaunt(CYTHON_UNUSED PyObject *__p
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("getGaunt", 1);
 
-  /* "src/builtin_backend/gaunt.pyx":21
+  /* "src/builtin_backend/gaunt.pyx":24
  *     Compute non-zero Gaunt coefficients for valid values of n1 and m1
  *     """
  *     gaunt = Gaunt[double](n2,n3,m2,m3)             # <<<<<<<<<<<<<<
  *     assert(gaunt.nmin() <= gaunt.nmax())
  *     m=gaunt.m()
  */
-  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_n2); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 21, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_n3); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 21, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_m2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 21, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_v_m3); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 21, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_n2); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 24, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_n3); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 24, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_m2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 24, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_v_m3); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 24, __pyx_L1_error)
   try {
     __pyx_t_5 = Gaunt<double> (__pyx_t_1, __pyx_t_2, __pyx_t_3, __pyx_t_4);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(6, 21, __pyx_L1_error)
+    __PYX_ERR(6, 24, __pyx_L1_error)
   }
   __pyx_v_gaunt = __PYX_STD_MOVE_IF_SUPPORTED(__pyx_t_5);
 
-  /* "src/builtin_backend/gaunt.pyx":22
+  /* "src/builtin_backend/gaunt.pyx":25
  *     """
  *     gaunt = Gaunt[double](n2,n3,m2,m3)
  *     assert(gaunt.nmin() <= gaunt.nmax())             # <<<<<<<<<<<<<<
@@ -24021,25 +24021,25 @@ static PyObject *__pyx_pf_8shxarray_5shlib_2getGaunt(CYTHON_UNUSED PyObject *__p
       __pyx_t_4 = __pyx_v_gaunt.nmin();
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(6, 22, __pyx_L1_error)
+      __PYX_ERR(6, 25, __pyx_L1_error)
     }
     try {
       __pyx_t_3 = __pyx_v_gaunt.nmax();
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(6, 22, __pyx_L1_error)
+      __PYX_ERR(6, 25, __pyx_L1_error)
     }
     __pyx_t_6 = (__pyx_t_4 <= __pyx_t_3);
     if (unlikely(!__pyx_t_6)) {
       __Pyx_Raise(__pyx_builtin_AssertionError, 0, 0, 0);
-      __PYX_ERR(6, 22, __pyx_L1_error)
+      __PYX_ERR(6, 25, __pyx_L1_error)
     }
   }
   #else
-  if ((1)); else __PYX_ERR(6, 22, __pyx_L1_error)
+  if ((1)); else __PYX_ERR(6, 25, __pyx_L1_error)
   #endif
 
-  /* "src/builtin_backend/gaunt.pyx":23
+  /* "src/builtin_backend/gaunt.pyx":26
  *     gaunt = Gaunt[double](n2,n3,m2,m3)
  *     assert(gaunt.nmin() <= gaunt.nmax())
  *     m=gaunt.m()             # <<<<<<<<<<<<<<
@@ -24050,69 +24050,69 @@ static PyObject *__pyx_pf_8shxarray_5shlib_2getGaunt(CYTHON_UNUSED PyObject *__p
     __pyx_t_3 = __pyx_v_gaunt.m();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(6, 23, __pyx_L1_error)
+    __PYX_ERR(6, 26, __pyx_L1_error)
   }
   __pyx_v_m = __pyx_t_3;
 
-  /* "src/builtin_backend/gaunt.pyx":24
+  /* "src/builtin_backend/gaunt.pyx":27
  *     assert(gaunt.nmin() <= gaunt.nmax())
  *     m=gaunt.m()
  *     nm=pd.MultiIndex.from_tuples([(n,m) for n in range(gaunt.nmin(),gaunt.nmax()+1,2)],names=("n","m"))             # <<<<<<<<<<<<<<
  *     return xr.DataArray(gaunt.get(), coords=dict(nm=nm),dims=["nm"])
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_pd); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 24, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_pd); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_MultiIndex); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 24, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_MultiIndex); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_from_tuples); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 24, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_from_tuples); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   { /* enter inner scope */
-    __pyx_t_8 = PyList_New(0); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 24, __pyx_L1_error)
+    __pyx_t_8 = PyList_New(0); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 27, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     try {
       __pyx_t_3 = __pyx_v_gaunt.nmax();
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(6, 24, __pyx_L1_error)
+      __PYX_ERR(6, 27, __pyx_L1_error)
     }
     __pyx_t_9 = (__pyx_t_3 + 1);
     try {
       __pyx_t_3 = __pyx_v_gaunt.nmin();
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(6, 24, __pyx_L1_error)
+      __PYX_ERR(6, 27, __pyx_L1_error)
     }
     __pyx_t_10 = __pyx_t_9;
     for (__pyx_t_11 = __pyx_t_3; __pyx_t_11 < __pyx_t_10; __pyx_t_11+=2) {
       __pyx_8genexpr2__pyx_v_n = __pyx_t_11;
-      __pyx_t_12 = __Pyx_PyInt_From_long(__pyx_8genexpr2__pyx_v_n); if (unlikely(!__pyx_t_12)) __PYX_ERR(6, 24, __pyx_L1_error)
+      __pyx_t_12 = __Pyx_PyInt_From_long(__pyx_8genexpr2__pyx_v_n); if (unlikely(!__pyx_t_12)) __PYX_ERR(6, 27, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_12);
-      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_m); if (unlikely(!__pyx_t_13)) __PYX_ERR(6, 24, __pyx_L1_error)
+      __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_m); if (unlikely(!__pyx_t_13)) __PYX_ERR(6, 27, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_13);
-      __pyx_t_14 = PyTuple_New(2); if (unlikely(!__pyx_t_14)) __PYX_ERR(6, 24, __pyx_L1_error)
+      __pyx_t_14 = PyTuple_New(2); if (unlikely(!__pyx_t_14)) __PYX_ERR(6, 27, __pyx_L1_error)
       __Pyx_GOTREF(__pyx_t_14);
       __Pyx_GIVEREF(__pyx_t_12);
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_12)) __PYX_ERR(6, 24, __pyx_L1_error);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_12)) __PYX_ERR(6, 27, __pyx_L1_error);
       __Pyx_GIVEREF(__pyx_t_13);
-      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 1, __pyx_t_13)) __PYX_ERR(6, 24, __pyx_L1_error);
+      if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 1, __pyx_t_13)) __PYX_ERR(6, 27, __pyx_L1_error);
       __pyx_t_12 = 0;
       __pyx_t_13 = 0;
-      if (unlikely(__Pyx_ListComp_Append(__pyx_t_8, (PyObject*)__pyx_t_14))) __PYX_ERR(6, 24, __pyx_L1_error)
+      if (unlikely(__Pyx_ListComp_Append(__pyx_t_8, (PyObject*)__pyx_t_14))) __PYX_ERR(6, 27, __pyx_L1_error)
       __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
     }
   } /* exit inner scope */
-  __pyx_t_14 = PyTuple_New(1); if (unlikely(!__pyx_t_14)) __PYX_ERR(6, 24, __pyx_L1_error)
+  __pyx_t_14 = PyTuple_New(1); if (unlikely(!__pyx_t_14)) __PYX_ERR(6, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_GIVEREF(__pyx_t_8);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_8)) __PYX_ERR(6, 24, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_8)) __PYX_ERR(6, 27, __pyx_L1_error);
   __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 24, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_names, __pyx_tuple__20) < 0) __PYX_ERR(6, 24, __pyx_L1_error)
-  __pyx_t_13 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_14, __pyx_t_8); if (unlikely(!__pyx_t_13)) __PYX_ERR(6, 24, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_names, __pyx_tuple__20) < 0) __PYX_ERR(6, 27, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_14, __pyx_t_8); if (unlikely(!__pyx_t_13)) __PYX_ERR(6, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
@@ -24120,47 +24120,47 @@ static PyObject *__pyx_pf_8shxarray_5shlib_2getGaunt(CYTHON_UNUSED PyObject *__p
   __pyx_v_nm = __pyx_t_13;
   __pyx_t_13 = 0;
 
-  /* "src/builtin_backend/gaunt.pyx":25
+  /* "src/builtin_backend/gaunt.pyx":28
  *     m=gaunt.m()
  *     nm=pd.MultiIndex.from_tuples([(n,m) for n in range(gaunt.nmin(),gaunt.nmax()+1,2)],names=("n","m"))
  *     return xr.DataArray(gaunt.get(), coords=dict(nm=nm),dims=["nm"])             # <<<<<<<<<<<<<<
  * 
- * def getGauntReal(n2,n3,m2,m3):
+ * @cython.boundscheck(False)
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_xr); if (unlikely(!__pyx_t_13)) __PYX_ERR(6, 25, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_xr); if (unlikely(!__pyx_t_13)) __PYX_ERR(6, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_DataArray); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 25, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_DataArray); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   try {
     __pyx_t_15 = __pyx_v_gaunt.get();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(6, 25, __pyx_L1_error)
+    __PYX_ERR(6, 28, __pyx_L1_error)
   }
-  __pyx_t_13 = __pyx_convert_vector_to_py_double(__pyx_t_15); if (unlikely(!__pyx_t_13)) __PYX_ERR(6, 25, __pyx_L1_error)
+  __pyx_t_13 = __pyx_convert_vector_to_py_double(__pyx_t_15); if (unlikely(!__pyx_t_13)) __PYX_ERR(6, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_14 = PyTuple_New(1); if (unlikely(!__pyx_t_14)) __PYX_ERR(6, 25, __pyx_L1_error)
+  __pyx_t_14 = PyTuple_New(1); if (unlikely(!__pyx_t_14)) __PYX_ERR(6, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_14);
   __Pyx_GIVEREF(__pyx_t_13);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_13)) __PYX_ERR(6, 25, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_14, 0, __pyx_t_13)) __PYX_ERR(6, 28, __pyx_L1_error);
   __pyx_t_13 = 0;
-  __pyx_t_13 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_13)) __PYX_ERR(6, 25, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_13)) __PYX_ERR(6, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 25, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_nm, __pyx_v_nm) < 0) __PYX_ERR(6, 25, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_coords, __pyx_t_7) < 0) __PYX_ERR(6, 25, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_nm, __pyx_v_nm) < 0) __PYX_ERR(6, 28, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_coords, __pyx_t_7) < 0) __PYX_ERR(6, 28, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PyList_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 25, __pyx_L1_error)
+  __pyx_t_7 = PyList_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_INCREF(__pyx_n_u_nm);
   __Pyx_GIVEREF(__pyx_n_u_nm);
-  if (__Pyx_PyList_SET_ITEM(__pyx_t_7, 0, __pyx_n_u_nm)) __PYX_ERR(6, 25, __pyx_L1_error);
-  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_dims, __pyx_t_7) < 0) __PYX_ERR(6, 25, __pyx_L1_error)
+  if (__Pyx_PyList_SET_ITEM(__pyx_t_7, 0, __pyx_n_u_nm)) __PYX_ERR(6, 28, __pyx_L1_error);
+  if (PyDict_SetItem(__pyx_t_13, __pyx_n_s_dims, __pyx_t_7) < 0) __PYX_ERR(6, 28, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_14, __pyx_t_13); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 25, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_14, __pyx_t_13); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 28, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_14); __pyx_t_14 = 0;
@@ -24172,9 +24172,9 @@ static PyObject *__pyx_pf_8shxarray_5shlib_2getGaunt(CYTHON_UNUSED PyObject *__p
   /* "src/builtin_backend/gaunt.pyx":17
  * import pandas as pd
  * 
- * def getGaunt(n2,n3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Gaunt coefficients for valid values of n1 and m1
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
 
   /* function exit code */
@@ -24193,12 +24193,12 @@ static PyObject *__pyx_pf_8shxarray_5shlib_2getGaunt(CYTHON_UNUSED PyObject *__p
   return __pyx_r;
 }
 
-/* "src/builtin_backend/gaunt.pyx":27
+/* "src/builtin_backend/gaunt.pyx":30
  *     return xr.DataArray(gaunt.get(), coords=dict(nm=nm),dims=["nm"])
  * 
- * def getGauntReal(n2,n3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Real Gaunt coefficients for valid values of n1 and m1
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
 
 /* Python wrapper */
@@ -24264,7 +24264,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[0]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(6, 27, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(6, 30, __pyx_L3_error)
         else goto __pyx_L5_argtuple_error;
         CYTHON_FALLTHROUGH;
         case  1:
@@ -24272,9 +24272,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[1]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(6, 27, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(6, 30, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("getGauntReal", 1, 4, 4, 1); __PYX_ERR(6, 27, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getGauntReal", 1, 4, 4, 1); __PYX_ERR(6, 30, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  2:
@@ -24282,9 +24282,9 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[2]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(6, 27, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(6, 30, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("getGauntReal", 1, 4, 4, 2); __PYX_ERR(6, 27, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getGauntReal", 1, 4, 4, 2); __PYX_ERR(6, 30, __pyx_L3_error)
         }
         CYTHON_FALLTHROUGH;
         case  3:
@@ -24292,14 +24292,14 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
           (void)__Pyx_Arg_NewRef_FASTCALL(values[3]);
           kw_args--;
         }
-        else if (unlikely(PyErr_Occurred())) __PYX_ERR(6, 27, __pyx_L3_error)
+        else if (unlikely(PyErr_Occurred())) __PYX_ERR(6, 30, __pyx_L3_error)
         else {
-          __Pyx_RaiseArgtupleInvalid("getGauntReal", 1, 4, 4, 3); __PYX_ERR(6, 27, __pyx_L3_error)
+          __Pyx_RaiseArgtupleInvalid("getGauntReal", 1, 4, 4, 3); __PYX_ERR(6, 30, __pyx_L3_error)
         }
       }
       if (unlikely(kw_args > 0)) {
         const Py_ssize_t kwd_pos_args = __pyx_nargs;
-        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "getGauntReal") < 0)) __PYX_ERR(6, 27, __pyx_L3_error)
+        if (unlikely(__Pyx_ParseOptionalKeywords(__pyx_kwds, __pyx_kwvalues, __pyx_pyargnames, 0, values + 0, kwd_pos_args, "getGauntReal") < 0)) __PYX_ERR(6, 30, __pyx_L3_error)
       }
     } else if (unlikely(__pyx_nargs != 4)) {
       goto __pyx_L5_argtuple_error;
@@ -24316,7 +24316,7 @@ PyObject *__pyx_args, PyObject *__pyx_kwds
   }
   goto __pyx_L6_skip;
   __pyx_L5_argtuple_error:;
-  __Pyx_RaiseArgtupleInvalid("getGauntReal", 1, 4, 4, __pyx_nargs); __PYX_ERR(6, 27, __pyx_L3_error)
+  __Pyx_RaiseArgtupleInvalid("getGauntReal", 1, 4, 4, __pyx_nargs); __PYX_ERR(6, 30, __pyx_L3_error)
   __pyx_L6_skip:;
   goto __pyx_L4_argument_unpacking_done;
   __pyx_L3_error:;
@@ -24365,26 +24365,26 @@ static PyObject *__pyx_pf_8shxarray_5shlib_4getGauntReal(CYTHON_UNUSED PyObject 
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("getGauntReal", 1);
 
-  /* "src/builtin_backend/gaunt.pyx":31
+  /* "src/builtin_backend/gaunt.pyx":37
  *     Compute non-zero Real Gaunt coefficients for valid values of n1 and m1
  *     """
  *     gauntreal = GauntReal[double](n2,n3,m2,m3)             # <<<<<<<<<<<<<<
  *     assert(gauntreal.nmin() <= gauntreal.nmax())
  *     nm=pd.MultiIndex.from_tuples(gauntreal.nm(),names=("n","m"))
  */
-  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_n2); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 31, __pyx_L1_error)
-  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_n3); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 31, __pyx_L1_error)
-  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_m2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 31, __pyx_L1_error)
-  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_v_m3); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 31, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyInt_As_int(__pyx_v_n2); if (unlikely((__pyx_t_1 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 37, __pyx_L1_error)
+  __pyx_t_2 = __Pyx_PyInt_As_int(__pyx_v_n3); if (unlikely((__pyx_t_2 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 37, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_As_int(__pyx_v_m2); if (unlikely((__pyx_t_3 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 37, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_As_int(__pyx_v_m3); if (unlikely((__pyx_t_4 == (int)-1) && PyErr_Occurred())) __PYX_ERR(6, 37, __pyx_L1_error)
   try {
     __pyx_t_5 = GauntReal<double> (__pyx_t_1, __pyx_t_2, __pyx_t_3, __pyx_t_4);
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(6, 31, __pyx_L1_error)
+    __PYX_ERR(6, 37, __pyx_L1_error)
   }
   __pyx_v_gauntreal = __PYX_STD_MOVE_IF_SUPPORTED(__pyx_t_5);
 
-  /* "src/builtin_backend/gaunt.pyx":32
+  /* "src/builtin_backend/gaunt.pyx":38
  *     """
  *     gauntreal = GauntReal[double](n2,n3,m2,m3)
  *     assert(gauntreal.nmin() <= gauntreal.nmax())             # <<<<<<<<<<<<<<
@@ -24397,55 +24397,55 @@ static PyObject *__pyx_pf_8shxarray_5shlib_4getGauntReal(CYTHON_UNUSED PyObject 
       __pyx_t_4 = __pyx_v_gauntreal.nmin();
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(6, 32, __pyx_L1_error)
+      __PYX_ERR(6, 38, __pyx_L1_error)
     }
     try {
       __pyx_t_3 = __pyx_v_gauntreal.nmax();
     } catch(...) {
       __Pyx_CppExn2PyErr();
-      __PYX_ERR(6, 32, __pyx_L1_error)
+      __PYX_ERR(6, 38, __pyx_L1_error)
     }
     __pyx_t_6 = (__pyx_t_4 <= __pyx_t_3);
     if (unlikely(!__pyx_t_6)) {
       __Pyx_Raise(__pyx_builtin_AssertionError, 0, 0, 0);
-      __PYX_ERR(6, 32, __pyx_L1_error)
+      __PYX_ERR(6, 38, __pyx_L1_error)
     }
   }
   #else
-  if ((1)); else __PYX_ERR(6, 32, __pyx_L1_error)
+  if ((1)); else __PYX_ERR(6, 38, __pyx_L1_error)
   #endif
 
-  /* "src/builtin_backend/gaunt.pyx":33
+  /* "src/builtin_backend/gaunt.pyx":39
  *     gauntreal = GauntReal[double](n2,n3,m2,m3)
  *     assert(gauntreal.nmin() <= gauntreal.nmax())
  *     nm=pd.MultiIndex.from_tuples(gauntreal.nm(),names=("n","m"))             # <<<<<<<<<<<<<<
  *     return xr.DataArray(gauntreal.get(), coords=dict(nm=nm),dims=["nm"])
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_pd); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 33, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_7, __pyx_n_s_pd); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_MultiIndex); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 33, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_MultiIndex); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_from_tuples); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 33, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_from_tuples); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   try {
     __pyx_t_9 = __pyx_v_gauntreal.nm();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(6, 33, __pyx_L1_error)
+    __PYX_ERR(6, 39, __pyx_L1_error)
   }
-  __pyx_t_8 = __pyx_convert_vector_to_py_std_3a__3a_pair_3c_int_2c_int_3e___(__pyx_t_9); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 33, __pyx_L1_error)
+  __pyx_t_8 = __pyx_convert_vector_to_py_std_3a__3a_pair_3c_int_2c_int_3e___(__pyx_t_9); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_10 = PyTuple_New(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(6, 33, __pyx_L1_error)
+  __pyx_t_10 = PyTuple_New(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(6, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_GIVEREF(__pyx_t_8);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_8)) __PYX_ERR(6, 33, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_8)) __PYX_ERR(6, 39, __pyx_L1_error);
   __pyx_t_8 = 0;
-  __pyx_t_8 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 33, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_names, __pyx_tuple__20) < 0) __PYX_ERR(6, 33, __pyx_L1_error)
-  __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_10, __pyx_t_8); if (unlikely(!__pyx_t_11)) __PYX_ERR(6, 33, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_8, __pyx_n_s_names, __pyx_tuple__20) < 0) __PYX_ERR(6, 39, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_Call(__pyx_t_7, __pyx_t_10, __pyx_t_8); if (unlikely(!__pyx_t_11)) __PYX_ERR(6, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
@@ -24453,45 +24453,45 @@ static PyObject *__pyx_pf_8shxarray_5shlib_4getGauntReal(CYTHON_UNUSED PyObject 
   __pyx_v_nm = __pyx_t_11;
   __pyx_t_11 = 0;
 
-  /* "src/builtin_backend/gaunt.pyx":34
+  /* "src/builtin_backend/gaunt.pyx":40
  *     assert(gauntreal.nmin() <= gauntreal.nmax())
  *     nm=pd.MultiIndex.from_tuples(gauntreal.nm(),names=("n","m"))
  *     return xr.DataArray(gauntreal.get(), coords=dict(nm=nm),dims=["nm"])             # <<<<<<<<<<<<<<
  */
   __Pyx_XDECREF(__pyx_r);
-  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_xr); if (unlikely(!__pyx_t_11)) __PYX_ERR(6, 34, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_xr); if (unlikely(!__pyx_t_11)) __PYX_ERR(6, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_DataArray); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 34, __pyx_L1_error)
+  __pyx_t_8 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_DataArray); if (unlikely(!__pyx_t_8)) __PYX_ERR(6, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
   try {
     __pyx_t_12 = __pyx_v_gauntreal.get();
   } catch(...) {
     __Pyx_CppExn2PyErr();
-    __PYX_ERR(6, 34, __pyx_L1_error)
+    __PYX_ERR(6, 40, __pyx_L1_error)
   }
-  __pyx_t_11 = __pyx_convert_vector_to_py_double(__pyx_t_12); if (unlikely(!__pyx_t_11)) __PYX_ERR(6, 34, __pyx_L1_error)
+  __pyx_t_11 = __pyx_convert_vector_to_py_double(__pyx_t_12); if (unlikely(!__pyx_t_11)) __PYX_ERR(6, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_10 = PyTuple_New(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(6, 34, __pyx_L1_error)
+  __pyx_t_10 = PyTuple_New(1); if (unlikely(!__pyx_t_10)) __PYX_ERR(6, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_GIVEREF(__pyx_t_11);
-  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_11)) __PYX_ERR(6, 34, __pyx_L1_error);
+  if (__Pyx_PyTuple_SET_ITEM(__pyx_t_10, 0, __pyx_t_11)) __PYX_ERR(6, 40, __pyx_L1_error);
   __pyx_t_11 = 0;
-  __pyx_t_11 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_11)) __PYX_ERR(6, 34, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyDict_NewPresized(2); if (unlikely(!__pyx_t_11)) __PYX_ERR(6, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 34, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyDict_NewPresized(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_nm, __pyx_v_nm) < 0) __PYX_ERR(6, 34, __pyx_L1_error)
-  if (PyDict_SetItem(__pyx_t_11, __pyx_n_s_coords, __pyx_t_7) < 0) __PYX_ERR(6, 34, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_7, __pyx_n_s_nm, __pyx_v_nm) < 0) __PYX_ERR(6, 40, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_t_11, __pyx_n_s_coords, __pyx_t_7) < 0) __PYX_ERR(6, 40, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = PyList_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 34, __pyx_L1_error)
+  __pyx_t_7 = PyList_New(1); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_INCREF(__pyx_n_u_nm);
   __Pyx_GIVEREF(__pyx_n_u_nm);
-  if (__Pyx_PyList_SET_ITEM(__pyx_t_7, 0, __pyx_n_u_nm)) __PYX_ERR(6, 34, __pyx_L1_error);
-  if (PyDict_SetItem(__pyx_t_11, __pyx_n_s_dims, __pyx_t_7) < 0) __PYX_ERR(6, 34, __pyx_L1_error)
+  if (__Pyx_PyList_SET_ITEM(__pyx_t_7, 0, __pyx_n_u_nm)) __PYX_ERR(6, 40, __pyx_L1_error);
+  if (PyDict_SetItem(__pyx_t_11, __pyx_n_s_dims, __pyx_t_7) < 0) __PYX_ERR(6, 40, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_10, __pyx_t_11); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 34, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_8, __pyx_t_10, __pyx_t_11); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 40, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
@@ -24500,12 +24500,12 @@ static PyObject *__pyx_pf_8shxarray_5shlib_4getGauntReal(CYTHON_UNUSED PyObject 
   __pyx_t_7 = 0;
   goto __pyx_L0;
 
-  /* "src/builtin_backend/gaunt.pyx":27
+  /* "src/builtin_backend/gaunt.pyx":30
  *     return xr.DataArray(gaunt.get(), coords=dict(nm=nm),dims=["nm"])
  * 
- * def getGauntReal(n2,n3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Real Gaunt coefficients for valid values of n1 and m1
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
 
   /* function exit code */
@@ -36058,7 +36058,7 @@ static int __Pyx_CreateStringTabAndInitStrings(void) {
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(0, 2, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(1, 60, __pyx_L1_error)
-  __pyx_builtin_AssertionError = __Pyx_GetBuiltinName(__pyx_n_s_AssertionError); if (!__pyx_builtin_AssertionError) __PYX_ERR(2, 22, __pyx_L1_error)
+  __pyx_builtin_AssertionError = __Pyx_GetBuiltinName(__pyx_n_s_AssertionError); if (!__pyx_builtin_AssertionError) __PYX_ERR(2, 25, __pyx_L1_error)
   __pyx_builtin_RuntimeError = __Pyx_GetBuiltinName(__pyx_n_s_RuntimeError); if (!__pyx_builtin_RuntimeError) __PYX_ERR(3, 86, __pyx_L1_error)
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 68, __pyx_L1_error)
   __pyx_builtin___import__ = __Pyx_GetBuiltinName(__pyx_n_s_import); if (!__pyx_builtin___import__) __PYX_ERR(0, 100, __pyx_L1_error)
@@ -36148,25 +36148,25 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__18);
   __Pyx_GIVEREF(__pyx_tuple__18);
 
-  /* "src/builtin_backend/wigner3j.pyx":24
+  /* "src/builtin_backend/wigner3j.pyx":27
  *     assert(w3j.jmin() <= w3j.jmax())
  *     m=w3j.m()
  *     jm=pd.MultiIndex.from_tuples([(j,m) for j in range(w3j.jmin(),w3j.jmax()+1)],names=("j","m"))             # <<<<<<<<<<<<<<
  *     return xr.DataArray(w3j.get(), coords=dict(jm=jm),dims=["jm"])
  * 
  */
-  __pyx_tuple__19 = PyTuple_Pack(2, __pyx_n_u_j, __pyx_n_u_m); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(2, 24, __pyx_L1_error)
+  __pyx_tuple__19 = PyTuple_Pack(2, __pyx_n_u_j, __pyx_n_u_m); if (unlikely(!__pyx_tuple__19)) __PYX_ERR(2, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__19);
   __Pyx_GIVEREF(__pyx_tuple__19);
 
-  /* "src/builtin_backend/gaunt.pyx":24
+  /* "src/builtin_backend/gaunt.pyx":27
  *     assert(gaunt.nmin() <= gaunt.nmax())
  *     m=gaunt.m()
  *     nm=pd.MultiIndex.from_tuples([(n,m) for n in range(gaunt.nmin(),gaunt.nmax()+1,2)],names=("n","m"))             # <<<<<<<<<<<<<<
  *     return xr.DataArray(gaunt.get(), coords=dict(nm=nm),dims=["nm"])
  * 
  */
-  __pyx_tuple__20 = PyTuple_Pack(2, __pyx_n_u_n, __pyx_n_u_m); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(6, 24, __pyx_L1_error)
+  __pyx_tuple__20 = PyTuple_Pack(2, __pyx_n_u_n, __pyx_n_u_m); if (unlikely(!__pyx_tuple__20)) __PYX_ERR(6, 27, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__20);
   __Pyx_GIVEREF(__pyx_tuple__20);
 
@@ -36437,9 +36437,9 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "src/builtin_backend/wigner3j.pyx":17
  * import pandas as pd
  * 
- * def getWigner3j(j2,j3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Wigner3J symbols with their valid (j1,m1) for j2,j3,m2,m3 input
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
   __pyx_tuple__53 = PyTuple_Pack(8, __pyx_n_s_j2, __pyx_n_s_j3, __pyx_n_s_m2, __pyx_n_s_m3, __pyx_n_s_w3j, __pyx_n_s_m, __pyx_n_s_jm, __pyx_n_s_j); if (unlikely(!__pyx_tuple__53)) __PYX_ERR(2, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__53);
@@ -36449,26 +36449,26 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   /* "src/builtin_backend/gaunt.pyx":17
  * import pandas as pd
  * 
- * def getGaunt(n2,n3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Gaunt coefficients for valid values of n1 and m1
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
   __pyx_tuple__55 = PyTuple_Pack(8, __pyx_n_s_n2, __pyx_n_s_n3, __pyx_n_s_m2, __pyx_n_s_m3, __pyx_n_s_gaunt, __pyx_n_s_m, __pyx_n_s_nm, __pyx_n_s_n); if (unlikely(!__pyx_tuple__55)) __PYX_ERR(6, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__55);
   __Pyx_GIVEREF(__pyx_tuple__55);
   __pyx_codeobj__56 = (PyObject*)__Pyx_PyCode_New(4, 0, 0, 8, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__55, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_builtin_backend_gaunt_pyx, __pyx_n_s_getGaunt, 17, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__56)) __PYX_ERR(6, 17, __pyx_L1_error)
 
-  /* "src/builtin_backend/gaunt.pyx":27
+  /* "src/builtin_backend/gaunt.pyx":30
  *     return xr.DataArray(gaunt.get(), coords=dict(nm=nm),dims=["nm"])
  * 
- * def getGauntReal(n2,n3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Real Gaunt coefficients for valid values of n1 and m1
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
-  __pyx_tuple__57 = PyTuple_Pack(6, __pyx_n_s_n2, __pyx_n_s_n3, __pyx_n_s_m2, __pyx_n_s_m3, __pyx_n_s_gauntreal, __pyx_n_s_nm); if (unlikely(!__pyx_tuple__57)) __PYX_ERR(6, 27, __pyx_L1_error)
+  __pyx_tuple__57 = PyTuple_Pack(6, __pyx_n_s_n2, __pyx_n_s_n3, __pyx_n_s_m2, __pyx_n_s_m3, __pyx_n_s_gauntreal, __pyx_n_s_nm); if (unlikely(!__pyx_tuple__57)) __PYX_ERR(6, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__57);
   __Pyx_GIVEREF(__pyx_tuple__57);
-  __pyx_codeobj__58 = (PyObject*)__Pyx_PyCode_New(4, 0, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__57, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_builtin_backend_gaunt_pyx, __pyx_n_s_getGauntReal, 27, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__58)) __PYX_ERR(6, 27, __pyx_L1_error)
+  __pyx_codeobj__58 = (PyObject*)__Pyx_PyCode_New(4, 0, 0, 6, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__57, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_builtin_backend_gaunt_pyx, __pyx_n_s_getGauntReal, 30, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__58)) __PYX_ERR(6, 30, __pyx_L1_error)
 
   /* "(tree fragment)":1
  * def __reduce_cython__(self):             # <<<<<<<<<<<<<<
@@ -37985,7 +37985,7 @@ if (!__Pyx_RefNanny) {
  * import xarray as xr
  * import pandas as pd             # <<<<<<<<<<<<<<
  * 
- * def getWigner3j(j2,j3,m2,m3):
+ * @cython.boundscheck(False)
  */
   __pyx_t_7 = __Pyx_ImportDottedModule(__pyx_n_s_pandas, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 15, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -37995,9 +37995,9 @@ if (!__Pyx_RefNanny) {
   /* "src/builtin_backend/wigner3j.pyx":17
  * import pandas as pd
  * 
- * def getWigner3j(j2,j3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Wigner3J symbols with their valid (j1,m1) for j2,j3,m2,m3 input
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
   __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_8shxarray_5shlib_1getWigner3j, 0, __pyx_n_s_getWigner3j, NULL, __pyx_n_s_shxarray_shlib, __pyx_d, ((PyObject *)__pyx_codeobj__54)); if (unlikely(!__pyx_t_7)) __PYX_ERR(2, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -38021,7 +38021,7 @@ if (!__Pyx_RefNanny) {
  * import xarray as xr
  * import pandas as pd             # <<<<<<<<<<<<<<
  * 
- * def getGaunt(n2,n3,m2,m3):
+ * @cython.boundscheck(False)
  */
   __pyx_t_7 = __Pyx_ImportDottedModule(__pyx_n_s_pandas, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 15, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
@@ -38031,25 +38031,25 @@ if (!__Pyx_RefNanny) {
   /* "src/builtin_backend/gaunt.pyx":17
  * import pandas as pd
  * 
- * def getGaunt(n2,n3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Gaunt coefficients for valid values of n1 and m1
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
   __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_8shxarray_5shlib_3getGaunt, 0, __pyx_n_s_getGaunt, NULL, __pyx_n_s_shxarray_shlib, __pyx_d, ((PyObject *)__pyx_codeobj__56)); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 17, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_getGaunt, __pyx_t_7) < 0) __PYX_ERR(6, 17, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
-  /* "src/builtin_backend/gaunt.pyx":27
+  /* "src/builtin_backend/gaunt.pyx":30
  *     return xr.DataArray(gaunt.get(), coords=dict(nm=nm),dims=["nm"])
  * 
- * def getGauntReal(n2,n3,m2,m3):             # <<<<<<<<<<<<<<
- *     """
- *     Compute non-zero Real Gaunt coefficients for valid values of n1 and m1
+ * @cython.boundscheck(False)             # <<<<<<<<<<<<<<
+ * @cython.wraparound(False)
+ * @cython.initializedcheck(False)
  */
-  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_8shxarray_5shlib_5getGauntReal, 0, __pyx_n_s_getGauntReal, NULL, __pyx_n_s_shxarray_shlib, __pyx_d, ((PyObject *)__pyx_codeobj__58)); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 27, __pyx_L1_error)
+  __pyx_t_7 = __Pyx_CyFunction_New(&__pyx_mdef_8shxarray_5shlib_5getGauntReal, 0, __pyx_n_s_getGauntReal, NULL, __pyx_n_s_shxarray_shlib, __pyx_d, ((PyObject *)__pyx_codeobj__58)); if (unlikely(!__pyx_t_7)) __PYX_ERR(6, 30, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
-  if (PyDict_SetItem(__pyx_d, __pyx_n_s_getGauntReal, __pyx_t_7) < 0) __PYX_ERR(6, 27, __pyx_L1_error)
+  if (PyDict_SetItem(__pyx_d, __pyx_n_s_getGauntReal, __pyx_t_7) < 0) __PYX_ERR(6, 30, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
 
   /* "src/builtin_backend/ynm.pyx":11

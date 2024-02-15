@@ -6,7 +6,7 @@
 import xarray as xr
 from shxarray.core.logging import logger
 from shxarray.shlib import Ynm
-# from dask.array.core import einsum_lookup
+from shxarray.core.sh_indexing import SHindexBase
 import sparse
 
 
@@ -32,17 +32,17 @@ class AnisoKernel:
    
 
     def __call__(self,dain:xr.DataArray):
-        if "shi" not in dain.indexes:
+        if SHindexBase.name not in dain.indexes:
+            
             raise RuntimeError("al harmonic index not found in input, cannot apply kernel operator to object")
-        # daout=xr.dot(dain,self._dskernel.mat,dims=["shi"]) 
-        daout=xr.dot(self._dskernel.mat,dain,dims=["shi"]) 
-        #rename shi and convert to dense array
-        daout=daout.sh.toggle_shi()
+        daout=xr.dot(self._dskernel.mat,dain,dims=[SHindexBase.name]) 
+        #rename nm and convert to dense array
+        daout=daout.sh.toggle_nm()
         daout=xr.DataArray(daout.data.todense(),coords=daout.coords,name=self.name)
         
         if not self.truncate and self.nmin > 0:
             #also add the unfiltered lower degree coefficients back to the results
-            daout=xr.concat([dain.sh.truncate(self.nmin-1),daout],dim="shi")
+            daout=xr.concat([dain.sh.truncate(self.nmin-1),daout],dim=SHindexBase.name)
 
         return daout
 

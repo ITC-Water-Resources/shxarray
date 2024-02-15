@@ -114,7 +114,7 @@ def test_synthesis_slice(generatedata,lon,lat):
     # select a subset from the input and validation
     bassl=slice(1,4)
     timesl=slice(1,3)
-    if dain.get_axis_num('shi') == 2:
+    if dain.get_axis_num('nm') == 2:
         dain=dain[bassl,timesl]
     else:
         dain=dain[:,timesl,bassl]

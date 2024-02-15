@@ -20,7 +20,7 @@ import xarray as xr
 import re
 import sys
 import numpy as np
-from shxarray.core.sh_indexing import SHindexBase,trig
+from shxarray.core.sh_indexing import SHindexBase
 from shxarray.core.logging import logger 
 from datetime import datetime,timedelta
 from shxarray.core.cf import get_cfatts
@@ -93,7 +93,7 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
     cnm=np.zeros([nsh])
     sigcnm=np.zeros([nsh])
     ncount=0
-    nmt=[]
+    nm=[]
     #continue reading the data
     dataregex=re.compile(b'^gfc')
     for ln in fileobj:
@@ -111,27 +111,27 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
 
             cnm[ncount]=float(lnspl[3])
             sigcnm[ncount]=float(lnspl[5])
-            nmt.append((n,m,trig.c))
+            nm.append((n,m))
             ncount+=1
             
             #possibly also add snm coefficients
             if m!=0:
                 cnm[ncount]=float(lnspl[4])
                 sigcnm[ncount]=float(lnspl[6])
-                nmt.append((n,m,trig.s))
+                nm.append((n,-m))
                 ncount+=1
 
     if needsClosing:
         fileobj.close()
     if time:
-        shp=["time","shi"]
-        coords={"shi":SHindexBase.mi_fromtuples(nmt),"time":time}
+        shp=["time",SHindexBase.name]
+        coords={SHindexBase.name:SHindexBase.mi_fromtuples(nm),"time":time}
         #also expand variables
         cnm=np.expand_dims(cnm[0:ncount], axis=0)
         sigcnm=np.expand_dims(sigcnm[0:ncount],axis=0)
     else:
-        shp=["shi"]
-        coords={"shi":SHindexBase.mi_fromtuples(nmt)}
+        shp=[SHindexBase.name]
+        coords={SHindexBase.name:SHindexBase.mi_fromtuples(nm)}
         cnm=cnm[0:ncount]
         sigcnm=sigcnm[0:ncount]
     

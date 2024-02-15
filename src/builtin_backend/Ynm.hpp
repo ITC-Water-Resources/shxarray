@@ -32,7 +32,7 @@ template <class ftype>
 class Ynm_cpp{
    public:
     Ynm_cpp(const int nmax);
-    Ynm_cpp(const size_t size, const int n [],const int m[ ],const int t[]);
+    Ynm_cpp(const size_t size, const int n [],const int m[ ]);
     Ynm_cpp(){};
     void set(const ftype lon, const ftype lat);
     
@@ -81,7 +81,7 @@ Ynm_cpp<ftype>::Ynm_cpp(int nmax):legnm(nmax),sz_(2*(legnm.idx(nmax,nmax)+1)-(nm
 }
 
 template<class ftype>
-Ynm_cpp<ftype>::Ynm_cpp(const size_t size, const int n [],const int m[ ],const int t[]):sz_(size),ynmdata_(size,0.0),mnidx_(sz_){
+Ynm_cpp<ftype>::Ynm_cpp(const size_t size, const int n [],const int m[ ]):sz_(size),ynmdata_(size,0.0),mnidx_(sz_){
     
     ///find nmax
     int nmax=-1;
@@ -89,8 +89,7 @@ Ynm_cpp<ftype>::Ynm_cpp(const size_t size, const int n [],const int m[ ],const i
     //map<std::pair<int,int>,ssize_t> mninputidx;
     for (size_t i=0;i<size;++i){
 	nmax=(nmax<n[i])?n[i]:nmax;
-	int sgn=t[i]?-1:1;
-	mnidx_[i]={sgn*m[i],n[i],i};
+	mnidx_[i]={m[i],n[i],i};
     }
 
     legnm=Legendre_nm<ftype>(nmax);

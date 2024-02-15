@@ -42,9 +42,9 @@ cdef extern from "Ynm.hpp":
     cdef cppclass Ynm_cpp[T] nogil:
         Ynm_cpp() except +
         Ynm_cpp(int nmax) except +
-        Ynm_cpp(cython.size_t size, const int n[],const int m[], const int t[]) except +
+        Ynm_cpp(cython.size_t size, const int n[],const int m[]) except +
         void set( T lon, T lat) nogil 
-        cython.ssize_t idx(int n,int m,int t)
+        cython.ssize_t idx(int n,int m)
         T& operator[](size_t i)
         int nmax()
         T* data()

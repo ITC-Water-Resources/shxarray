@@ -87,7 +87,7 @@ def shgausstest():
 def test_Gauss(shinput,shgausstest):
     shfilt=shinput.cnm.sh.filter("Gauss300")
     
-    dadiff=(shgausstest.cnm-shfilt.loc[shgausstest.shi])/shgausstest.cnm
+    dadiff=(shgausstest.cnm-shfilt.loc[shgausstest.nm])/shgausstest.cnm
     maxdiff=max(abs(dadiff.max()),abs(dadiff.min())) 
     reltol=1e-7
     assert(maxdiff < reltol)

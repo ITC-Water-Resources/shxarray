@@ -26,38 +26,30 @@ cdef class Ynm:
         
         cdef int[::1] nv  
         cdef int[::1] mv 
-        cdef int[::1] tv
-        cdef int [:,::1] nmt
+        cdef int [:,::1] nm
         cdef cython.size_t sz,idx
-        cdef int nmax,n,m,t
+        cdef int nmax,n,m
         cdef mni it
         if type(nmax_or_index) == int:
             nmax=nmax_or_index
             self._ynm=Ynm_cpp[double](nmax)
             sz=self._ynm.size()
             #create a sh index
-            nmt=np.zeros([sz,3],dtype=np.int32)
+            nm=np.zeros([sz,2],dtype=np.int32)
             for it in self._ynm.getmn():
                 n=it.n
                 m=it.m
                 idx=it.i
-                if m<0:
-                    nmt[idx,0]=n
-                    nmt[idx,1]=-m
-                    nmt[idx,2]=1
-                else:
-                    nmt[idx,0]=n
-                    nmt[idx,1]=m
-                    nmt[idx,2]=0
+                nm[idx,0]=n
+                nm[idx,1]=m
 
-            self._shindex=SHindexBase.mi_fromarrays(np.asarray(nmt).T)
+            self._shindex=SHindexBase.mi_fromarrays(np.asarray(nm).T)
         else:
             nv=np.array([n for n,_,_ in nmax_or_index.values]).astype(np.int32)
             mv=np.array([m for _,m,_ in nmax_or_index.values]).astype(np.int32)
-            tv=np.array([t for _,_,t in nmax_or_index.values]).astype(np.int32)
 
             sz=len(nmax_or_index)
-            self._ynm=Ynm_cpp[double](sz,&nv[0],&mv[0],&tv[0])
+            self._ynm=Ynm_cpp[double](sz,&nv[0],&mv[0])
             self._shindex=nmax_or_index
 
         #have data memory view point to the memory of the cpp class
@@ -79,7 +71,7 @@ cdef class Ynm:
         if np.isscalar(lon) and np.isscalar(lat):
             
             self._ynm.set(lon,lat)
-            dsout=xr.DataArray(self.data,coords={"shi":self._shindex,"lon":lon,"lat":lat},dims=["shi"],name="Ynm")
+            dsout=xr.DataArray(self.data,coords={"nm":self._shindex,"lon":lon,"lat":lat},dims=["nm"],name="Ynm")
         else:
             #multiple sets requested
             if len(lon) != len(lat):
@@ -91,7 +83,7 @@ cdef class Ynm:
                 self._ynm.set(lon[i],lat[i])
                 data[i,:]=self.data
             
-            dsout=xr.DataArray(data,coords={"shi":("shi",self._shindex),"lon":("nlonlat",lon),"lat":("nlonlat",lat)},dims=["nlonlat","shi"],name="Ynm")
+            dsout=xr.DataArray(data,coords={"nm":("nm",self._shindex),"lon":("nlonlat",lon),"lat":("nlonlat",lat)},dims=["nlonlat","nm"],name="Ynm")
         
         return dsout
 

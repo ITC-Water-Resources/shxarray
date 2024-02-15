@@ -4,6 +4,7 @@
 #
 
 import xarray as xr
+from shxarray.core.sh_indexing import SHindexBase
 from shxarray.core.shxarbase import ShXrBase
 from shxarray.kernels.ddk import load_ddk
 from shxarray.kernels.gauss import Gaussian
@@ -17,14 +18,14 @@ class SHDaAccessor(ShXrBase):
     
 
     @staticmethod
-    def zeros(nmax,nmin=0,squeeze=True,name="cnm",auxcoords={},order='C'):
+    def zeros(nmax,nmin=0,name="cnm",auxcoords={},order='C'):
         """0-Initialize an spherical harmonic DataArray based on nmax and nmin"""
-        return ShXrBase._initWithScalar(nmax,nmin,0,squeeze,name,auxcoords,order=order)
+        return ShXrBase._initWithScalar(nmax,nmin,0,name,auxcoords,order=order)
     
     @staticmethod
-    def ones(nmax,nmin=0,squeeze=True,name="cnm",auxcoords={},order='C'):
+    def ones(nmax,nmin=0,name="cnm",auxcoords={},order='C'):
         """1-Initialize an spherical harmonic DataArray based on nmax and nmin"""
-        return ShXrBase._initWithScalar(nmax,nmin,1,squeeze,name,auxcoords,order=order)
+        return ShXrBase._initWithScalar(nmax,nmin,1,name,auxcoords,order=order)
     
     @staticmethod
     def wigner3j(j2,j3,m2,m3, engine="shlib"):
@@ -44,7 +45,7 @@ class SHDaAccessor(ShXrBase):
         eng=ShXrBase._eng(engine)
         return eng.gaunt(n2,n3,m2,m3)
     
-    def synthesis(self,lon=np.arange(-180.0,180.0,1.0), lat=np.arange(-90.0,90.0,1.0),grid=True,engine="shlib"):
+    def synthesis(self,lon=None, lat=None,grid=True,engine="shlib"):
         """
         Apply spherical harmonic synthesis on a set of longitude, latitude points
         :param lon: Longitude in degrees East
@@ -62,6 +63,11 @@ class SHDaAccessor(ShXrBase):
         """
         #dispatch to compute engine
         eng=self._eng(engine)
+         
+        if lon is None:
+            lon=np.arange(-180.0,181.0,1.0)
+        if lat is None:
+            lat=np.arange(-90.0,91.0,1.0)
         return eng.synthesis(self._obj,lon,lat,grid)
     
     def analysis(self,nmax=100,method='integrate',engine="shlib"):
@@ -129,10 +135,10 @@ class SHDaAccessor(ShXrBase):
         """
 
         if mean:
-            dv=np.square(self._obj).sh.drop_shindex().set_xindex("n").groupby("n").mean()
+            dv=np.square(self._obj).sh.drop_nmindex().set_xindex("n").groupby("n").mean()
         
         else:
-            dv=np.square(self._obj).sh.drop_shindex().set_xindex("n").groupby("n").sum()
+            dv=np.square(self._obj).sh.drop_nmindex().set_xindex("n").groupby("n").sum()
         
         return dv 
     
@@ -150,10 +156,12 @@ class SHDsAccessor(ShXrBase):
     def __init__(self, xarray_obj):
         super().__init__(xarray_obj)
     
-    def synthesis(self,lon=np.arange(-180.0,180.0,1.0), lat=np.arange(-90.0,90.0,1.0),grid=True,engine="shlib"):
-        """Calls the spherical harmonic synthesis operation on all DataArrays which have a 'shi' index"""
+    def synthesis(self,lon=None, lat=None,grid=True,engine="shlib"):
+        """Calls the spherical harmonic synthesis operation on all DataArrays which have a 'nm' index"""
+        
+
         #gather relevant das
-        das={ky:da for ky,da in self._obj.data_vars.items() if "shi" in da.coords}
+        das={ky:da for ky,da in self._obj.data_vars.items() if SHindexBase.name in da.coords}
         dsout=None
         for name,da in das.items():
             daout=da.sh.synthesis(lon=lon, lat=lat,grid=grid,engine=engine)

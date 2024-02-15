@@ -27,7 +27,7 @@ cdef class Analysis:
     def __cinit__(self, int nmax):
         
         #create a spherical harmonic index
-        self._dsobj=xr.Dataset(coords=SHindexBase.shi(nmax,0))
+        self._dsobj=xr.Dataset(coords=SHindexBase.nm(nmax,0))
                      
     def __call__(self,dain:xr.DataArray):
         """Perform  spherical harmonic analysis on an input xarray DataArray object""" 
@@ -72,7 +72,7 @@ cdef class Analysis:
 
         cdef int auxsize=np.prod([val for ky,val in dain.sizes.items() if ky not in ["lon","lat"]])
 
-        cdef int shsize=len(self._dsobj.indexes['shi'])
+        cdef int shsize=len(self._dsobj.indexes['nm'])
         #memoryview to output data (sh dimension should vary quickest) 
         cdef double [:,:] outv=dout.data.reshape([auxsize,shsize])
         #This is the same a s a Fortran contiguous array with dimension shsize,auxsize, lada=shsize  
@@ -80,9 +80,8 @@ cdef class Analysis:
         
 
 
-        cdef int[::1] nv = self._dsobj.shi.n.data.astype(np.int32)
-        cdef int[::1] mv = self._dsobj.shi.m.data.astype(np.int32)
-        cdef int[::1] tv = self._dsobj.shi.t.data.astype(np.int32)
+        cdef int[::1] nv = self._dsobj.nm.n.data.astype(np.int32)
+        cdef int[::1] mv = self._dsobj.nm.m.data.astype(np.int32)
 
         cdef Ynm_cpp[double] ynm
         cdef int ilat,ilon          
@@ -126,7 +125,7 @@ cdef class Analysis:
         omp_init_lock(&lock)
         with nogil, parallel():
 
-            ynm=Ynm_cpp[double](shsize,&nv[0],&mv[0],&tv[0])
+            ynm=Ynm_cpp[double](shsize,&nv[0],&mv[0])
             for ilat in prange(nlat):
                 alpha=weight*cos(latv[ilat]*d2r)
                 for ilon in range(nlon):

@@ -104,14 +104,14 @@ def readSHAscii(fileobj,nmaxstop=sys.maxsize):
     coefs=[float(x) for x in ln[2:nd]]
     
     # Add cosine entry
-    nmt=[(n,m,0)]
+    nm=[(n,m)]
     cnm=[coefs[0]]
     if nd == 6:
         sigcnm=[coefs[2]]
     ncount+=1 
     # add Sine entry if order is not zero    
     if m > 0:
-        nmt.append((n,m,1))
+        nm.append((n,-m))
         cnm.append(coefs[1])
         if nd == 6:
             sigcnm.append(coefs[3])
@@ -126,14 +126,14 @@ def readSHAscii(fileobj,nmaxstop=sys.maxsize):
         coefs=[float(x) for x in ln[2:nd]]
     
         # Add cosine entry
-        nmt.append((n,m,0))
+        nm.append((n,m))
         cnm.append(coefs[0])
         if nd == 6:
             sigcnm.append(coefs[2])
         ncount+=1 
         # add Sine entry if order is not zero    
         if m > 0:
-            nmt.append((n,m,1))
+            nm.append((n,-m))
             cnm.append(coefs[1])
             if nd == 6:
                 sigcnm.append(coefs[3])
@@ -145,7 +145,7 @@ def readSHAscii(fileobj,nmaxstop=sys.maxsize):
     #create an xarray dataset
     
     if nd == 6:
-        ds=xr.Dataset(data_vars=dict(cnm=(["shi"],cnm),sigcnm=(["shi"],sigcnm)),coords={"shi":SHindexBase.mi_fromtuples(nmt)},attrs=attr)
+        ds=xr.Dataset(data_vars=dict(cnm=([SHindexBase.name],cnm),sigcnm=([SHindexBase.name],sigcnm)),coords={SHindexBase.name:SHindexBase.mi_fromtuples(nm)},attrs=attr)
     else:
-        ds=xr.Dataset(data_vars=dict(cnm=(["shi"],cnm)),coords={"shi":SHindexBase.mi_fromtuples(nmt)},attrs=attr)
+        ds=xr.Dataset(data_vars=dict(cnm=([SHindexBase.name],cnm)),coords={SHindexBase.name:SHindexBase.mi_fromtuples(nm)},attrs=attr)
     return ds

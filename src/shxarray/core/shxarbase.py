@@ -7,7 +7,7 @@
 import xarray as xr
 import numpy as np
 
-from .sh_indexing import SHindexBase,trig
+from .sh_indexing import SHindexBase
 
 
 loaded_engines={}
@@ -31,8 +31,8 @@ class ShXrBase:
         :return: minimum degree
         :rtype: int
         """
-        if "shi" in self._obj.indexes:
-           return self._obj.shi.n.min().item()
+        if SHindexBase.name in self._obj.indexes:
+           return self._obj.nm.n.min().item()
 
         if "n" in self._obj.indexes:
             return self._obj.n.min().item()
@@ -46,8 +46,8 @@ class ShXrBase:
         :return: maximum degree
         :rtype: int
         """
-        if "shi" in self._obj.indexes:
-            return self._obj.shi.n.max().item()
+        if SHindexBase.name in self._obj.indexes:
+            return self._obj.nm.n.max().item()
 
         if "n" in self._obj.indexes:
             return self._obj.n.max().item()
@@ -63,7 +63,7 @@ class ShXrBase:
             # defaults to Stokes coefficients 
             return "stokes"
    
-    def truncate(self,nmax=None,nmin=None,dims=["shi"]):
+    def truncate(self,nmax=None,nmin=None,dims=[SHindexBase.name]):
         """
         Truncate the maximum and/or minimum degree of the spherical harmonic coordinate and corresponding variables
         :param nmax: (int) maximum spherical harmonic degree to keep
@@ -74,57 +74,39 @@ class ShXrBase:
         """
         indx=None
         da=None
-        # if "shi" in self._obj.indexes:
-            # if nmax is not None:
-                # indx=(self._obj.shi.n <= nmax)
-            # if nmin is not None:
-                # if indx is not None:
-                    # indx=indx*(self._obj.shi.n >= nmin)
-                # else:
-                    # indx=(self._obj.shi.n >= nmin)
-            # selector["shi"]=indx
-        # elif "n" in self._obj.indexes:
-            # if nmax is not None:
-                # indx=(self._obj.n <= nmax)
-            # if nmin is not None:
-                # if indx is not None:
-                    # indx=indx*(self._obj.n >= nmin)
-                # else:
-                    # indx=(self._obj.n >= nmin)
-            # selector={"n":indx}
-        if "shi" in dims:
+        if SHindexBase.name in dims:
             if nmax is not None:
-                indx=(self._obj.shi.n <= nmax)
+                indx=(self._obj.nm.n <= nmax)
             if nmin is not None:
                 if indx is not None:
-                    indx=indx*(self._obj.shi.n >= nmin)
+                    indx=indx*(self._obj.nm.n >= nmin)
                 else:
-                    indx=(self._obj.shi.n >= nmin)
-            da=self._obj.isel(shi=indx)
+                    indx=(self._obj.nm.n >= nmin)
+            da=self._obj.isel(nm=indx)
         
-        if "shi_" in dims:
+        if "nm_" in dims:
             if nmax is not None:
-                indx=(self._obj.shi_.n_ <= nmax)
+                indx=(self._obj.nm_.n_ <= nmax)
             if nmin is not None:
                 if indx is not None:
-                    indx=indx*(self._obj.shi_.n_ >= nmin)
+                    indx=indx*(self._obj.nm_.n_ >= nmin)
                 else:
-                    indx=(self._obj.shi_.n_ >= nmin)
+                    indx=(self._obj.nm_.n_ >= nmin)
             if da is None:
-                da=self._obj.isel(shi_=indx)
+                da=self._obj.isel(nm_=indx)
             else:
-                da=da.isel(shi_=indx)
+                da=da.isel(nm_=indx)
          
         if da is not None:
             return da
         else:
-            raise RuntimeError("No spherical harmonic index ('shi' or 'n') was found in the xarray object")
+            raise RuntimeError("No spherical harmonic index ('nm' or 'n') was found in the xarray object")
     
     @staticmethod
-    def _initWithScalar(nmax,nmin=0,scalar=0,squeeze=True,name="cnm",auxcoords={},order='C'):
+    def _initWithScalar(nmax,nmin=0,scalar=0,name="cnm",auxcoords={},order='C'):
         """Initialize an spherical harmonic DataArray based on nmax and nmin"""
         
-        coords={"shi":SHindexBase.nmt_mi(nmax,nmin,squeeze=squeeze)}
+        coords={SHindexBase.name:SHindexBase.nm_mi(nmax,nmin)}
         dims=[]
         shp=[]
         
@@ -136,8 +118,8 @@ class ShXrBase:
             coords[dim]=coord
         
         # add shi dimension and shape last (so it varies quikest in memory
-        dims.append("shi")
-        shp.append(len(coords['shi']))
+        dims.append(SHindexBase.name)
+        shp.append(len(coords[SHindexBase.name]))
         
         if scalar == 0:
             return xr.DataArray(data=np.zeros(shp,order=order),dims=dims,name=name,coords=coords)
@@ -163,37 +145,35 @@ class ShXrBase:
 
 
     
-    def drop_shindex(self):
-        ds=self._obj.reset_index("shi")
-        return ds.assign_coords(t=(["shi"],[t for t in ds.t.values]))
+    def drop_nmindex(self):
+        ds=self._obj.reset_index(SHindexBase.name)
+        return ds.assign_coords(t=([SHindexBase.name],[t for t in ds.t.values]))
     
-    def build_shindex(self):
-        if "shi" in self._obj.indexes:
+    def build_nmindex(self):
+        if SHindexBase.name in self._obj.indexes:
             #already build, so don't bother
             return self._obj
         #either build from separate coordinate variables (n,m,t)
         if "n" in self._obj.coords and "m" in self._obj.coords and "t" in self._obj.coords:
-            shimi=SHindexBase.mi_fromtuples([(n,m,trig(t)) for n,m,t in zip(self._obj.n.values,self._obj.m.values,self._obj.t.values)])
-            return self._obj.drop_vars(["n","m","t"]).assign_coords(shi=shimi)
-        elif "shi" in self._obj.coords:
+            shimi=SHindexBase.mi_fromtuples([(n,m) for n,m in zip(self._obj.n.values,self._obj.m.values)])
+            return self._obj.drop_vars(["n","m"]).assign_coords(nm=shimi)
+        elif SHindexBase.name in self._obj.coords:
             #rebuild multiindex from an array of "left-over" tuples
-            shimi=SHindexBase.mi_fromtuples(self._obj.shi.values)
-            return self._obj.drop_vars(["shi"]).assign_coords(shi=shimi)
+            shimi=SHindexBase.mi_fromtuples(self._obj.nm.values)
+            return self._obj.drop_vars([SHindexBase.name]).assign_coords(nm=shimi)
     
-    def toggle_shi(self):
-        """Toggle naming of shi, shi_ multindices and their levels"""
+    def toggle_nm(self):
+        """Toggle naming of nm, nm_ multindices and their levels"""
         renamedict={}
-        if "shi" in self._obj.dims:
-            renamedict["shi"]="shi_"
+        if SHindexBase.name in self._obj.dims:
+            renamedict[SHindexBase.name]=SHindexBase.name_t
             renamedict["n"]="n_"
             renamedict["m"]="m_"
-            renamedict["t"]="t_"
         
-        if "shi_" in self._obj.dims:
-            renamedict["shi_"]="shi"
+        if SHindexBase.name_t in self._obj.dims:
+            renamedict[SHindexBase.name_t]=SHindexBase.name
             renamedict["n_"]="n"
             renamedict["m_"]="m"
-            renamedict["t_"]="t"
         return self._obj.rename(renamedict)
 
     @staticmethod

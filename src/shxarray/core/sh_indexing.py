@@ -5,33 +5,30 @@
 
 
 import pandas as pd
-from enum import IntEnum
-from functools import total_ordering
-
-
-@total_ordering
-class trig(IntEnum):
-    c=0
-    s=1
 
 
 class SHindexBase:
-    # _nmax=None
-    # _nmin=None
-    # _squeeze=True
-    # def __init__(self,nmax=None,nmin=None,squeeze=True):
-        # _nmax=nmax
-        # _nmin=nmin
-        # _squeeze=squeeze
-
+    name="nm"
+    name_t="nm_"
     @staticmethod
-    def nsh(nmax,nmin=0,squeeze=True):
+    def nsh(nmax,nmin=0, squeeze=True):
         """
-        Compute the total amount of spherical harmonic coefficients
-        :param nmax: maximum spherical harmonic degree
-        :param nmin: minimum spherical harmonic degree
-        :param squeeze: When true, don't store zero order Sine coefficients (will be zero)
-        :return Amount of spherical harmonic coefficients
+        Compute the total amount of spherical harmonic coefficients for a given range
+
+        Parameters
+        ----------
+        nmax : int
+            maximum spherical harmonic degree
+        nmin : int, optional
+            minimum spherical harmonic degree
+        squeeze: bool,optional
+            Legacy option used when Sine coefficients which have m=0 need to be included
+            
+
+        Returns
+        -------
+        int
+            The amount of spherical harmonic coefficients in this range
         """
         assert nmax>=nmin
 
@@ -45,34 +42,114 @@ class SHindexBase:
 
         return sz
 
-    @staticmethod
-    def nmt_mi(nmax,nmin=0,squeeze=True):
-        """ create a multindex guide which varies with n, then m, and than trigonometric sign"""
-        if squeeze:
-            nmt=[(n,m,t) for t in [trig.c,trig.s] for n in range(nmin,nmax+1) for m in range(n+1) if not (m == 0 and t == trig.s) ]
-        else:
-            nmt=[(n,m,t) for t in [trig.c,trig.s] for n in range(nmin,nmax+1) for m in range(n+1)]
-        return SHindexBase.mi_fromtuples(nmt)
-
-    @staticmethod
-    def shi(nmax,nmin=0,squeeze=True,dim="shi"):
-        """Convenience function which returns a dictionary which can be used as input for xarray constructors"""
-        return {dim:(dim,SHindexBase.nmt_mi(nmax,nmin,squeeze))}
-
-
-    @staticmethod
-    def mi_fromtuples(nmt):
-        return pd.MultiIndex.from_tuples(nmt,names=["n","m","t"])
     
     @staticmethod
-    def mi_fromarrays(nmt):
-        return pd.MultiIndex.from_arrays(nmt,names=["n","m","t"])
+    def nm_mi(nmax,nmin=0):
+        """
+        Generate a MultiIndex of degree and order which span a spherical harmonic degree range
+        
+        In the case of real spherical harmonic, orders m < 0  denote Sine coefficients
+
+        Parameters
+        ----------
+        nmax : int
+            maximum spherical harmonic degree
+        nmin : int, optional
+            minimum spherical harmonic degree
+
+        Returns
+        -------
+        pandas.MultiIndex
+            A MultiIndex with degrees "n" and orders "m" 
+        """
+        nm=[(n,m) for n in range(nmin,nmax+1) for m in range(-n,n+1)]
+        return SHindexBase.mi_fromtuples(nm)
+
+    @staticmethod
+    def nm(nmax,nmin=0):
+        """
+        Convenience function which returns a dictionary which can be used as input for xarray constructors
+        
+        Parameters
+        ----------
+        nmax : int
+            maximum spherical harmonic degree
+        nmin : int, optional
+            minimum spherical harmonic degree
+
+        Returns
+        -------
+        dictionary
+            A dictionary specifying the degree and orders and corresponding dimension names
+            in the form of {dim:(dim,nm)}
+        """
+        return {SHindexBase.name:(SHindexBase.name,SHindexBase.nm_mi(nmax,nmin))}
+
+
+    @staticmethod
+    def mi_fromtuples(nm):
+        """
+        Generate a MultiIndex of degree and order from a list of (degree,order) tuples
+        
+        In the case of real spherical harmonic, orders m < 0  denote Sine coefficients
+
+        Parameters
+        ----------
+        nm : list
+            A list of tuples with degree and order
+
+        Returns
+        -------
+        pandas.MultiIndex
+            A MultiIndex with degrees "n" and orders "m" 
+        """
+
+        return pd.MultiIndex.from_tuples(nm,names=["n","m"])
     
     @staticmethod
-    def mi_toggle(mi):
-        """Rename the levels of the multindex so that they can be use as transposed versions"""
+    def mi_fromarrays(nm):
+        """
+        Generate a MultiIndex of degree and order from an array of degree and order [[n..],[..m]]
+        
+        In the case of real spherical harmonic, orders m < 0  denote Sine coefficients
+
+        Parameters
+        ----------
+        nm : array-like
+            An array which hold a vector of degrees and orders
+
+        Returns
+        -------
+        pandas.MultiIndex
+            A MultiIndex with degrees "n" and orders "m" 
+        """
+        return pd.MultiIndex.from_arrays(nm,names=["n","m"])
+    
+    @staticmethod
+    def mi_toggle(mi,ending=''):
+        """
+        Rename the levels of a (nm)-multindex so that they can be use as alternative coordinates (e.g. transposed versions)
+
+        The levels will be swicthed back and fort between the following formats
+        oldname <-> oldname_[ending]
+
+        Parameters
+        ----------
+        mi : pandas.MultiIndex
+            A MultiIndex with degree and orders
+        ending: str, optional
+            A string which can be additionally appended
+
+        Returns
+        -------
+        pandas.MultiIndex
+            A MultiIndex with renamed levels 
+        """
+
+        app="_"+ending
+        applen=len(app)
         if "n" in mi.names:
-            return mi.rename([nm+"_" for nm in mi.names])
+            return mi.rename([nm+app for nm in mi.names])
         else:
-            return mi.rename([nm[:-1] for nm in mi.names])
+            return mi.rename([nm[:-applen] for nm in mi.names])
 

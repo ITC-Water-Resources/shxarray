@@ -8,6 +8,7 @@ from shxarray.core.logging import logger
 from scipy.sparse import diags
 from shxarray.shlib import Ynm
 from shxarray.core.cf import get_cfatts
+from shxarray.core.sh_indexing import SHindexBase
 
 class IsoKernelBase:
     """
@@ -41,7 +42,7 @@ class IsoKernelBase:
         else:
             coeff=self._dsiso.sel(n=shindex.n)
          
-        return xr.DataArray(coeff.data,coords=dict(shi=shindex))
+        return xr.DataArray(coeff.data,coords=dict(nm=shindex))
 
 
     def jacobian(self,shindex):
@@ -50,10 +51,10 @@ class IsoKernelBase:
 
     def __call__(self,dain:xr.DataArray):
         #create the jacobian matrix based on the input maximum and minimum degrees
-        if "shi" not in dain.indexes:
+        if SHindexBase.name not in dain.indexes:
             raise RuntimeError("Spherical harmonic index not found in input, cannot apply kernel operator to object")
         #expand kernel to the same degrees as the input
-        daexpand=self.expanddiag(dain.shi)
+        daexpand=self.expanddiag(dain.nm)
         daout=dain*daexpand
         if self.transform is not None:
             name=self.transform[1]

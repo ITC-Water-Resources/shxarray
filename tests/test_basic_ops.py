@@ -34,7 +34,7 @@ def test_truncate(sh_truncated):
     nmax2,nmin2,datrunc=sh_truncated
     assert datrunc.sh.nmax == nmax2, "nmax of truncated DataArray does not agree with expectation"
     assert datrunc.sh.nmin == nmin2, "nmin of truncated DataArray does not agree with expectation"
-    assert len(datrunc.shi) == SHindexBase.nsh(nmax2,nmin2,squeeze=True), "Size of truncated DataArray does not agree with expectation"
+    assert len(datrunc.nm) == SHindexBase.nsh(nmax2,nmin2,squeeze=True), "Size of truncated DataArray does not agree with expectation"
 
 
 def test_add_sub(sh_sample1,sh_truncated):

@@ -36,7 +36,7 @@ apidoc_toc_file=False
 html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 
-
+napoleon_numpy_docstring = True
 
 nbsphinx_prolog = """
 Download this Jupyter notebook from `github <https://github.com/ITC-Water-Resources/shxarray/blob/main/docs/source/notebooks/{{ env.doc2path(env.docname, base=None) }}>`_

@@ -46,20 +46,18 @@ def getBDcoords(ddict,trans):
 
 def get_shmi(charar):
     shregex=re.compile('^G[CS]N')
-    nmt=[]
+    nm=[]
     for el in charar:
         if shregex.search(el):
-            if el[1:2] == 'C':
-                t=0
-            else:
-                t=1
             n=int(el[4:7])
             m=int(el[7:10])
+            if el[1:2] == 'S':
+                m=-m
         else:
             raise KeyError("Error parsing SH coefficient")
-        nmt.append((n,m,t))
-    shmi=SHindexBase.mi_fromtuples(nmt)
-    return shmi
+        nm.append((n,m))
+    nmmi=SHindexBase.mi_fromtuples(nm)
+    return nmmi
 
 def readBINV(file_or_obj,trans=False,nmax=-1):
     """Reads in a legacy binary file written using the fortran RLFTlbx"""
@@ -217,12 +215,13 @@ def readBINV(file_or_obj,trans=False,nmax=-1):
     else: 
         raise NotImplemented(f"Cannot Unpack a matrix of {dictout['type']}")
     
-     
-    dsout=xr.Dataset(dict(mat=(["shi","shi_"],mat)),coords=dict(shi=(["shi"],mshi),shi_=(["shi_"],SHindexBase.mi_toggle(mshi))),attrs=dictout)
+    shname=SHindexBase.name
+    shname_t=shname+"_"
+    dsout=xr.Dataset(dict(mat=([shname,shname_t],mat)),coords=dict(nm=([shname],mshi),nm_=([shname_t],SHindexBase.mi_toggle(mshi))),attrs=dictout)
     #transform the data in dask 
     # dsout=dsout.chunk()
     if nvec > 0:
-        dsout["vec"]=(["shi"],vec)
+        dsout["vec"]=([shname],vec)
 
     return dsout
 

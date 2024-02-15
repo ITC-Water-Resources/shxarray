@@ -8,12 +8,11 @@ This extension adds functionality to work with Spherical Harmonics to [Xarray](h
 ## Features and functionality (in progress)
 * Gravity functionals: (convert from Stokes coefficients to various gravity functionals, such as equivalent water heights, geoid changes, etc.)
 * Filter (e.g. Gaussian or anisotropic filter applied in the spectral domain)
-* Applying functionals of Symmetrical non-rotating elastic isotropic (SNREI) Earth models
 * The use of Xarray like operations allow for applying functionality to multi-dimensional datasets
 
 
 ## Getting started
-The tutorials in the [documentation](https://shxarray.wobbly.earth/en/latest/examples.html) will soon provide some Jupyter notebook workflows to adapt.
+The tutorials in the [documentation](https://shxarray.wobbly.earth/stable/tutorial.html) will gradually epxand and provide Jupyter notebook workflows to start with.
 
 
 ## Installation

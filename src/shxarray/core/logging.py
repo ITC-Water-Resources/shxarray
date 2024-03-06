@@ -6,7 +6,7 @@
 
 import logging
 # shxarray  wide logger
-logger=logging.getLogger("shxarray")
+shxlogger=logging.getLogger("shxarray")
 
 ch = logging.StreamHandler()
 
@@ -17,27 +17,27 @@ formatter = logging.Formatter('%(name)s-%(levelname)s: %(message)s')
 ch.setFormatter(formatter)
 
 # add ch to logger
-logger.addHandler(ch)
+shxlogger.addHandler(ch)
 
 
 def debugging():
-    return logger.getEffectiveLevel() == logging.DEBUG
+    return shxlogger.getEffectiveLevel() == logging.DEBUG
 
 def setInfoLevel():
     """Set logging level for both python and c++ to INFO severity"""
-    logger.setLevel(logging.INFO)
+    shxlogger.setLevel(logging.INFO)
 
 def setDebugLevel():
     """Set logging level for both python and c++ to DEBUG severity"""
-    logger.setLevel(logging.DEBUG)
+    shxlogger.setLevel(logging.DEBUG)
 
 
 def setWarningLevel():
     """Set logging level for both python and c++ to WARNING severity"""
-    logger.setLevel(logging.WARNING)
+    shxlogger.setLevel(logging.WARNING)
 
 def setErrorLevel():
     """Set logging level for both python and c++ to WARNING severity"""
-    logger.setLevel(logging.ERROR)
+    shxlogger.setLevel(logging.ERROR)
 
 setInfoLevel()

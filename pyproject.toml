@@ -39,4 +39,8 @@ shlib = "shxarray.shlib:SHComputeBackend"
 "Homepage" = "https://github.com/ITC-Water-Resources/shxarray"
 "Bug Tracker" = "https://github.com/ITC-Water-Resources/shxarray/issues"
 
+[project.entry-points."geoslurp.dsetfactories"]
+deg1n2corr = "shxarray.geoslurp.deg1n2:getDeg1n2corrDsets"
 
+[project.entry-points."geoslurp.dsets"]
+icgemstatic = "shxarray.geoslurp.icgemdset:ICGEMstatic"

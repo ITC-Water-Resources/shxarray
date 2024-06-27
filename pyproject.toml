@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0","setuptools-scm>=8","numpy<=1.26","Cython>=3","wheel","pytest","scipy"]
+requires = ["setuptools>=61.0","setuptools-scm>=8","numpy<2","Cython>=3","wheel","pytest","scipy"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "shxarray"
@@ -20,7 +20,11 @@ classifiers = [
     "Development Status :: 1 - Planning"
 ]
 dependencies = [ "pandas >= 2.0", "pyaml >= 23.9.0", "scipy", "xarray >= 2023.1.0",
-"numpy<=1.26","numba", "sparse","importlib_metadata","requests","openpyxl"]
+"numpy<2","numba", "sparse","importlib_metadata","requests","openpyxl"]
+
+[project.optional-dependencies]
+#you need dask in combination with when using older xarray versions
+dask=["dask>=2022.9.2"]
 
 [tool.setuptools_scm]
 # empty for now

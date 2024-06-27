@@ -9,6 +9,9 @@ from shxarray.shlib import Ynm
 from shxarray.core.sh_indexing import SHindexBase
 import sparse
 
+from packaging import version
+
+
 
 
 
@@ -21,6 +24,13 @@ class AnisoKernel:
         self._dskernel=dsobj
         self.name=name 
         self.truncate=truncate
+        self.useDask=version.parse(xr.__version__) < version.parse('2023.11.0')
+        if self.useDask:
+            from dask.array.core import einsum_lookup
+            #Register the einsum functions which are needed to do the sparse dot functions (for earlier versions of xarray)
+            einsum_lookup.register(sparse.COO,AnisoKernel.daskeinsumReplace)
+            #convert to xarray with dask structure
+            self._dskernel=self._dskernel.chunk()
 
     @property
     def nmax(self):
@@ -38,7 +48,10 @@ class AnisoKernel:
         daout=xr.dot(self._dskernel.mat,dain,dims=[SHindexBase.name]) 
         #rename nm and convert to dense array
         daout=daout.sh.toggle_nm()
-        daout=xr.DataArray(daout.data.todense(),coords=daout.coords,name=self.name)
+        if self.useDask:
+            daout=xr.DataArray(daout.compute().data,coords=daout.coords,name=self.name)
+        else:
+            daout=xr.DataArray(daout.data.todense(),coords=daout.coords,name=self.name)
         
         if not self.truncate and self.nmin > 0:
             #also add the unfiltered lower degree coefficients back to the results
@@ -60,4 +73,23 @@ class AnisoKernel:
         ynmdata=ynmdata/normv
 
         return self.__call__(ynmdata)
+    
+    @staticmethod
+    def daskeinsumReplace(subscripts, *operands, out=None, dtype=None, order='K', casting='safe', optimize=False):
+        """Mimics the interface of https://numpy.org/doc/stable/reference/generated/numpy.einsum.html, but uses the sparse.COO dot function"""
+        if subscripts == "ab,cb->ac":
+            return operands[0].dot(operands[1].T)
+        elif subscripts == "ab,ca->bc":
+            return operands[0].T.dot(operands[1].T)
+        elif subscripts == "ab,bc->ac":
+            return operands[0].dot(operands[1])
+        elif subscripts == "ab,b->a":
+            return operands[0].dot(operands[1])
+        elif subscripts == "ab,a->b":
+            return operands[0].T.dot(operands[1])
+        elif subscripts == "ab,ac->bc":
+            return operands[0].T.dot(operands[1])
+          
+        else:
+            raise NotImplementedError(f"Don't know (yet) how to handle this einsum: {subscripts} with sparse.dot operations")
 

@@ -48,6 +48,9 @@ cd src/shxarray/
 ln -sf ../../build/lib.linux-x86_64-cpython-311/shxarray/shlib.cpython-311-x86_64-linux-gnu.so
 ```
 
+### Building against Numpy 2
+For portablity, the current C++ files are build against Numpy version 1.26 and are incompatible with a [Numpy 2.0](https://numpy.org/doc/stable/release/2.0.0-notes.html) installation. To build against Numpy 2.0, (1) change the Numpy version numbers in [pyproject.toml](pyproject.toml), (2) set the environment variable `export USE_CYTHON=1`, and (3) build the module as described above.
+
 
 ## Contributing
 This repository is under development and contributions and feedback are welcome.

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0","setuptools-scm>=8","numpy","Cython","wheel","pytest"]
+requires = ["setuptools>=61.0","setuptools-scm>=8","numpy","Cython","wheel","pytest","scipy"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "shxarray"

@@ -74,8 +74,9 @@ def test_ddkmult(shinput,shoutput):
     
     dacheck=shinm.sh.filter('DDK2')
     dadiff=(dacheck-shoutm)/shoutm
-    maxdiff=max(abs(dadiff.max()),abs(dadiff.min())) 
-    assert(maxdiff < tol)
+    maxdiff=max(abs(dadiff.max()),abs(dadiff.min()))
+    reltol=3e-11
+    assert(maxdiff < reltol)
 
 @pytest.fixture
 def shgausstest():

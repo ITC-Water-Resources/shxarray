@@ -146,8 +146,7 @@ class ShXrBase:
 
     
     def drop_nmindex(self):
-        ds=self._obj.reset_index(SHindexBase.name)
-        return ds.assign_coords(t=([SHindexBase.name],[t for t in ds.t.values]))
+        return self._obj.reset_index(SHindexBase.name)
     
     def build_nmindex(self):
         if SHindexBase.name in self._obj.indexes:

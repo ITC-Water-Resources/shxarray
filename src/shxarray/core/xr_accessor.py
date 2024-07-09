@@ -136,10 +136,14 @@ class SHDaAccessor(ShXrBase):
 
         if mean:
             dv=np.square(self._obj).sh.drop_nmindex().set_xindex("n").groupby("n").mean()
-        
+            dv.attrs=self._obj.attrs 
+            dv.attrs["long_name"]="Average degree variance"
         else:
             dv=np.square(self._obj).sh.drop_nmindex().set_xindex("n").groupby("n").sum()
-        
+            dv.attrs=self._obj.attrs 
+            dv.attrs["long_name"]="Degree variance"
+
+        dv.name='cn'
         return dv 
     
     def tws(self,**kwargs):

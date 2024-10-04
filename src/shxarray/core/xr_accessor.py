@@ -142,7 +142,8 @@ class SHDaAccessor(ShXrBase):
             dv=np.square(self._obj).sh.drop_nmindex().set_xindex("n").groupby("n").sum()
             dv.attrs=self._obj.attrs 
             dv.attrs["long_name"]="Degree variance"
-
+        
+        dv.n.attrs["long_name"]="degrees (n)"
         dv.name='cn'
         return dv 
     

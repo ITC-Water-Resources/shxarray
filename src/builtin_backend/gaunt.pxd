@@ -11,7 +11,7 @@ from libcpp.pair cimport pair
 # C++ / Cython interface declaration 
 
 
-cdef extern from "Gaunt.hpp":
+cdef extern from "Gaunt.hpp" nogil:
     cdef cppclass Gaunt[T]:
         Gaunt() except +
         Gaunt(int n2,int n3,int m2, int m3) except +
@@ -24,10 +24,12 @@ cdef extern from "Gaunt.hpp":
     cdef cppclass GauntReal[T]:
         GauntReal() except +
         GauntReal(int n2,int n3,int mu2, int mu3) except +
+        T operator[](cython.size_t i)except+
         vector[T] get() except+
+        cython.size_t size() except+
         int nmin()except+
         int nmax()except+
-        int m()except+
+        vector[int] m()except+
         vector[pair[int,int]] nm() except+
 
 # End of interface declaration

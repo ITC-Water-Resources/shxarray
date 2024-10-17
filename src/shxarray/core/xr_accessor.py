@@ -8,6 +8,7 @@ from shxarray.core.sh_indexing import SHindexBase
 from shxarray.core.shxarbase import ShXrBase
 from shxarray.kernels.ddk import load_ddk
 from shxarray.kernels.gauss import Gaussian
+from shxarray.io.shascii import to_shascii
 import numpy as np
 from shxarray.kernels.gravfunctionals import gravFunc
 
@@ -18,14 +19,14 @@ class SHDaAccessor(ShXrBase):
     
 
     @staticmethod
-    def zeros(nmax,nmin=0,name="cnm",auxcoords={},order='C'):
+    def zeros(nmax,nmin=0,name="cnm",auxcoords={},order='C',nshdims=1):
         """0-Initialize an spherical harmonic DataArray based on nmax and nmin"""
-        return ShXrBase._initWithScalar(nmax,nmin,0,name,auxcoords,order=order)
+        return ShXrBase._initWithScalar(nmax,nmin,0,name,auxcoords,order=order,nshdims=nshdims)
     
     @staticmethod
-    def ones(nmax,nmin=0,name="cnm",auxcoords={},order='C'):
+    def ones(nmax,nmin=0,name="cnm",auxcoords={},order='C',nshdims=1):
         """1-Initialize an spherical harmonic DataArray based on nmax and nmin"""
-        return ShXrBase._initWithScalar(nmax,nmin,1,name,auxcoords,order=order)
+        return ShXrBase._initWithScalar(nmax,nmin,1,name,auxcoords,order=order,nshdims=nshdims)
     
     @staticmethod
     def wigner3j(j2,j3,m2,m3, engine="shlib"):
@@ -154,7 +155,16 @@ class SHDaAccessor(ShXrBase):
     # def geoid(self,**kwargs):
         # pass #return self.gravfunctional("geoid",**kwargs)
 
-
+    def to_ascii(self,out_obj=None):
+        """Return a string representing the ascii file content of the spherical harmonic coefficients""" 
+        return to_shascii(self._obj,out_obj)
+    
+    def p2s(self,engine="shlib"):
+        """Returns the product to sum matrix of the spherical harmonic coefficients in the dataarray
+        The output matrix will be symmetric with sides spanning up to nmax/2 of the input"""
+        eng=self._eng(engine)
+        return eng.p2s(self._obj)
+        
 
 @xr.register_dataset_accessor("sh")
 class SHDsAccessor(ShXrBase):
@@ -177,11 +187,11 @@ class SHDsAccessor(ShXrBase):
         return dsout
     
     @staticmethod
-    def zeros(nmax,nmin=0,squeeze=True,name="cnm",auxcoords={},order='C'):
+    def zeros(nmax,nmin=0,squeeze=True,name="cnm",auxcoords={},order='C',nshdims=1):
         """0-Initialize an spherical harmonic Dataset based on nmax and nmin"""
-        return ShXrBase._initWithScalar(nmax,nmin,0,squeeze,name,auxcoords,order=order).to_dataset()
+        return ShXrBase._initWithScalar(nmax,nmin,0,squeeze,name,auxcoords,order=order,nshdims=nshdims).to_dataset()
     
     @staticmethod
-    def ones(nmax,nmin=0,squeeze=True,name="cnm",auxcoords={},order='C'):
+    def ones(nmax,nmin=0,squeeze=True,name="cnm",auxcoords={},order='C',nshdims=1):
         """1-Initialize an spherical harmonic Dataset based on nmax and nmin"""
-        return ShXrBase._initWithScalar(nmax,nmin,1,squeeze,name,auxcoords,order=order).to_dataset()
+        return ShXrBase._initWithScalar(nmax,nmin,1,squeeze,name,auxcoords,order=order,nshdims=nshdims).to_dataset()

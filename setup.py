@@ -16,12 +16,17 @@ import sys
 
 if sys.platform.startswith("win"):
     winplatform=True
-    openmp_arg = '/openmp'
+    extra_args = ['/openmp']
 else:
     winplatform=False
-    openmp_arg = '-fopenmp'
+    extra_args = ['-fopenmp']
 
-debug=False
+if "DEBUG_CYTHON" in os.environ:
+    debug=True
+    extra_args.append('-O0')
+else:
+    debug=False
+
 #don't necessarily use cython
 if "USE_CYTHON" in os.environ or winplatform:
     # note being on windows forces the use of cython
@@ -37,7 +42,7 @@ def listexts():
     names=["shlib"]
     exts=[]
     for nm in names:
-        exts.append(Extension("shxarray."+nm.replace("/","."),["src/builtin_backend/"+nm+ext],include_dirs=[np.get_include(),"."], define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')],extra_compile_args=[openmp_arg],extra_link_args=[openmp_arg]))
+        exts.append(Extension("shxarray."+nm.replace("/","."),["src/builtin_backend/"+nm+ext],include_dirs=[np.get_include(),"."], define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')],extra_compile_args=extra_args,extra_link_args=extra_args))
     return exts
 
 extensions=listexts()

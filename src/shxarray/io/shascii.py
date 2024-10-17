@@ -10,6 +10,34 @@ import sys
 import gzip
 from shxarray.core.sh_indexing import SHindexBase
 import re
+from io import StringIO
+import pandas as pd
+
+def to_shascii(daobj,out_obj=None):
+    nmax=daobj.sh.nmax
+    tstart=0.0
+    tend=0.0
+    tcent=0.0
+    
+    t=np.where(daobj.m < 0,1,0)
+    nm=[(n,m) for n,m in zip(daobj.n.data,np.abs(daobj.m).data)]
+
+    nmt_mi=pd.MultiIndex.from_arrays([nm,t.data],names=["nm","t"])
+    daobj=daobj.drop_vars(["n","m"]).rename(nm='nmt').assign_coords(nmt=nmt_mi)
+    if out_obj is None:
+        buff=StringIO()
+    else:
+        buff=out_obj
+
+    buff.write(f" META    {nmax}    {tstart}   {tcent}   {tend}\n") 
+    for nmi,cnm in daobj.unstack('nmt',fill_value=0.0).groupby('nm'):
+        buff.write(f"{nmi[0]} {nmi[1]} {cnm.loc[nmi,0].item()} {cnm.loc[nmi,1].item()}\n")
+    
+    if out_obj is not None:
+        buff.seek(0)
+    return buff
+
+
 
 # def writeSHAscii(fileobj,ds,cnmv='cnm',sigcnmv=None):
     # """Writes a dataset array with sh data to an ascii file"""

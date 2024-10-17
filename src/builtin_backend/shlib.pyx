@@ -36,3 +36,6 @@ class SHComputeBackend(SHComputeBackendBase):
 
     def wigner3j(self,j2,j3,m2,m3):
         return getWigner3j(j2,j3,m2,m3)
+
+    def p2s(self,daobj):
+        return getp2s(daobj)

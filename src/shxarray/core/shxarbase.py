@@ -7,7 +7,7 @@
 import xarray as xr
 import numpy as np
 
-from .sh_indexing import SHindexBase
+from shxarray.core.sh_indexing import SHindexBase
 
 
 loaded_engines={}
@@ -37,6 +37,9 @@ class ShXrBase:
         if "n" in self._obj.indexes:
             return self._obj.n.min().item()
         
+        if "n" in self._obj.coords:
+            return self._obj.n.min().item()
+        
         raise RuntimeError("Cannot return nmin, spherical harmonic index is not initialized") 
     
     @property
@@ -51,7 +54,10 @@ class ShXrBase:
 
         if "n" in self._obj.indexes:
             return self._obj.n.max().item()
-        
+       
+        if "n" in self._obj.coords:
+            return self._obj.n.max().item()
+
         raise RuntimeError("Cannot return nmax, spherical harmonic index is not initialized") 
     
     @property
@@ -103,10 +109,14 @@ class ShXrBase:
             raise RuntimeError("No spherical harmonic index ('nm' or 'n') was found in the xarray object")
     
     @staticmethod
-    def _initWithScalar(nmax,nmin=0,scalar=0,name="cnm",auxcoords={},order='C'):
+    def _initWithScalar(nmax,nmin=0,scalar=0,name="cnm",auxcoords={},order='C',nshdims=1):
         """Initialize an spherical harmonic DataArray based on nmax and nmin"""
-        
+        if nshdims <= 0 or nshdims > 2:
+            raise RuntimeError("Spherical harmonic coefficient dimension must be 1 or 2")
         coords={SHindexBase.name:SHindexBase.nm_mi(nmax,nmin)}
+        if nshdims == 2:
+            #add an additional SH coordinate
+            coords[SHindexBase.name_t]=SHindexBase.mi_toggle(coords[SHindexBase.name]) 
         dims=[]
         shp=[]
         
@@ -118,9 +128,13 @@ class ShXrBase:
             coords[dim]=coord
         
         # add shi dimension and shape last (so it varies quikest in memory
+        if nshdims == 2:
+            dims.append(SHindexBase.name_t)
+            shp.append(len(coords[SHindexBase.name_t]))
         dims.append(SHindexBase.name)
         shp.append(len(coords[SHindexBase.name]))
-        
+
+
         if scalar == 0:
             return xr.DataArray(data=np.zeros(shp,order=order),dims=dims,name=name,coords=coords)
         elif scalar == 1:
@@ -148,18 +162,28 @@ class ShXrBase:
     def drop_nmindex(self):
         return self._obj.reset_index(SHindexBase.name)
     
-    def build_nmindex(self):
-        if SHindexBase.name in self._obj.indexes:
+    def build_nmindex(self,suf=''):
+        if suf:
+            indname=f"{SHindexBase.name}{suf}"
+            nname=f"n{suf}"
+            mname=f"m{suf}"
+
+        else:
+            indname=SHindexBase.name
+            nname='n'
+            mname='m'
+
+        if indname in self._obj.indexes:
             #already build, so don't bother
             return self._obj
         #either build from separate coordinate variables (n,m,t)
-        if "n" in self._obj.coords and "m" in self._obj.coords and "t" in self._obj.coords:
-            shimi=SHindexBase.mi_fromtuples([(n,m) for n,m in zip(self._obj.n.values,self._obj.m.values)])
-            return self._obj.drop_vars(["n","m"]).assign_coords(nm=shimi)
-        elif SHindexBase.name in self._obj.coords:
+        if nname in self._obj.coords and mname in self._obj.coords:
+            shimi=SHindexBase.mi_fromtuples([(n,m) for n,m in zip(self._obj[nname].values,self._obj[mname].values)],suf)
+            return self._obj.drop_vars([nname,mname]).assign_coords({indname:shimi})
+        elif indname in self._obj.coords:
             #rebuild multiindex from an array of "left-over" tuples
-            shimi=SHindexBase.mi_fromtuples(self._obj.nm.values)
-            return self._obj.drop_vars([SHindexBase.name]).assign_coords(nm=shimi)
+            shimi=SHindexBase.mi_fromtuples(self._obj[indname].values,suf)
+            return self._obj.drop_vars([indname]).assign_coords({indname:shimi})
     
     def toggle_nm(self):
         """Toggle naming of nm, nm_ multindices and their levels"""
@@ -177,18 +201,21 @@ class ShXrBase:
 
     @staticmethod
     def _eng(engine="shlib"):
-        
 
         if engine not in loaded_engines:
             #load engine if not done already
+            
+            if engine == "dev":
+                eng=__import__("shxarray.dev")
+                loaded_engines[engine]=eng.dev
+            else:
+                grp="shxarray.computebackends"
+                eps=entry_points(group=grp)
 
-            grp="shxarray.computebackends"
-            eps=entry_points(group=grp)
-
-            if engine not in eps.names:
-                raise RuntimeError(f"compute engine {engine} not found")
-            Eng=eps[engine].load()
-            loaded_engines[engine]=Eng()
+                if engine not in eps.names:
+                    raise RuntimeError(f"compute engine {engine} not found")
+                Eng=eps[engine].load()
+                loaded_engines[engine]=Eng()
         
 
 

@@ -144,7 +144,7 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
         sigcnm=sigcnm[0:ncount]
     
     
-    if ncolumns >= 6
+    if ncolumns >= 6:
         ds=xr.Dataset(data_vars=dict(cnm=(shp,cnm,get_cfatts("stokes")),sigcnm=(shp,sigcnm,get_cfatts("stokes stdv"))),coords=coords,attrs=attr)
     
     else:

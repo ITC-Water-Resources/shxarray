@@ -3,18 +3,22 @@
 # Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2023
 #
 # distutils: language = c++
-# cython: profile=False
 
 cimport cython
 from gaunt cimport Gaunt,GauntReal
+from shindex cimport Nmindex
 
 from libcpp.vector cimport vector
 from libcpp.pair cimport pair
 from libcpp.map cimport map
+from libcpp.unordered_map cimport unordered_map
 cimport numpy as np
 import xarray as xr
 import pandas as pd
 from libc.math cimport sqrt
+
+
+from cython.operator cimport dereference as deref
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -38,13 +42,14 @@ def getGauntReal(n2,n3,m2,m3):
     """
     gauntreal = GauntReal[double](n2,n3,m2,m3)
     assert(gauntreal.nmin() <= gauntreal.nmax())
-    nm=pd.MultiIndex.from_tuples(gauntreal.nm(),names=("n","m")) 
+    nm=pd.MultiIndex.from_tuples(gauntreal.nmvec(),names=("n","m")) 
     return xr.DataArray(gauntreal.get(), coords=dict(nm=nm),dims=["nm"])
 
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
+@cython.profile(False)
 def getp2s(daobj):
     #Initialize the output array with zeros
     cdef int nmax=int(daobj.sh.nmax/2)
@@ -64,23 +69,28 @@ def getp2s(daobj):
     
     cdef vector[pair[int,int]] nm1
     cdef GauntReal[double] gauntreal
-    
     cdef int n1,m1,n2,n3,m2,m3
     cdef cython.size_t ngnt,ix,iy,iz
     cdef double val
     
-    #look up map for input coefficient
-    cdef map[pair[int,int],cython.size_t] nm1_map
+    #quick look up map for input coefficient
+    #cdef map[pair[int,int],cython.size_t] nm1_map
+    cdef Nmindex nm1_map=Nmindex(len(daobj))
     cdef cython.size_t idx=0
 
     for (n1,m1) in daobj.nm.data:
-        nm1_map[(n1,m1)]=idx
+        # nm1_map[(n1,m1)]=idx
+        #nm1_map[(n1,m1)]=idx
+        nm1_map.set((n1,m1),idx)
         idx+=1
+
+
     
     ngnt=0
     val=0.0
 
     with nogil, parallel():
+        gauntreal = GauntReal[double](nmax*2)
         for ix in prange(nsh,schedule="guided"):
             n2=n[ix]
             m2=m[ix]
@@ -88,12 +98,12 @@ def getp2s(daobj):
                 #only compute for the upper triangle
                 n3=n[iy]
                 m3=m[iy]
-                gauntreal = GauntReal[double](n2,n3,m2,m3)
+                #gauntreal = GauntReal[double](n2,n3,m2,m3)
+                gauntreal.set(n2,n3,m2,m3)
                 ngnt=gauntreal.size()
-                nm1=gauntreal.nm()
                 val=0.0
                 for iz in range(ngnt):
-                    val=val+gauntreal[iz]*davec[nm1_map[nm1[iz]]]
+                    val=val+gauntreal[iz]*davec[nm1_map[gauntreal.nm(iz)]]
                 p2smat[ix,iy]=val*norm
                 p2smat[iy,ix]=val*norm
 

@@ -16,7 +16,7 @@ import os
 @pytest.fixture
 def product2sumVal():
     # """Create a on-disk dataset with product 2 sum matrix based on ocean coefficients"""
-    nmax=25
+    nmax=10
     p2sumfile=os.path.join(os.path.dirname(__file__),f'testdata/P2Sum_ocean{nmax}.nc')
     if not os.path.exists(p2sumfile):
         print(f"Generating {p2sumfile} using rlftlbx")
@@ -65,6 +65,7 @@ def test_product2sum(product2sumVal):
     dsp2s=dsocean.sh.p2s().T
     daval=product2sumVal.mat.sh.build_nmindex().sh.build_nmindex('_').loc[dsp2s.nm,dsp2s.nm_] 
     closeEnough=np.allclose(daval.data,dsp2s.data,rtol=rtol)
+    
     # import pdb;pdb.set_trace()
     assert(closeEnough)    
 

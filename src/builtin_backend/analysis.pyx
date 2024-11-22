@@ -4,7 +4,6 @@
 #
 
 # distutils: language = c++
-# cython: profile=True
 
 import xarray as xr
 import cython

@@ -2,6 +2,8 @@
 # under the Apache License version 2.0 (see the LICENSE file in the main repository)
 # Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2023
 #
+# distutils: language = c++
+# cython: profile=False
 """
 **shlib** is shxarray's default binary Cython backend. 
 Some of the heavy lifting such as synthesis and analysis operations, is done using this the functions of this shared library.

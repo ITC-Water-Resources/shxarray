@@ -3,7 +3,6 @@
 # Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2023
 #
 # distutils: language = c++
-# cython: profile=False
 
 import cython
 from legendre cimport Legendre_nm,Legendre

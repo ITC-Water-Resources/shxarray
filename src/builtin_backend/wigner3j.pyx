@@ -3,7 +3,6 @@
 # Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2023
 #
 # distutils: language = c++
-# cython: profile=False
 
 cimport cython
 from wigner3j cimport Wigner3j

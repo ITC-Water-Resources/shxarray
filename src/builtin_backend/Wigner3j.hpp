@@ -27,8 +27,10 @@ template<class ftype>
     class Wigner3j{
         public:
             Wigner3j(){}
+            Wigner3j(int jmax);
             Wigner3j(int j2,int j3,int m2, int m3);
 	    const std::vector<ftype> get()const{return w3j_;}
+            void set(int j2,int j3,int m2, int m3);
             ftype operator[](int j)const{return w3j_[j-jmin_];}
             int jmin()const{return jmin_;}
             int jmax()const{return jmax_;}
@@ -63,10 +65,37 @@ template<class ftype>
     };
 
 
+template<class ftype>
+Wigner3j<ftype>::Wigner3j(int jmax):jmin_(0),jmax_(jmax),sz_(jmax_-jmin_+1),w3j_(std::max(sz_,1),0.0)
+{
+///This constructor just allocates enough space for wigner coefficients up to degree jmax
+}
+
 
 template<class ftype>
 Wigner3j<ftype>::Wigner3j(int j2,int j3,int m2, int m3):j2_(j2),j3_(j3),m1_(-m2-m3),m2_(m2),m3_(m3),jmin_(std::max(std::abs(j2-j3),std::abs(m2+m3))),jmax_(j2+j3),sz_(jmax_-jmin_+1),w3j_(std::max(sz_,1),0.0)
 {
+    ///fill the vector
+    set(j2,j3,m2,m3);
+}
+
+
+template<class ftype>
+void Wigner3j<ftype>::set(int j2,int j3,int m2, int m3){
+    j2_=j2;
+    j3_=j3;
+    m1_=-m2-m3;
+    m2_=m2;
+    m3_=m3;
+    jmin_=std::max(std::abs(j2-j3),std::abs(m2+m3));
+    jmax_=j2+j3;
+    sz_=jmax_-jmin_+1;
+    size_t vsize = std::max(sz_,1);
+    if (w3j_.size() < vsize){
+        ///Possibly resize container
+        w3j_.resize(vsize,0.0);
+    }
+
     
     //std::cout << jmin_ <<" "<< jmax_ << " "<< sz_ << std::endl; 
     assert(jmin_<= jmax_); 

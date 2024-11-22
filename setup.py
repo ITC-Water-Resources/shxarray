@@ -24,6 +24,7 @@ else:
 if "DEBUG_CYTHON" in os.environ:
     debug=True
     extra_args.append('-O0')
+    #extra_args.append('-pg')
 else:
     debug=False
 

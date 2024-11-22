@@ -51,15 +51,15 @@ template<class ftype>
             struct scales{
                 ftype frac1;
                 ftype frac2;
-            };
+            } factor;
             struct cache{
                 ftype current;
                 ftype previous;
                 ftype tmp;
             };
 
-           struct scales downward_scales(int j)const; 
-           struct scales upward_scales(int j)const; 
+           void downward_scales(int j); 
+           void upward_scales(int j); 
     };
 
 
@@ -106,7 +106,9 @@ void Wigner3j<ftype>::recursion(){
     int j; 
     for(j=jmax_;j!=jmin_+1;j--){
         
-       struct scales factor= downward_scales(j);
+        
+        // modifies factor!
+        downward_scales(j);
         ratio=-factor.frac1/ratio-factor.frac2;
         //std::cout << "downward non-classical ratio " <<ratio<< std::endl; 
         if(std::abs(ratio) <= 1.0){
@@ -135,7 +137,9 @@ void Wigner3j<ftype>::recursion(){
 
     for(j=jmin_;j!=jupper_classical;j++){
         
-       struct scales factor= upward_scales(j);
+        
+        //MOdifies factor!
+        upward_scales(j);
         ratio=-factor.frac1/ratio-factor.frac2;
         //std::cout << "upward non-classical ratio" <<ratio<< std::endl; 
         if(std::abs(ratio) < 1.0){
@@ -158,7 +162,7 @@ void Wigner3j<ftype>::recursion(){
     for(j=jlower_classical;j<jupper_classical;j++){
         
     //std::cout << "upward classical recursion" <<j<< std::endl; 
-       struct scales factor= upward_scales(j);
+        upward_scales(j);
         up.tmp=-factor.frac2*up.current-factor.frac1*up.previous;
         up.previous=up.current;
         up.current=up.tmp;
@@ -198,8 +202,8 @@ void Wigner3j<ftype>::recursion(){
 
 
 template <class ftype>
-struct Wigner3j<ftype>::scales Wigner3j<ftype>::downward_scales(int j)const{
-    struct scales x_y_over_z;
+void Wigner3j<ftype>::downward_scales(int j){
+    
     /*common denominator part*/
     ftype tmp1=j*j-std::pow(j2_-j3_,2);
     tmp1*=(std::pow(j2_+j3_+1,2)-j*j);
@@ -211,28 +215,26 @@ struct Wigner3j<ftype>::scales Wigner3j<ftype>::downward_scales(int j)const{
     tmp2*=(std::pow(j+1,2)-(m1_*m1_));
     
     /* compute x_over_z and put in frac1*/
-    x_y_over_z.frac1=(static_cast<ftype>(j)/(j+1))*std::sqrt(tmp2/tmp1);///x_over_z
+    factor.frac1=(static_cast<ftype>(j)/(j+1))*std::sqrt(tmp2/tmp1);///x_over_z
 
     /*y over z ratio*/
 
    
     tmp2=((-m1_)*(j2_*(j2_+1)-j3_*(j3_+1))-(m2_-m3_)*(j*(j+1)))/std::sqrt(tmp1);
 
-    x_y_over_z.frac2=(1.0+static_cast<ftype>(j)/(j+1))*tmp2;///y_over_z
-
-    return x_y_over_z;
+    factor.frac2=(1.0+static_cast<ftype>(j)/(j+1))*tmp2;///y_over_z
 
 }
 
 
 template <class ftype>
-struct Wigner3j<ftype>::scales Wigner3j<ftype>::upward_scales(int j)const{
-    struct scales z_y_over_x;
+void Wigner3j<ftype>::upward_scales(int j){
+    
     /* quick return */
     if(j == 0){ 
-       z_y_over_x.frac1=0.0; ///z_over_x
-       z_y_over_x.frac2=-(m2_-m3_)/std::sqrt(std::pow(j2_+j3_+1,2)-1.0);///y_over_x
-       return z_y_over_x;
+       factor.frac1=0.0; ///z_over_x
+       factor.frac2=-(m2_-m3_)/std::sqrt(std::pow(j2_+j3_+1,2)-1.0);///y_over_x
+       return;
     }
 
     /*common denominator part*/
@@ -245,14 +247,12 @@ struct Wigner3j<ftype>::scales Wigner3j<ftype>::upward_scales(int j)const{
     tmp2*=(std::pow(j2_+j3_+1,2)-(j*j));
     tmp2*=((j*j)-(m1_*m1_));
 
-    z_y_over_x.frac1=(static_cast<ftype>(j+1)/(j))*std::sqrt(tmp2/tmp1);
+    factor.frac1=(static_cast<ftype>(j+1)/(j))*std::sqrt(tmp2/tmp1);
     
     /*yratio */
     tmp2=((-m1_)*(j2_*(j2_+1)-j3_*(j3_+1))-(m2_-m3_)*(j*(j+1)))/std::sqrt(tmp1);
 
-    z_y_over_x.frac2=(2.0+1.0/j)*tmp2;
-
-    return z_y_over_x;
+    factor.frac2=(2.0+1.0/j)*tmp2;
 
 }
 

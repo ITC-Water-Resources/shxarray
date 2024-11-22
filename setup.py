@@ -15,13 +15,16 @@ import numpy as np
 import sys
 
 if sys.platform.startswith("win"):
+    winplatform=True
     openmp_arg = '/openmp'
 else:
+    winplatform=False
     openmp_arg = '-fopenmp'
 
 debug=False
 #don't necessarily use cython
-if "USE_CYTHON" in os.environ:
+if "USE_CYTHON" in os.environ or winplatform:
+    # note being on windows forces the use of cython
     useCython=True
     ext=".pyx"
     Cython.Compiler.Options.annotate = True

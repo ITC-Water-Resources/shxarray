@@ -96,9 +96,13 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
     nm=[]
     #continue reading the data
     dataregex=re.compile(b'^gfc')
+    ncolumns= -1
     for ln in fileobj:
         if dataregex.match(ln):
             lnspl=ln.replace(b"D",b"E").split()
+            if ncolumns < 0:
+                ncolumns = len(lnspl)
+                
             n=int(lnspl[1])
             if n> nmaxstop:
                 if ncount > nsh:
@@ -110,14 +114,18 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
             m=int(lnspl[2])
 
             cnm[ncount]=float(lnspl[3])
-            sigcnm[ncount]=float(lnspl[5])
+            if ncolumns >= 6:
+                sigcnm[ncount]=float(lnspl[5])
+            
             nm.append((n,m))
             ncount+=1
             
             #possibly also add snm coefficients
             if m!=0:
                 cnm[ncount]=float(lnspl[4])
-                sigcnm[ncount]=float(lnspl[6])
+                if ncolumns >= 6:
+                    sigcnm[ncount]=float(lnspl[6])
+                    
                 nm.append((n,-m))
                 ncount+=1
 
@@ -135,5 +143,11 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
         cnm=cnm[0:ncount]
         sigcnm=sigcnm[0:ncount]
     
-    ds=xr.Dataset(data_vars=dict(cnm=(shp,cnm,get_cfatts("stokes")),sigcnm=(shp,sigcnm,get_cfatts("stokes stdv"))),coords=coords,attrs=attr)
+    
+    if ncolumns >= 6:
+        ds=xr.Dataset(data_vars=dict(cnm=(shp,cnm,get_cfatts("stokes")),sigcnm=(shp,sigcnm,get_cfatts("stokes stdv"))),coords=coords,attrs=attr)
+    
+    else:
+        ds=xr.Dataset(data_vars=dict(cnm=(shp,cnm,get_cfatts("stokes"))),coords=coords,attrs=attr)
+        
     return ds

@@ -211,7 +211,7 @@ def readBINV(file_or_obj,trans=False,nmax=-1):
     #unpack in sparse matrix
         mat = sparse.COO(coords, pack, shape=(nval1,nval1),fill_value=0.0)
         # mat=sparse.GCXS.from_coo(mat,compressed_axes=[1])
-    if dictout["type"] in ["SYMV0___","SYMV1___","SYMV2___","SYMVN___"]:
+    elif dictout["type"] in ["SYMV0___","SYMV1___","SYMV2___","SYMVN___"]:
         mat=np.zeros([nval1,nval1])
         istart=0
         iend=0

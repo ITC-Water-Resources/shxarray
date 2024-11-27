@@ -1,0 +1,76 @@
+# This file is part of the shxarray software which is licensed
+# under the Apache License version 2.0 (see the LICENSE file in the main repository)
+# Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2024
+#
+
+
+from shxarray.earth.sealevel.sealevel import SeaLevelSolver
+import xarray as xr
+from math import floor
+import os
+from shxarray.core.admin import defaultcache
+from shxarray.core.logging import logger
+from shxarray.kernels.gravfunctionals import Load2Geoid,Load2Uplift
+
+
+
+class SpectralSeaLevelSolver(SeaLevelSolver):
+
+    def __init__(self,oceansh:xr.DataArray, dssnrei=None,p2scache=None):
+        
+        # Note: for full spectral consistency, the maximum degree of the ocean function is half that of the input ocean function
+        self.nmax=floor(oceansh.sh.nmax/2)
+       
+        #setup SNREI Earth loading function
+        if dssnrei is None:
+            #default uses PREM Earth Model
+            self.geoidKernel=Load2Geoid(nmax=self.nmax,deg0scale=0.0)
+            self.upliftKernel=Load2Uplift(nmax=self.nmax,deg0scale=0.0)
+        else:
+            self.geoidKernel=Load2Geoid(knLove=dssnrei.kn,nmax=self.nmax)
+            self.upliftKernel=Load2Uplift(hnLove=dssnrei.hn,nmax=self.nmax)
+
+        #setup ocean function
+        if p2scache is None:
+            p2scache=os.path.join(defaultcache("P2S"),f"p2s_ocean_n{self.nmax}.nc")
+        if os.path.exists(p2scache):
+            #Read product to sum mat from cache
+            logger.info(f"Reading ocean function from cache: {p2scache}") 
+            self.dsp2s_oce=xr.open_dataset(p2scache).cnm.sh.build_nmindex().sh.build_nmindex('_')
+        else:
+            logger.info(f"Computing ocean function and saving to cache: {p2scache}") 
+            if oceansh.sh.nmax != 2*self.nmax:
+                oceansh=oceansh.sh.truncate(nmax=self.nmax*2)
+
+            # import pdb;pdb.set_trace()
+            self.dsp2s_oce=oceansh.sh.p2s()
+            self.dsp2s_oce.sh.drop_nmindex().sh.drop_nmindex('_').to_netcdf(p2scache)
+
+    @staticmethod
+    def set_global_mean(load,level):
+        load.loc[dict(n=0,m=0)]=level
+        return load
+
+
+    @staticmethod
+    def global_mean(load:xr.DataArray):
+        """Returns the degree 0, order 0 coefficient of a spherical harmonic dataset"""
+        return load.loc[dict(n=0,m=0)].item()
+
+
+    def oceanf(self,load=None):
+        if load is None:
+            #return the ocean function itself
+            return self.dsp2s_oce.sel(n_=0,m_=0).drop(['n_','m_','nm_'])
+        else:
+            #apply the ocean function to a load
+            load_oce=self.dsp2s_oce@load
+            return load_oce.sh.toggle_nm()
+
+    def load_earth(self,load):
+        dsdef=self.geoidKernel(load).to_dataset(name='geoid')
+        dsdef['uplift']=self.upliftKernel(load)
+        return dsdef
+    
+
+

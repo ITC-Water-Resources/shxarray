@@ -163,7 +163,7 @@ class SHDaAccessor(ShXrBase):
         """Returns the product to sum matrix of the spherical harmonic coefficients in the dataarray
         The output matrix will be symmetric with sides spanning up to nmax/2 of the input"""
         eng=self._eng(engine)
-        return eng.p2s(self._obj)
+        return eng.p2s(self._obj.sh.build_nmindex())
         
 
 @xr.register_dataset_accessor("sh")

@@ -8,7 +8,7 @@ import xarray as xr
 import numpy as np
 
 from shxarray.core.sh_indexing import SHindexBase
-
+from shxarray.core.logging import logger
 
 loaded_engines={}
 
@@ -68,6 +68,13 @@ class ShXrBase:
         except KeyError:
             # defaults to Stokes coefficients 
             return "stokes"
+    
+    @gravtype.setter
+    def gravtype(self,gravtypeval):
+        """Sets the gravitational type of the content"""
+        if gravtypeval not in ["stokes","tws"]:
+            logger.warning(f"Unknown gravitation type {gravtypeval}")
+        self._obj.attrs["gravtype"]=gravtypeval
    
     def truncate(self,nmax=None,nmin=None,dims=[SHindexBase.name]):
         """
@@ -159,8 +166,12 @@ class ShXrBase:
 
 
     
-    def drop_nmindex(self):
-        return self._obj.reset_index(SHindexBase.name)
+    def drop_nmindex(self,suf=''):
+        if suf:
+            indname=f"{SHindexBase.name}{suf}"
+        else:
+            indname=SHindexBase.name
+        return self._obj.reset_index(indname)
     
     def build_nmindex(self,suf=''):
         if suf:
@@ -179,11 +190,13 @@ class ShXrBase:
         #either build from separate coordinate variables (n,m,t)
         if nname in self._obj.coords and mname in self._obj.coords:
             shimi=SHindexBase.mi_fromtuples([(n,m) for n,m in zip(self._obj[nname].values,self._obj[mname].values)],suf)
-            return self._obj.drop_vars([nname,mname]).assign_coords({indname:shimi})
+            shimi=xr.Coordinates.from_pandas_multiindex(shimi, indname)
+            return self._obj.drop_vars([nname,mname]).assign_coords(shimi)
         elif indname in self._obj.coords:
             #rebuild multiindex from an array of "left-over" tuples
             shimi=SHindexBase.mi_fromtuples(self._obj[indname].values,suf)
-            return self._obj.drop_vars([indname]).assign_coords({indname:shimi})
+            shimi=xr.Coordinates.from_pandas_multiindex(shimi, indname)
+            return self._obj.drop_vars([indname]).assign_coords(shimi)
     
     def toggle_nm(self):
         """Toggle naming of nm, nm_ multindices and their levels"""
@@ -198,7 +211,7 @@ class ShXrBase:
             renamedict["n_"]="n"
             renamedict["m_"]="m"
         return self._obj.rename(renamedict)
-
+    
     @staticmethod
     def _eng(engine="shlib"):
 

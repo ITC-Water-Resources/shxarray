@@ -9,8 +9,9 @@ class SeaLevelSolver:
     """
     Base Class to aid in solving the self consistent sea level for various discretizations and load types
     """
-    def __init__(self):
-        pass
+    def __init__(self,rotfeedback=False):
+        #whether to apply a simple (static) rotational feedback
+        self.rotfeedback=rotfeedback
     
     @staticmethod
     def set_global_mean(load,level):
@@ -21,6 +22,8 @@ class SeaLevelSolver:
     @staticmethod
     def global_mean(load):
         raise NotImplementedError("global_mean(), needs to be implemented in derived class")
+    def rotfeed(self,load):
+        raise NotImplementedError("rotfeed(), needs to be implemented in derived class")
 
     def oceanf(self,load=None):
         raise NotImplementedError("oceanf(), needs to be implemented in derived class")
@@ -29,6 +32,7 @@ class SeaLevelSolver:
         raise NotImplementedError("load_earth(), needs to be implemented in derived class")
     
     
+
     def __call__(self, load_force):
         """Iteratively solve the sea level equation for a given load"""  
         
@@ -45,24 +49,20 @@ class SeaLevelSolver:
         #initial value for the ocean load
         load_sea=dphi_g*unioce
         
-        # #quasi sea level response only due to the load itself
-        # quasi_sea_force=ds_loadresp_force.geoid-ds_loadresp_force.uplift
-        # #initial value
-        # quasi_sea=quasi_sea_force
-        
-
-
-
-         
         relratio=1
         rel_thres=1e-5
         maxit=7
         it=0
         damp=0.95 
         while it < maxit and rel_thres < abs(relratio):
-            #compute the loading response of the ocean load only
-            ds_loadresp=self.load_earth(load_sea+load_force)
+            #compute the loading response
+            load_tot=load_sea+load_force
+            ds_loadresp=self.load_earth(load_tot)
             quasi_sea=ds_loadresp.geoid-ds_loadresp.uplift
+            if self.rotfeedback:
+                qsrot=self.rotfeed(load_tot)
+                #add static rotational feedback component to quasi_sea
+                quasi_sea.loc[qsrot.nm]+=qsrot
             self.set_global_mean(quasi_sea,dphi_g) 
             #compute new ocean load
             load_sea=self.oceanf(quasi_sea)

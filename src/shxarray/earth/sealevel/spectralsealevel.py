@@ -11,13 +11,13 @@ import os
 from shxarray.core.admin import defaultcache
 from shxarray.core.logging import logger
 from shxarray.kernels.gravfunctionals import Load2Geoid,Load2Uplift
-
+from shxarray.earth.rotation import qs_rotfeedback_slow
 
 
 class SpectralSeaLevelSolver(SeaLevelSolver):
 
-    def __init__(self,oceansh:xr.DataArray, dssnrei=None,p2scache=None):
-        
+    def __init__(self,oceansh:xr.DataArray, dssnrei=None,p2scache=None,rotfeedback=False):
+        super().__init__(rotfeedback)
         # Note: for full spectral consistency, the maximum degree of the ocean function is half that of the input ocean function
         self.nmax=floor(oceansh.sh.nmax/2)
        
@@ -45,6 +45,14 @@ class SpectralSeaLevelSolver(SeaLevelSolver):
             # import pdb;pdb.set_trace()
             self.dsp2s_oce=oceansh.sh.p2s()
             self.dsp2s_oce.sh.drop_nmindex().sh.drop_nmindex('_').to_netcdf(p2scache)
+        
+        if self.rotfeedback:
+            logger.warning("Adding static rotation feedback probably only makes sense for very slowly changing loads (> Chandler wobble freq)")
+            self.rotmat=qs_rotfeedback_slow()
+
+    def rotfeed(self,load):
+        qsrot=self.rotmat@load
+        return qsrot.sh.toggle_nm()
 
     @staticmethod
     def set_global_mean(load,level):

@@ -7,3 +7,4 @@ The examples in this tutorials are builds using Jupyter notebooks, which can be 
    notebooks/visualize_filter
    notebooks/TerrestrialWaterStorage
    notebooks/OceanMask
+   notebooks/SeaLevelEquation.ipynb

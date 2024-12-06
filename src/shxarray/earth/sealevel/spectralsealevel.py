@@ -16,11 +16,39 @@ from shxarray.earth.rotation import qs_rotfeedback_slow
 
 class SpectralSeaLevelSolver(SeaLevelSolver):
 
-    def __init__(self,oceansh:xr.DataArray, dssnrei=None,p2scache=None,rotfeedback=False):
+    def __init__(self,oceansh:xr.DataArray=None, nmax=None,dssnrei=None,p2scache=None,rotfeedback=False):
         super().__init__(rotfeedback)
-        # Note: for full spectral consistency, the maximum degree of the ocean function is half that of the input ocean function
-        self.nmax=floor(oceansh.sh.nmax/2)
+        
+        if oceansh is None:
+            if nmax is None or nmax > 150:
+                raise RuntimeError("nmax (<=150) must be provided when no oceansh datatarray is provided")
+            #use default ocean function (download)
+            oceanshfile=os.path.join(defaultcache("ocean"),"ne_10m_oceansh_n300.nc")
+            if not os.path.exists(oceanshfile):
+                import requests
+                url="https://github.com/strawpants/geoshapes/raw/refs/heads/master/raster/ocean/ne_10m_oceansh_n300.nc"
+                r = requests.get(url)
+                logger.info(f"Downloading ocean SH coefficients {oceanshfile}")
+                with open(oceanshfile,'wb') as fid:
+                    fid.write(r.content)
+            else:
+                logger.info(f"{oceanshfile}, already downloaded")
+            
+            oceansh=xr.open_dataset(oceanshfile).sh.truncate(nmax=2*nmax)
+        else:
+            if nmax is not None:
+                if nmax > oceansh.sh.nmax/2:
+                    raise RuntimeError(f"Requested maximum degree {nmax} not supported by file (needs to be at least 2*nmax)")
+                oceansh=oceansh.sh.truncate(nmax=nmax*2)
+    
+        if nmax is None:
+            # Note: for full spectral consistency, the maximum degree of the ocean function is half that of the input ocean function
+            self.nmax=floor(oceansh.sh.nmax/2)
+        else:
+            self.nmax=nmax
        
+        #note: ocean coefficients need to be supported up to 2*nmax
+        
         #setup SNREI Earth loading function
         if dssnrei is None:
             #default uses PREM Earth Model
@@ -35,7 +63,7 @@ class SpectralSeaLevelSolver(SeaLevelSolver):
             p2scache=os.path.join(defaultcache("P2S"),f"p2s_ocean_n{self.nmax}.nc")
         if os.path.exists(p2scache):
             #Read product to sum mat from cache
-            logger.info(f"Reading ocean function from cache: {p2scache}") 
+            logger.info(f"Reading product2sum ocean function from cache: {p2scache}") 
             self.dsp2s_oce=xr.open_dataset(p2scache).cnm.sh.build_nmindex().sh.build_nmindex('_')
         else:
             logger.info(f"Computing ocean function and saving to cache: {p2scache}") 
@@ -62,8 +90,8 @@ class SpectralSeaLevelSolver(SeaLevelSolver):
 
     @staticmethod
     def global_mean(load:xr.DataArray):
-        """Returns the degree 0, order 0 coefficient of a spherical harmonic dataset"""
-        return load.loc[dict(n=0,m=0)].item()
+        """Returns the degree 0, order 0 coefficients of a spherical harmonic dataset"""
+        return load.loc[dict(n=0,m=0)]
 
 
     def oceanf(self,load=None):

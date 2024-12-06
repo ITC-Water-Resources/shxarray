@@ -4,6 +4,10 @@
 #
 
 import xarray as xr
+import numpy as np
+from shxarray.core.logging import logger
+from shxarray.core.cf import *
+from datetime import datetime
 
 class SeaLevelSolver:
     """
@@ -38,10 +42,6 @@ class SeaLevelSolver:
         
         #compute the mean contributions of the fixed (forced) load
         force00=self.global_mean(load_force)
-
-        # Earth model response of the fixed load
-        #ds_loadresp_force=self.load_earth(load_force)
-        
         #Set up initial ocean load ocean function
         unioce=self.oceanf()
         oce_surf_ratio=self.global_mean(unioce)
@@ -67,12 +67,10 @@ class SeaLevelSolver:
             #compute new ocean load
             load_sea=self.oceanf(quasi_sea)
             delta=force00+self.global_mean(load_sea)
-            relratio=delta/force00
+            relratio=np.max(np.abs(delta/force00)).item()
             #update dphi_g in the right direction
             dphi_g-=damp*delta/oce_surf_ratio
-            print(f"current mass inconsistency: iteration {it}, relratio:{relratio},dphi_g: {dphi_g}")
-            #ensure mass consistency with the forcing load
-            # load_sea=self.set_global_mean(load_sea,-force00)
+            logger.info(f"current mass inconsistency: iteration {it}, relratio:{relratio}")
             
             it+=1
 
@@ -84,6 +82,27 @@ class SeaLevelSolver:
         ds_loadresp.uplift.name="uplift"
 
         dsout=xr.merge([quasi_sea,load_sea,load_force,ds_loadresp.geoid,ds_loadresp.uplift])
+        
+        #add some useful attributes to the output
+        dsout.attrs['history'] = str(datetime.utcnow()) + f": shxarray ({self.__class__.__name__}"
+        
+
+        dsout.quasi_sea.attrs["long_name"]="Quasi spectral sea level (non zero over land)"
+        dsout.quasi_sea.attrs["units"]="m"
+        
+        dsout.load_sea.attrs["long_name"]="Relative Sea level (load) as equivalent water height"
+        dsout.load_sea.attrs["units"]="m"
+        
+        dsout.load_force.attrs["long_name"]="Applied load as equivalent water height"
+        dsout.load_force.attrs["units"]="m"
+
+        dsout.geoid.attrs["long_name"]="Geoid height change induced by combined load (force+sea)"
+        dsout.geoid.attrs["units"]="m"
+
+        dsout.uplift.attrs["long_name"]="Uplift induced by combined load (force+sea)"
+        dsout.uplift.attrs["units"]="m"
+
+
         return dsout
         
 

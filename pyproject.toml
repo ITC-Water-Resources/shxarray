@@ -20,7 +20,7 @@ classifiers = [
     "Development Status :: 1 - Planning"
 ]
 dependencies = [ "pandas >= 2.0", "pyaml >= 23.9.0", "scipy", "xarray >= 2023.1.0",
-"numpy<2","numba", "sparse","importlib_metadata","requests","openpyxl"]
+"numpy<2","numba", "sparse","importlib_metadata","requests","openpyxl","geopandas"]
 
 [project.optional-dependencies]
 #you need dask in combination with when using older xarray versions

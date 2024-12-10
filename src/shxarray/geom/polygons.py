@@ -5,14 +5,13 @@
 
 from shapely.geometry import Point
 import xarray as xr
-import shxarray
 import numpy as np
 import geopandas as gpd
 import pandas as pd
 
 from shxarray.core.logging import logger
 
-def polygon2sh(polygeom,nmax:int=100,auxcoord=None) ->xr.DataArray:
+def polygon2sh(polygeom,nmax:int=100,auxcoord=None,**kwargs) ->xr.DataArray:
     """
     Convert a mask defined by a polygon to spherical harmonic coefficients.
     This routine currently uses a simple integration approach

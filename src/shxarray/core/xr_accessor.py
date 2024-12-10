@@ -9,6 +9,9 @@ from shxarray.core.shxarbase import ShXrBase
 from shxarray.kernels.ddk import load_ddk
 from shxarray.kernels.gauss import Gaussian
 from shxarray.io.shascii import to_shascii
+from shxarray.geom.polygons import polygon2sh
+from shxarray.geom.points import point2sh
+
 import numpy as np
 from shxarray.kernels.gravfunctionals import gravFunc
 
@@ -164,7 +167,45 @@ class SHDaAccessor(ShXrBase):
         The output matrix will be symmetric with sides spanning up to nmax/2 of the input"""
         eng=self._eng(engine)
         return eng.p2s(self._obj.sh.build_nmindex())
+    
+    @staticmethod    
+    def from_geoseries(gseries,nmax:int,auxcoord=None,**kwargs):
+        """
+            Convert a GeoSeries (from geopandas) to spherical harmonics
+        Parameters
+        ----------
+        gseries : geopandas.GeoSeries 
+            A GeoSeries Instance 
+            
+        nmax : int
+            maximum spherical harmonic degree and order to resolve
+            
+        auxcoord : named Pandas.Series or dict(dimname=coordvalues)
+            Auxiliary coordinate to map to the dimension of gseries. The default will construct a coordinate with an sequential numerical index and index "id" 
         
+        **kwargs: dict
+           Optional arguments which will be passed to either polygon2sh, or point2sh   
+
+        Returns
+        -------
+        xr.DataArray
+        A DataArray holding the spherical harmonic coefficients
+
+        """
+        
+        gtypes=gseries.geom_type.unique()
+        if len(gtypes) > 1:
+            raise RuntimeError("from_gseries does not currently accept mixed geometry types")
+        if gtypes[0] == "Polygon":
+            return polygon2sh(gseries,nmax=nmax,auxcoord=auxcoord,kwargs=kwargs)
+        elif gtypes[0] =="Point":
+            return point2sh(gseries,nmax=nmax,auxcoord=auxcoord,**kwargs)
+        else:
+            raise RuntimeError(f"geometry type {gtypes[0]}, is not supported")
+
+        import pdb;pdb.set_trace() 
+        pass
+
 
 @xr.register_dataset_accessor("sh")
 class SHDsAccessor(ShXrBase):

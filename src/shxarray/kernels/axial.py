@@ -32,6 +32,8 @@ class Disk(IsoKernelBase):
         :return: A Isotropic Kernel object representing a disk load
         """
         super().__init__()
+        if psi is None:
+            raise RuntimeError("psi must be defined for a disk load")
         self.psi=psi
         cospsi=np.cos(radians(psi))
         legendre=Pn(nmax+1)(cospsi)
@@ -52,6 +54,8 @@ class ParabolicCap(IsoKernelBase):
         :return: A Isotropic Kernel object representing a parabolic cap
         """
         super().__init__()
+        if psi is None:
+            raise RuntimeError("psi must be defined for a Parabolic cap")
         self.psi=psi
         psi=radians(psi)
         cospsi=cos(psi)

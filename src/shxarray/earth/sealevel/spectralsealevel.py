@@ -26,7 +26,7 @@ class SpectralSeaLevelSolver(SeaLevelSolver):
             oceanshfile=os.path.join(defaultcache("ocean"),"ne_10m_oceansh_n300.nc")
             if not os.path.exists(oceanshfile):
                 import requests
-                url="https://github.com/strawpants/geoshapes/raw/refs/heads/master/raster/ocean/ne_10m_oceansh_n300.nc"
+                url="https://github.com/strawpants/geoshapes/raw/refs/heads/master/ocean/ne_10m_oceansh_n300.nc"
                 r = requests.get(url)
                 logger.info(f"Downloading ocean SH coefficients {oceanshfile}")
                 with open(oceanshfile,'wb') as fid:

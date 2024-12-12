@@ -10,6 +10,8 @@ from setuptools import setup,Extension
 from setuptools_scm import get_version
 from Cython.Build import cythonize
 import Cython.Compiler.Options
+from packaging.version import Version
+
 import os 
 import numpy as np
 import sys
@@ -37,6 +39,11 @@ if "USE_CYTHON" in os.environ or winplatform:
 else:
     useCython=False
     ext=".cpp"
+
+#Force the use of cython if numpy has a version < 2
+if not useCython and Version(np.__version__) < Version ("2.0.0"):
+    useCython=True
+    ext=".pyx"
 
 
 def listexts():

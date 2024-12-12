@@ -110,9 +110,7 @@ def read_vec(fileobj,dsout,blockname):
     if 'nm' not in dsout.indexes:
         #possibly build index (if it has not been build already)
         mi=SHindexBase.mi_fromtuples(nm)
-        mi=xr.Coordinates.from_pandas_multiindex(mi, "nm")
-        
-        dsout=dsout.assign_coords(mi)
+        dsout=dsout.sh.set_nmindex(mi)
     
     return dsout
 
@@ -162,8 +160,7 @@ def read_symmat(fileobj,dsout,blockname):
     if "nm_" not in dsout.indexes:
         #add the transposed index
         mi_=SHindexBase.mi_toggle(dsout.indexes['nm'])
-        mi_=xr.Coordinates.from_pandas_multiindex(mi_, "nm_")
-        dsout=dsout.assign_coords(mi_)
+        dsout=dsout.sh.set_nmindex(mi_,'_')
 
     dsout['N']=(['nm','nm_'],mat)
     return dsout

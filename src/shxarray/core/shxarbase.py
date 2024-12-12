@@ -187,17 +187,52 @@ class ShXrBase:
         if indname in self._obj.indexes:
             #already build, so don't bother
             return self._obj
+        
         #either build from separate coordinate variables (n,m,t)
         if nname in self._obj.coords and mname in self._obj.coords:
             shimi=SHindexBase.mi_fromtuples([(n,m) for n,m in zip(self._obj[nname].values,self._obj[mname].values)],suf)
-            shimi=xr.Coordinates.from_pandas_multiindex(shimi, indname)
+            if hasattr(xr,'Coordinates'):
+                #only in newer xarray versions..
+                shimi=xr.Coordinates.from_pandas_multiindex(shimi, indname)
+            else:
+                shimi={indname:(indname,shimi)}
+
             return self._obj.drop_vars([nname,mname]).assign_coords(shimi)
+
         elif indname in self._obj.coords:
             #rebuild multiindex from an array of "left-over" tuples
             shimi=SHindexBase.mi_fromtuples(self._obj[indname].values,suf)
-            shimi=xr.Coordinates.from_pandas_multiindex(shimi, indname)
+            if hasattr(xr,'Coordinates'):
+                #only in newer xarray versions..
+                shimi=xr.Coordinates.from_pandas_multiindex(shimi, indname)
+            else:
+                shimi={indname:(indname,shimi)}
             return self._obj.drop_vars([indname]).assign_coords(shimi)
     
+    def set_nmindex(self,shimi,suf=''):
+        """Sets the spherical harmonic coordinate indesd from a given pandas multiindex""" 
+        if suf:
+            indname=f"{SHindexBase.name}{suf}"
+            nname=f"n{suf}"
+            mname=f"m{suf}"
+
+        else:
+            indname=SHindexBase.name
+            nname='n'
+            mname='m'
+        
+        if shimi.names[0] != nname or shimi.names[1] != mname:
+            raise RuntimeError(f"Level names of index should be named:{nname},{mname}")
+        if hasattr(xr,'Coordinates'):
+            #only in newer xarray versions..
+            shimi=xr.Coordinates.from_pandas_multiindex(shimi, indname)
+        else:
+            shimi={indname:(indname,shimi)}
+
+        return self._obj.assign_coords(shimi)
+
+        
+
     def toggle_nm(self):
         """Toggle naming of nm, nm_ multindices and their levels"""
         renamedict={}

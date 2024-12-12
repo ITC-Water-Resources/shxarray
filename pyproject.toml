@@ -25,6 +25,8 @@ dependencies = [ "pandas >= 2.0", "pyaml >= 23.9.0", "scipy", "xarray >= 2023.1.
 [project.optional-dependencies]
 #you need dask in combination with when using older xarray versions
 dask=["dask>=2022.9.2"]
+#Optionally speed up reading of gzip compressed files:
+rapidgzip=["rapidgzip"]
 
 [tool.setuptools_scm]
 # empty for now
@@ -34,6 +36,7 @@ dask=["dask>=2022.9.2"]
 icgem = "shxarray.io.shiobackend:ICGEMBackEntryPoint"
 gsmv6 = "shxarray.io.shiobackend:GSMv6BackEntryPoint"
 shascii ="shxarray.io.shiobackend:SHAsciiBackEntryPoint"
+sinex ="shxarray.io.shiobackend:SINEXBackEntryPoint"
 #ddk = "shxarray.io.shiobackend:DDKBackEntryPoint"
 
 [project.entry-points."shxarray.computebackends"]

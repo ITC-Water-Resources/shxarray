@@ -43,8 +43,20 @@ def test_icgem_nosig():
     for nm,cnm in testcnm.items():
         assert cnm == dsicgem.cnm.loc[:,nm].item(),f"Coefficient {nm} {cnm} not mathching"
 
+from shxarray.io.sinex import read_sinex
 
+def test_sinex():
+    import requests
+    url="https://ftp.tugraz.at/outgoing/ITSG/GRACE/ITSG-Grace2018/monthly/normals_SINEX/monthly_n96/ITSG-Grace2018_n96_2003-09.snx.gz"
+    sinexfile=os.path.join(os.path.dirname(__file__),'testdata', os.path.basename(url))
+    
+    if not os.path.exists(sinexfile):
+        print(f"Downloading {sinexfile}")
+        r=requests.get(url)
+        with open(sinexfile,'wb') as fid:
+            fid.write(r.content)
 
+    dsneqsinex=read_sinex(sinexfile)    
 
 
 

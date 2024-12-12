@@ -2,247 +2,155 @@ import numpy as np
 import xarray as xr
 import shxarray
 import os
-import matplotlib.pyplot as plt
 import gzip
 from shxarray.core.sh_indexing import SHindexBase
 from datetime import datetime,timedelta
+from shxarray.core.logging import logger
 
-class Sinexread:
-    def __init__(self):
-        #Initialize an Sinexread object with four attributes
-        self.solution_estimate = []
-        self.solution_apriori = []
-        self.normal_equation_vector = []
-        self.normal_equation_matrix = []
+def sinex2date(snxdate:str):
+    yr,doy,sec=[int(x) for x in snxdate.split(":")]
+    return datetime(yr+2000 if yr<50 else yr+1900,1,1)+timedelta(days=doy-1,seconds=sec)
+
+
+
+def read_vec(fileobj,dsout,blockname):
+    svtype=None
+    vtype=None
+    if blockname == "SOLUTION/ESTIMATE":
+        vtype='sol_est'
+        svtype='sol_std'
+    elif blockname == "SOLUTION/APRIORI":
+        vtype='apri_est'
+
+    elif blockname == 'SOLUTION/NORMAL_EQUATION_VECTOR':
+        vtype='rhs'
+
+    nest=dsout.dims['nm']
+    
+    ids=np.empty([nest],dtype=int)
+    #allocate space
+    nm=np.empty([nest],dtype=object)
+    est=np.zeros([nest])
+    if svtype:
+        std=np.zeros([nest])
+    epoch=np.empty([nest],dtype=datetime)
+    i=0
+    for line in fileobj:
+        if line.startswith('-'):
+            #end of block encountered
+            break
+        elif line.startswith('*'):
+            #comment
+            continue
         
+        fields = line.split()
+        ids[i]=int(fields[0])
+        n = int(fields[2])
+        est[i]=float(fields[8])
+        if svtype:
+            std[i]=float(fields[9])
 
-    def read_file(self, fileobj):
-        needsClosing=False
-        if type(fileobj) == str:
-            needsClosing=True
-            if fileobj.endswith('.gz'):
-                fileobj=gzip.open(fileobj,'rb')
-            else:
-                fileobj=open(fileobj,'rb')
-
-
-        shp = [SHindexBase.name]  ## check if all variables have the same dimension/ define the dimensions of the data variables
- 
-        solution_estimate_data = []
-        in_block = False
-        for line in fileobj:
-            line  = line.decode('utf-8') # Decode bytes to string
-            if "+SOLUTION/ESTIMATE" in line:
-                in_block = not in_block
-                continue
-            if in_block:
-                if line.startswith("*"):
-                    continue
-                if line.startswith("-"):
-                    break
-
-                fields = line.split()
-                index = int(fields[0])
-                type_ = str(fields[1])
-                n = int(fields[2])
-                solution_value = float(fields[8])
-                std_dev = float(fields[9])
-                if type_ == "SN":
-                    m = -int(fields[4])
-                else:
-                    m = int(fields[4])
-                    #nm = (n,m)
-                    
-                    
-                solution_estimate_data.append((index, type_, n, m, solution_value, std_dev))
-
-
-        sl_est = np.array(solution_estimate_data)
-            #nm = sl_est[:,0] 
-        index = sl_est[:,0].astype(int)
-        type_ = sl_est[:,1]
-        n = sl_est[:,2].astype(int)
-        m = sl_est[:,3].astype(int)
-        nm = [(sl_est[i, 2],sl_est[i, 3]) for i in range(len(sl_est))]
-        solution_estimate = sl_est[:,4].astype(float)
-        std_dev = sl_est[:,5].astype(float)
+        m=int(fields[4])
+        if fields[1] == "SN":
+            m = -m
+        elif fields[1] != "CN":
+            raise NotImplementedError(f"SINEX Parameter {fields[1]} is currently not supported")
+        nm[i]=(n,m)
+        epoch[i]=sinex2date(fields[5])
+        i+=1
+    #update dsout
+    dsout[vtype]=('nm',est)
+    if svtype:
+        dsout[svtype]=('nm',std)
     
-        coords = {SHindexBase.name: SHindexBase.mi_fromtuples(nm)}
-        ds_solution_estimate = xr.Dataset(data_vars = dict(solution_estimate = (shp, solution_estimate), std_dev = (shp, std_dev)), coords = coords)          
-        self.solution_estimate =  ds_solution_estimate           
-
-        solution_apriori_data = []
-        nm = []; type_ = []; n = []; m = []; index =[]; coords =[]; std_dev =[]
-        in_block = False
-        for line in fileobj:
-            line  = line.decode('utf-8')
-            if "+SOLUTION/APRIORI" in line:
-                in_block = not in_block
-                continue
-            if in_block:
-                if line.startswith("*"):
-                    continue
-                if line.startswith("-"):
-                    break
-
-                fields = line.split()
-
-                index = int(fields[0])
-                type_ = str(fields[1])
-                n = int(fields[2])
-                apriori_value = float(fields[8])
-                std_dev = float(fields[9])
-                if type_ == "SN":
-                    m = -int(fields[4])
-                else:
-                    m = int(fields[4])
-
-                    #nm = (n,m)
-                solution_apriori_data.append((index, type_, n, m, apriori_value, std_dev))
-                    #self.solution_apriori.append((index, type_, n, m, apriori_value, std_dev))
-                    
-            
-            
-            
-        sl_apr = np.array(solution_apriori_data)
-        index = sl_apr[:,0].astype(int)
-        type_ = sl_apr[:,1]
-        n = sl_apr[:,2].astype(int)
-        m = sl_apr[:,3].astype(int)
-        nm = [(sl_apr[i, 2],sl_apr[i, 3]) for i in range(len(sl_est))]
-        solution_apriori = sl_apr[:,4].astype(float)
-        std_dev = sl_apr[:,5].astype(float)
-    
-        coords = {SHindexBase.name: SHindexBase.mi_fromtuples(nm)}
-        ds_solution_apriori = xr.Dataset(data_vars = dict(solution_apriori = (shp, solution_apriori), std_dev = (shp,std_dev)), coords = coords)
-        self.solution_apriori = ds_solution_apriori
-            
-        normal_equation_vector_data = []
-        nm = []; type_ = []; n = []; m = []; index =[]; coords =[]; std_dev =[]
-        in_block = False
-        for line in fileobj:
-            line  = line.decode('utf-8')
-            if "+SOLUTION/NORMAL_EQUATION_VECTOR" in line:
-                in_block = not in_block  
-                continue
-
-            if in_block:
-                if line.startswith("*"):
-                    continue
-                if line.startswith("-"): 
-                    break
-
-                fields = line.split()
-
-                index = int(fields[0])
-                type_ = str(fields[1])
-                n = int(fields[2])
-                solution_value = float(fields[8])
-                if type_ == "SN":
-                    m = -int(fields[4])
-                else:
-                    m = int(fields[4])
-
-                    #nm = (n,m)
-                normal_equation_vector_data.append((index, type_, n, m, solution_value))
-
-                    
-        normal_eq_vec = np.array(normal_equation_vector_data)
-        index = normal_eq_vec[:,0].astype(int)
-        type_ = normal_eq_vec[:,1]
-        n = normal_eq_vec[:,2].astype(int)
-        m = normal_eq_vec[:,3].astype(int)
-        nm =[(normal_eq_vec[i,2], normal_eq_vec[i,3]) for i in range(len(normal_eq_vec))]
-        normal_equation_vector = normal_eq_vec[:,4].astype(float)
-     
-        coords = {SHindexBase.name: SHindexBase.mi_fromtuples(nm)}
-        ds_normal_equation_vector = xr.Dataset(data_vars = dict(normal_equation_vector = (shp, normal_equation_vector)), coords = coords)
-    
-        self.normal_equation_vector = ds_normal_equation_vector
-    
-                    
-        in_block = False
-        normal_equation_matrix_u = []  
-
-        for line in fileobj:
-            line  = line.decode('utf-8')
-            if "+SOLUTION/NORMAL_EQUATION_MATRIX U" in line:
-                in_block = not in_block
-                continue
-
-            if in_block:
-                if line.startswith("*"):
-                    continue
-                if line.startswith("-"):
-                    break
-
-                fields = line.split()
-
-                para1 = int(fields[0]) - 1
-                para2 = int(fields[1]) - 1
-                values = list(map(float, fields[2:4])) # create a list of floats using map object (iterator)
-
-                    
-                    
-                while len(normal_equation_matrix_u) <= para1:  
-                    normal_equation_matrix_u.append([])  ## Append the matrix size to include new row of data
+    # ignore parameter specific time epochs for now 
+    # dsout[f'{vtype}_epoch']=('nm',epoch)
 
 
-                row = para1
-                first_column = para2
-
-
-                    # while len(normal_equation_matrix_u[row]) < first_column:
-                    #     normal_equation_matrix_u[row].append(0.0)
-
-                for i in range(len(values)):
-                    col_idx = first_column + i
-                    value = values[i]
-
-                    while len(normal_equation_matrix_u[row]) <= col_idx:
-                        normal_equation_matrix_u[row].append(0.0)  ## add new columns to reach the desired col_idx
-
-
-                        #if col_idx >= row:
-                    normal_equation_matrix_u[row][col_idx] = value  
-                        # else:
-                        #     normal_equation_matrix_u[row][col_idx] = 0.0
-
-
-        max_row_length = max(len(row) for row in normal_equation_matrix_u) # Return the maximun row length of the matrix
-        for row in normal_equation_matrix_u:
-            row.extend([0.0] * (max_row_length - len(row)))
-
-
-            #self.normal_equation_matrix = normal_equation_matrix_u   
-            
-            
-            
-        normal_eq_matrix_u = np.array( normal_equation_matrix_u)
-        num_rows = np.arange(normal_eq_matrix_u.shape[0])
-        num_columns = np.arange(normal_eq_matrix_u.shape[1])
-    
-        symmetric_normal_eq_matrix = normal_eq_matrix_u + normal_eq_matrix_u.T - np.diag(np.diag(normal_eq_matrix_u)) # copy upper triangle to lower triangle in a python matrix
-    
-
-            #nm = [(i, j) for i in n for j in m]
-            #coords = {SHindexBase.name: SHindexBase.mi_fromtuples(nm)}
-        ds_symmetric_normal_equation_matrix = xr.Dataset(data_vars = dict(symmetric_normal_eq_matrix = (["rows","columns"], symmetric_normal_eq_matrix)), coords = dict(rows = ("rows",num_rows), columns = ("columns", num_columns)))
-        self.normal_equation_matrix = ds_symmetric_normal_equation_matrix
+    if 'nm' not in dsout.indexes:
+        #possibly build index (if it has not been build already)
+        mi=SHindexBase.mi_fromtuples(nm)
+        mi=xr.Coordinates.from_pandas_multiindex(mi, "nm")
         
-        
-#         if needsClosing:
-#             fileobj.close()
+        dsout=dsout.assign_coords(mi)
+    
+    return dsout
 
-#         if time:
-#             shp=["time",SHindexBase.name]
-#             coords={SHindexBase.name:SHindexBase.mi_fromtuples(nm),"time":time}
-#             cnm=np.expand_dims(cnm[0:ncount], axis=0)
-#             sigcnm=np.expand_dims(sigcnm[0:ncount],axis=0)
+def read_symmat(file_or_obj,dsout,blockname):
+    nest=dsout.dims['nm']
+    mat=np.zeros([nest,nest],order='C')
+    for line in file_or_obj:
+        if line.startswith('-'):
+            #end of block encountered
+            break
+        elif line.startswith('*'):
+            #comment
+            continue
 
+        data=[float(x) for x in line.split()]
+
+        irow=int(data[0])-1 #note zero indexing
+        icol=int(data[1]) -1
+        ndat=len(data)-2
+        mat[irow,icol:icol+ndat]=data[2:]
+    #mirror the upper triangle in the lower part
+    mat=np.triu(mat,k=1).T+mat
+
+    if "nm_" not in dsout.indexes:
+        #add the transposed index
+        mi_=SHindexBase.mi_toggle(dsout.indexes['nm'])
+        mi_=xr.Coordinates.from_pandas_multiindex(mi_, "nm_")
+        dsout=dsout.assign_coords(mi_)
+
+    dsout['N']=(['nm','nm_'],mat)
+    breakpoint()
+    return dsout
+# dictionary to lookup functions to dispatch the block parsing to (note some functions are the same for different blocks)
+blockdispatch={"SOLUTION/ESTIMATE":read_vec,'SOLUTION/APRIORI':read_vec,
+               'SOLUTION/NORMAL_EQUATION_VECTOR':read_vec,
+               'SOLUTION/NORMAL_EQUATION_MATRIX U':read_symmat,
+               'SOLUTION/NORMAL_EQUATION_MATRIX L':read_symmat}
+
+compatversions=["2.02"]
+
+def read_sinex(file_or_obj,stopatmat=False):
+    needsClosing=False
+    if type(file_or_obj) == str:
+        needsClosing=True
+        if file_or_obj.endswith('.gz'):
+            file_or_obj=gzip.open(file_or_obj,'rt')
+        else:
+            file_or_obj=open(file_or_obj,'rt')
+    
+    # read first line
+    header=file_or_obj.readline().split()
+    if header[1] not in compatversions:
+        raise RuntimeError(f"read_sinex is not compatible with {headerline[1]}")
+    
+    nest=int(header[-3])
+    tstart=sinex2date(header[5])
+    tend=sinex2date(header[6])
+    #initialize xarray dataset with some scalar vars to augment
+    dsout=xr.Dataset(dict(tstart=tstart,tend=tend,snx_ids=("nm",np.arange(1,nest+1))))
+    
     
 
+    # loop until a block is encountered and then dispatch to appropriate function
+    for line in file_or_obj:
+        if line[0] == "+":
+            block=line[1:].strip()
+
+            if block not in blockdispatch.keys():
+                logger.info(f"Ignoring block {block}")
+                continue
+            if stopatmat and "MATRIX" in block:
+                logger.info(f"Encountered {block}, stopping")
+                break
+            logger.info(f"Reading block {block}")
+            dsout=blockdispatch[block](file_or_obj,dsout,block)
         
-        return self
+    if needsClosing:
+        file_or_obj.close()
     
+    return dsout 
     

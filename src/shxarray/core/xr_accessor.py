@@ -196,7 +196,7 @@ class SHDaAccessor(ShXrBase):
         gtypes=gseries.geom_type.unique()
         if len(gtypes) > 1:
             raise RuntimeError("from_gseries does not currently accept mixed geometry types")
-        if gtypes[0] == "Polygon":
+        if gtypes[0] == "Polygon" or gtypes[0] == "MultiPolygon":
             return polygon2sh(gseries,nmax=nmax,auxcoord=auxcoord,kwargs=kwargs)
         elif gtypes[0] =="Point":
             return point2sh(gseries,nmax=nmax,auxcoord=auxcoord,**kwargs)

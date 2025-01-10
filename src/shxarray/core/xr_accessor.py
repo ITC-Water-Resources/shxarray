@@ -168,6 +168,31 @@ class SHDaAccessor(ShXrBase):
         eng=self._eng(engine)
         return eng.p2s(self._obj.sh.build_nmindex())
     
+    def triplot(self,ax=None,**kwargs):
+        """
+            Plot the spherical harmonic coefficients as a triangular plot
+
+        Parameters
+        ----------
+        ax : 
+            Matplotlib axis object to plot on. If None, a new axis will be created
+            
+        **kwargs:
+            Additional arguments passed to the pcolormesh plot function
+            
+        Returns:
+        --------
+            ax: Matplotlib axis object
+        """
+
+        qdmesh=self._obj.unstack('nm').plot(ax=ax,add_colorbar=False,**kwargs)
+        if ax is None:
+            ax=qdmesh.axes
+        ax.set_aspect('equal')
+        fig=qdmesh.figure
+        fig.colorbar(qdmesh,orientation='horizontal')
+        return ax
+                
     @staticmethod    
     def from_geoseries(gseries,nmax:int,auxcoord=None,**kwargs):
         """
@@ -205,7 +230,7 @@ class SHDaAccessor(ShXrBase):
 
         import pdb;pdb.set_trace() 
         pass
-
+    
 
 @xr.register_dataset_accessor("sh")
 class SHDsAccessor(ShXrBase):

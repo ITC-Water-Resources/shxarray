@@ -9,7 +9,6 @@ from scipy.sparse import diags
 from shxarray.shlib import Ynm
 from shxarray.core.cf import get_cfatts
 from shxarray.core.sh_indexing import SHindexBase
-import matplotlib.pyplot as plt
 
 class IsoKernelBase:
     """
@@ -102,15 +101,27 @@ class IsoKernelBase:
 
     def plot(self,ax=None,**kwargs):
         """
-        Plot the isotropic kernel
-        :param ax: matplotlib axis object
-        :param kwargs: additional keyword arguments for plotting
+        Plot the isotropic kernel as a function of degree
+
+        Parameters
+        ----------
+        ax : matplotlib axis object, optional
+            The axis to plot the kernel on. If None, a new axis is created.
+            
+        **kwargs: additional keyword arguments for plotting
+            
+
+        Returns
+        -------
+        ax : matplotlib axis object
+            
         """
-        self._dsiso.plot(ax=ax,**kwargs)
+        
+        lplt=self._dsiso.plot(ax=ax,**kwargs)
         if ax is None:
-            ax=plt.gca()
+            ax=lplt[0].axes
 
         ax.set_title(f"{self.name} Kernel")
         ax.set_xlabel("Degree")
         ax.set_ylabel("Kernel Coefficient")
-        
+        return ax

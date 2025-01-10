@@ -9,6 +9,7 @@ from scipy.sparse import diags
 from shxarray.shlib import Ynm
 from shxarray.core.cf import get_cfatts
 from shxarray.core.sh_indexing import SHindexBase
+import matplotlib.pyplot as plt
 
 class IsoKernelBase:
     """
@@ -98,3 +99,18 @@ class IsoKernelBase:
         :return: A xarray.DataArray with the 1-D Greens function in the spatial domain
         """
         pass
+
+    def plot(self,ax=None,**kwargs):
+        """
+        Plot the isotropic kernel
+        :param ax: matplotlib axis object
+        :param kwargs: additional keyword arguments for plotting
+        """
+        self._dsiso.plot(ax=ax,**kwargs)
+        if ax is None:
+            ax=plt.gca()
+
+        ax.set_title(f"{self.name} Kernel")
+        ax.set_xlabel("Degree")
+        ax.set_ylabel("Kernel Coefficient")
+        

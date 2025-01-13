@@ -34,7 +34,7 @@ class SpectralSeaLevelSolver(SeaLevelSolver):
             else:
                 logger.info(f"{oceanshfile}, already downloaded")
             
-            oceansh=xr.open_dataset(oceanshfile).sh.truncate(nmax=2*nmax)
+            oceansh=xr.open_dataset(oceanshfile).sh.truncate(nmax=2*nmax).oceansh
         else:
             if nmax is not None:
                 if nmax > oceansh.sh.nmax/2:
@@ -70,7 +70,7 @@ class SpectralSeaLevelSolver(SeaLevelSolver):
             if oceansh.sh.nmax != 2*self.nmax:
                 oceansh=oceansh.sh.truncate(nmax=self.nmax*2)
 
-            # import pdb;pdb.set_trace()
+            
             self.dsp2s_oce=oceansh.sh.p2s()
             self.dsp2s_oce.sh.drop_nmindex().sh.drop_nmindex('_').to_netcdf(p2scache)
         

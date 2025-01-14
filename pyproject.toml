@@ -29,7 +29,7 @@ dask=["dask>=2022.9.2"]
 rapidgzip=["rapidgzip"]
 
 [tool.setuptools_scm]
-# empty for now
+#version_file = "shxarray/_version.py"
 
 #For some reason specifying the xarray-backend as below is not working in toml (it's added in setup.py)
 [project.entry-points."xarray.backends"]

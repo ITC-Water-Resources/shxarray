@@ -58,8 +58,16 @@ html_theme_options = {
             # The type of image to be used (see below for details)
             "type": "fontawesome",
         }
-   ]
+   ],
+   "logo": {
+        "alt_text": "shxarray - Home",
+        "text": "shxarray",
+        "image_light": "_static/shxarraylogo_light.png",
+        "image_dark": "_static/shxarraylogo_light.png",
+    }
 }
+
+html_favicon= '_static/favicon.ico'
 
 # html_context = {
     # # "github_url": "https://github.com", # or your GitHub Enterprise site

@@ -11,7 +11,7 @@ import pandas as pd
 
 from shxarray.core.logging import logger
 
-def polygon2sh(polygeom,nmax:int=100,auxcoord=None,**kwargs) ->xr.DataArray:
+def polygon2sh(polygeom,nmax:int=100,auxcoord=None,engine="shlib",**kwargs) ->xr.DataArray:
     """
     Convert a mask defined by a polygon to spherical harmonic coefficients.
     This routine currently uses a simple integration approach
@@ -27,6 +27,8 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,**kwargs) ->xr.DataArray:
         Maximum degree and order of the output
     auxcoord: named Pandas.Series or dict(dimname=coordvalues)
         Auxiliary coordinate to map to the dimension of polygeom. The default will construct a coordinate with an sequential numerical index and index "id" 
+    engine: str
+        Backend to use for the SH analysis step (default: 'shlib', other options:'shtns').
     Returns
     -------
     xr.DataArray
@@ -36,18 +38,14 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,**kwargs) ->xr.DataArray:
     
     """
     
-    #create a dense enough grid encompassing all polgyons to use for spherical harmonic synthesis
-    # heuristic way to figure out resolution based on nmax
-    idres=1
-    while idres > 360/nmax/4:
-        idres=idres/2
-    
     if type(polygeom) != gpd.GeoSeries:
         polygeom=gpd.GeoSeries(polygeom)
+    
+    #create a dense enough grid encompassing all polgyons to use for spherical harmonic synthesis
+    # heuristic way to figure out the resolution based on nmax
+    lon,lat=xr.DataArray.sh.lonlat_span(nmax,engine=engine)
+    
 
-    #create a grid
-    lon=np.arange(-180+idres/2,180,idres)
-    lat=np.arange(-90+idres/2,90,idres)
     dims=["lon","lat"]
     coords={"lon":lon,"lat":lat}
     
@@ -79,15 +77,15 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,**kwargs) ->xr.DataArray:
     
 
     #query using a spatial index and set values to 1
-    logger.info("Gridding polygons")
+    logger.info("Masking and gridding polygons")
     for i,poly in enumerate(polygeom): 
         idx=ggrd.sindex.query(poly,predicate="contains")
         dtmp[i,idx]=1.0
     
+
     dtmp=dtmp.unstack("lonlat")
-    # import ipdb;ipdb.set_trace() 
     logger.info("Applying SH analysis")
-    dsout=dtmp.sh.analysis(nmax) 
+    dsout=dtmp.sh.analysis(nmax,engine=engine) 
 
     return dsout
 

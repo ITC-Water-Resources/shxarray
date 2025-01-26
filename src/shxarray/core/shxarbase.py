@@ -127,7 +127,6 @@ class ShXrBase:
         dims=[]
         shp=[]
         
-        
         #possibly use auxiliary coordinates
         for dim,coord in auxcoords.items():
             dims.append(dim)
@@ -150,19 +149,6 @@ class ShXrBase:
             return xr.DataArray(data=np.full(shp,scalar,order=order),dims=dims,name=name,coords=coords)
 
     
-    # @staticmethod
-    # def from_cnm(cnm):
-        # """Create a xarray from a cnm array from shtools"""
-        # nmax=cnm.shape[1]-1
-        # #create a multiindex
-        # shgmi=SHAccessor.nmt_mi(nmax,squeeze=True)
-        # #indexing vectors so the sh coeffients match the index
-        # i_n=shgmi.get_level_values(level='n').astype(int)
-        # i_m=shgmi.get_level_values(level='m').astype(int)
-        # i_t=shgmi.get_level_values(level='t').astype(int)
-        # coords={"shg":shgmi}
-        # dims=["shg"]
-        # return xr.DataArray(data=cnm[i_t,i_n,i_m],dims=dims,name="cnm",coords=coords)
 
 
     
@@ -268,5 +254,28 @@ class ShXrBase:
 
 
         return loaded_engines[engine]
-        
+    
+    @staticmethod
+    def lonlat_grid(nmax,engine="shlib",**kwargs):
+        """
+        Return a dataset with the required lon/lat coordinates needed for a given maximum degree
+
+        Parameters
+        ----------
+        nmax : int
+            Maximum degree of the spherical harmonic expansion
+            
+        engine : str, optional
+            The compute engine to use. The default is "shlib".
+        **kwargs : dict
+            Additional keyword arguments to be passed to the engine
+
+        Returns
+        -------
+        tuple
+            A tuple with the required lon/lat span in degrees
+
+        """
+        eng=ShXrBase._eng(engine)
+        return eng.lonlat_grid(nmax,**kwargs)
 

@@ -49,12 +49,14 @@ class SHDaAccessor(ShXrBase):
         eng=ShXrBase._eng(engine)
         return eng.gaunt(n2,n3,m2,m3)
     
-    def synthesis(self,lon=None, lat=None,grid=True,engine="shlib"):
+    def synthesis(self,lon=None, lat=None,engine="shlib",gtype=None,**kwargs):
         """
+
         Apply spherical harmonic synthesis on a set of longitude, latitude points
+        gen
         :param lon: Longitude in degrees East
         :param lat: Latitude in degrees North
-        :param grid: Set to false if lon,lat pairs represent individual points 
+        :param gtype: Set to false if lon,lat pairs represent individual points 
         :param engine: Spherical harmonic compute engine to use for the computation
         :return: A datarray for which the spherical harmonic coefficient dimension is mapped to set of points
         The following scenarios can be handled:
@@ -67,28 +69,37 @@ class SHDaAccessor(ShXrBase):
         """
         #dispatch to compute engine
         eng=self._eng(engine)
-         
-        if lon is None:
-            lon=np.arange(-180.0,181.0,1.0)
-        if lat is None:
-            lat=np.arange(-90.0,91.0,1.0)
-        return eng.synthesis(self._obj,lon,lat,grid)
+        if lon is None and lat is None:
+            #automatically find a suitable grifd based on the input maximum degree
+            dslonlat=eng.lonlat_grid(nmax=self._obj.sh.nmax,gtype=gtype)
+        elif lon is not None and lat is not None:
+            #generate a grid consistent with the backend
+            if len(lon) == len(lat) and gtype is None:
+                gtype='point'
+            dslonlat=eng.lonlat_grid(lon=lon,lat=lat,gtype=gtype)
+        else:
+            raise RuntimeError("Both or neither of lon and lat should be specified")
+
+        return eng.synthesis(self._obj,dslonlat,**kwargs)
     
-    def analysis(self,nmax=100,method='integrate',engine="shlib"):
+    def synthesis_like(self,dslonlat=None,engine="shlib",**kwargs):
+        #dispatch to compute engine
+        eng=self._eng(engine)
+        return eng.synthesis(self._obj,dslonlat,**kwargs)
+
+    def analysis(self,nmax=100,engine="shlib",**kwargs):
         """
         Apply spherical harmonic analysis from the given ints
         :param nmax : Spherical harmonic truncation degree of output
-        :param method: Method to use for the analysis
         :return: A datarray with spherical harmonic coefficients derived from the input dataArray
 
         Depending on the method applied different scenarios can be handled
-        method == 'integrate'
         input is given on an equidistant longitude, latitude grid (but may be different step size in lon and lat direction)
         """
         #dispatch to compute engine
         eng=self._eng(engine)
     
-        return eng.analysis(self._obj,nmax,method)
+        return eng.analysis(self._obj,nmax=nmax,**kwargs)
 
     def filter(self,filtername,**kwargs):
         """
@@ -194,7 +205,7 @@ class SHDaAccessor(ShXrBase):
         return ax
                 
     @staticmethod    
-    def from_geoseries(gseries,nmax:int,auxcoord=None,**kwargs):
+    def from_geoseries(gseries,nmax:int,auxcoord=None,engine="shlib",**kwargs):
         """
             Convert a GeoSeries (from geopandas) to spherical harmonics
         Parameters
@@ -207,7 +218,8 @@ class SHDaAccessor(ShXrBase):
             
         auxcoord : named Pandas.Series or dict(dimname=coordvalues)
             Auxiliary coordinate to map to the dimension of gseries. The default will construct a coordinate with an sequential numerical index and index "id" 
-        
+        engine: str
+            Compute engine to use for the computation (default: None). Choose 'dev' for experimental development engine
         **kwargs: dict
            Optional arguments which will be passed to either polygon2sh, or point2sh   
 
@@ -222,7 +234,8 @@ class SHDaAccessor(ShXrBase):
         if len(gtypes) > 1:
             raise RuntimeError("from_gseries does not currently accept mixed geometry types")
         if gtypes[0] == "Polygon" or gtypes[0] == "MultiPolygon":
-            return polygon2sh(gseries,nmax=nmax,auxcoord=auxcoord,kwargs=kwargs)
+            return polygon2sh(gseries,nmax=nmax,auxcoord=auxcoord,engine=engine,kwargs=kwargs)
+
         elif gtypes[0] =="Point":
             return point2sh(gseries,nmax=nmax,auxcoord=auxcoord,**kwargs)
         else:
@@ -237,15 +250,14 @@ class SHDsAccessor(ShXrBase):
     def __init__(self, xarray_obj):
         super().__init__(xarray_obj)
     
-    def synthesis(self,lon=None, lat=None,grid=True,engine="shlib"):
+    def synthesis(self,lon=None, lat=None,engine="shlib",**kwargs):
         """Calls the spherical harmonic synthesis operation on all DataArrays which have a 'nm' index"""
-        
 
         #gather relevant das
         das={ky:da for ky,da in self._obj.data_vars.items() if SHindexBase.name in da.coords}
         dsout=None
         for name,da in das.items():
-            daout=da.sh.synthesis(lon=lon, lat=lat,grid=grid,engine=engine)
+            daout=da.sh.synthesis(lon=lon, lat=lat,engine=engine,**kwargs)
             if dsout is None:
                 dsout=daout.to_dataset(name=name)
             else:

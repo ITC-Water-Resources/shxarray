@@ -31,6 +31,11 @@ def point2sh(pointgeom,nmax:int=100,auxcoord=None,axialtype="unit",psi=None) ->x
     -------
     xr.DataArray
       A DataArray holding the spherical harmonic coefficients of the prescribed loads 
+    
+    See Also
+    --------
+    shxarray.geom.polygons.polygon2sh
+    
     """
     
     if type(pointgeom) != gpd.GeoSeries:

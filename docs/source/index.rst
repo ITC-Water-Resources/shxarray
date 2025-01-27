@@ -15,6 +15,8 @@ Welcome to shxarray's documentation!
    installation.rst
    tutorial.rst
    api.rst
+   dev.rst
+   changelog.rst
 
 Indices and tables
 ==================

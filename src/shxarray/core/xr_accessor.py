@@ -204,29 +204,61 @@ class SHDaAccessor(ShXrBase):
         fig.colorbar(qdmesh,orientation='horizontal')
         return ax
                 
+    def dvplot(self,ax=None,mean=False,**kwargs):
+        """
+            Plot the degree variance of spherical harmonic coefficients
+
+        Parameters
+        ----------
+        ax : 
+            Matplotlib axis object to plot on. If None, a new axis will be created
+            
+        **kwargs:
+            Additional arguments passed to the matplotlib function
+            
+        Returns:
+        --------
+            ax: Matplotlib axis object
+        """
+
+        dadv=self.degvar(mean)
+        if ax is None:
+            lplt=dadv.plot(**kwargs)
+        else:
+            lplt=dadv.plot(ax=ax,**kwargs)
+        if ax is None:
+            ax=lplt.axes
+        fig=lplt.figure
+        return ax
+
     @staticmethod    
     def from_geoseries(gseries,nmax:int,auxcoord=None,engine="shlib",**kwargs):
         """
-            Convert a GeoSeries (from geopandas) to spherical harmonics
+            Convert a GeoSeries (from geopandas) to spherical harmonic coefficients
         Parameters
         ----------
         gseries : geopandas.GeoSeries 
-            A GeoSeries Instance 
+            A GeoSeries Instance of points or polygons
             
         nmax : int
             maximum spherical harmonic degree and order to resolve
             
         auxcoord : named Pandas.Series or dict(dimname=coordvalues)
             Auxiliary coordinate to map to the dimension of gseries. The default will construct a coordinate with an sequential numerical index and index "id" 
-        engine: str
-            Compute engine to use for the computation (default: None). Choose 'dev' for experimental development engine
+        engine: str, default: 'shlib'
+            Compute engine to use for the computation. Other options could be 'shtns' (when installed). This option has no effect when the input is a GeoSeries of points
         **kwargs: dict
            Optional arguments which will be passed to either polygon2sh, or point2sh   
 
         Returns
         -------
         xr.DataArray
-        A DataArray holding the spherical harmonic coefficients
+        A DataArray holding the spherical harmonic coefficients up to maximum degree specified
+
+        See Also
+        --------
+        shxarray.geom.points.point2sh
+        shxarray.geom.polygons.polygon2sh
 
         """
         

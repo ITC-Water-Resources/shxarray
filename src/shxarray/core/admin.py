@@ -35,7 +35,7 @@ def set_userinfo(namecontact:str=None,institution:str=None,write=False):
     Parameters
     ----------
     namecontact : str
-        e.g. r.rietbroek (r.rietbroek@utwente.nl)
+        e.g. J. Doe (j.doe@email.com)
         
     institution : str
         Affiliation of the author as a string 

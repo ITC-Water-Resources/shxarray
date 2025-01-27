@@ -276,6 +276,14 @@ class Synthesis_shtns:
 
 class SHTnsBackend(SHComputeBackendBase):
     _credits="Used backend: SHTns High performance Spherical Harmonic Transform for numerical simulations (https://nschaeff.bitbucket.io/shtns)"
+    
+    def __init__(self):
+        super().__init__()
+        try:
+            import shtns
+        except ImportError:
+            raise ImportError("SHTns Backend: shtns package is not installed. Please install it using 'pip install shtns")
+
     def synthesis(self, dain,dslonlat):
         syn=Synthesis_shtns(dslonlat)
         

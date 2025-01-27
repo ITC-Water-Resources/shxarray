@@ -58,7 +58,7 @@ extensions=listexts()
 
 if useCython:
     #additionally cythonize pyx files before building
-    extensions=cythonize(extensions,language_level=3,annotate=True,gdb_debug=debug)
+    extensions=cythonize(extensions,language_level=3,annotate=True,gdb_debug=debug,compiler_directives={'embedsignature': True})
 
 setup(
     version = get_version(root='.', relative_to=__file__),

@@ -13,9 +13,12 @@ from shxarray.core.logging import logger
 loaded_engines={}
 
 # version which is backward compatible:
-from importlib_metadata import entry_points
-# For newer versions this may eventually need to be replaced with 
-# from importlib.metadata import entry_points
+
+try:
+    from importlib.metadata import entry_points
+except:
+    breakpoint()
+    from importlib_metadata import entry_points
 
 class ShXrBase:
     def __init__(self, xarray_obj):
@@ -239,15 +242,15 @@ class ShXrBase:
         if engine not in loaded_engines:
             #load engine if not done already
             
-            if engine == "dev":
-                eng=__import__("shxarray.dev")
-                loaded_engines[engine]=eng.dev
+            if engine == "exp":
+                eng=__import__("shxarray.exp")
+                loaded_engines[engine]=eng.exp
             else:
                 grp="shxarray.computebackends"
                 eps=entry_points(group=grp)
 
                 if engine not in eps.names:
-                    raise RuntimeError(f"compute engine {engine} not found")
+                    raise RuntimeError(f"Compute engine {engine} not found, is it installed?")
                 Eng=eps[engine].load()
                 loaded_engines[engine]=Eng()
         
@@ -268,12 +271,12 @@ class ShXrBase:
         engine : str, optional
             The compute engine to use. The default is "shlib".
         **kwargs : dict
-            Additional keyword arguments to be passed to the engine
+            Additional keyword arguments to be passed to the engine. For example, the grid type can be set with the gtype keyword
 
         Returns
         -------
-        tuple
-            A tuple with the required lon/lat span in degrees
+        xarray.Dataset
+            A xarray.Dataset with the required lon/lat span as cooridnates
 
         """
         eng=ShXrBase._eng(engine)

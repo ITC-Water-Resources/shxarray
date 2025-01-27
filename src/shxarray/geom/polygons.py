@@ -14,8 +14,6 @@ from shxarray.core.logging import logger
 def polygon2sh(polygeom,nmax:int=100,auxcoord=None,engine="shlib",**kwargs) ->xr.DataArray:
     """
     Convert a mask defined by a polygon to spherical harmonic coefficients.
-    This routine currently uses a simple integration approach
-
     
     Parameters
     ----------
@@ -27,15 +25,17 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,engine="shlib",**kwargs) ->xr
         Maximum degree and order of the output
     auxcoord: named Pandas.Series or dict(dimname=coordvalues)
         Auxiliary coordinate to map to the dimension of polygeom. The default will construct a coordinate with an sequential numerical index and index "id" 
-    engine: str
-        Backend to use for the SH analysis step (default: 'shlib', other options:'shtns').
+    engine: str, default: 'shlib'
+        Backend to use for the SH analysis step. Other options could be 'shtns' (when installed)
     Returns
     -------
     xr.DataArray
-        A DataArray holding the spherical harmonic coefficients
+        A DataArray holding the spherical harmonic coefficients up to maximum degree specified
         
+    See Also
+    --------
+    shxarray.geom.points.point2sh
 
-    
     """
     
     if type(polygeom) != gpd.GeoSeries:
@@ -43,11 +43,10 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,engine="shlib",**kwargs) ->xr
     
     #create a dense enough grid encompassing all polgyons to use for spherical harmonic synthesis
     # heuristic way to figure out the resolution based on nmax
-    lon,lat=xr.DataArray.sh.lonlat_span(nmax,engine=engine)
-    
+    dslonlat=xr.Dataset.sh.lonlat_grid(nmax,engine=engine)
 
     dims=["lon","lat"]
-    coords={"lon":lon,"lat":lat}
+    coords={"lon":dslonlat.lon,"lat":dslonlat.lat}
     
     if auxcoord is None:
         coords["id"]=np.arange(len(polygeom))
@@ -66,7 +65,7 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,engine="shlib",**kwargs) ->xr
         dims.append(dimk)
 
 
-    dtmp=xr.DataArray(np.zeros([len(lon),len(lat),len(polygeom)]),coords=coords,dims=dims).stack(lonlat=("lon","lat"))
+    dtmp=xr.DataArray(np.zeros([dslonlat.sizes['lon'],dslonlat.sizes['lat'],len(polygeom)]),coords=coords,dims=dims).stack(lonlat=("lon","lat"))
 
     #create a geoDataframe of points from the grid
     ggrd=gpd.GeoDataFrame(geometry=[Point(lon,lat) for lon,lat in dtmp.lonlat.values],crs=4326)

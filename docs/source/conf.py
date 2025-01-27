@@ -27,7 +27,7 @@ import shxarray
 apidoc_module_dir=os.path.dirname(shxarray.__file__)
 
 apidoc_output_dir = 'references'
-apidoc_separate_modules = False
+apidoc_separate_modules = True
 apidoc_module_first=True
 apidoc_toc_file=False
 
@@ -61,8 +61,7 @@ html_theme_options = {
    ],
    "logo": {
         "alt_text": "shxarray - Home",
-        "text": "shxarray",
-        "image_light": "_static/shxarraylogo_light.png",
+        "image_light": "_static/shxarraylogo_dark.png",
         "image_dark": "_static/shxarraylogo_light.png",
     }
 }

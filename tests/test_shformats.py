@@ -88,6 +88,7 @@ def test_sinex(sinexval):
         r=requests.get(url)
         with open(sinexfile,'wb') as fid:
             fid.write(r.content)
+    # sinexfile=os.path.join(os.path.dirname(__file__),'testdata/ITSG-Grace2018_n96_2003-09.snx') 
     #quick read which stops when encountering a normal matrix
     #Engine does not need to be specified because file corresponds to commonly used filename pattern for sinex 
     dsneqsinex=xr.open_dataset(sinexfile,drop_variables=["N"])

@@ -12,36 +12,39 @@ from shxarray._version import version
 CoordInfo=namedtuple("CoordInfo",['min','max','step','direction','var'])
 
 def find_coord(coordvars, names):
-        tmp=[ky for ky in coordvars.keys() if ky in names]
-        if len(tmp) > 1 or len(tmp) == 0:
-            raise KeyError(f"Cannot find an unambigious coordinate variable from {names}")
-        coordvar=coordvars[tmp[0]]
-
-        #also compute minmax and possibly uniform step size
-        cmin=coordvar.min().item()
-        cmax=coordvar.max().item()
-        
-        cincr=np.diff(coordvar.data)
-        dmin=cincr.min()
-        dmax=cincr.max()
-        if dmin == dmax:
-            #uniform step
-            cstep=dmin
-            if dmin < 0:
-                direction='descending'
-            else:
-                direction='ascending'
+    """
+        Find a coordinate variable in a dictionary of coordinate variables
+    """
+    tmp=[ky for ky in coordvars.keys() if ky in names]
+    if len(tmp) > 1 or len(tmp) == 0:
+        raise KeyError(f"Cannot find an unambigious coordinate variable from {names}")
+    coordvar=coordvars[tmp[0]]
+    
+    #also compute minmax and possibly uniform step size
+    cmin=coordvar.min().item()
+    cmax=coordvar.max().item()
+    
+    cincr=np.diff(coordvar.data)
+    dmin=cincr.min()
+    dmax=cincr.max()
+    if dmin == dmax:
+        #uniform step
+        cstep=dmin
+        if dmin < 0:
+            direction='descending'
         else:
-            #nonuniform step
-            cstep=None
-            if dmin < 0 and dmax < 0:
-                direction='descending'
-            elif dmin > 0 and dmax > 0:
-                direction='ascending'
-            else:
-                direction="random"
+            direction='ascending'
+    else:
+        #nonuniform step
+        cstep=None
+        if dmin < 0 and dmax < 0:
+            direction='descending'
+        elif dmin > 0 and dmax > 0:
+            direction='ascending'
+        else:
+            direction="random"
 
-        return CoordInfo(min=cmin,max=cmax,step=cstep,direction=direction,var=coordvar)
+    return CoordInfo(min=cmin,max=cmax,step=cstep,direction=direction,var=coordvar)
 
 
 

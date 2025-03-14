@@ -121,7 +121,7 @@ class TUGRAZGRACEL2Base(DataSet):
         url=os.path.join("ftp://ftp.tugraz.at/outgoing/ITSG/GRACE/",self.release,self.subdirs)
         ftp=ftpCrawler(url,pattern='.*.gfc',followpattern='([0-9]{4})')
 
-        self.updated=ftp.parallelDownload(self._dbinvent.datadir,check=True,gzip=True, maxconn=5)
+        self.updated=ftp.parallelDownload(self._dbinvent.datadir,check=True,gzip=True, maxconn=3)
 
     def register(self):
 

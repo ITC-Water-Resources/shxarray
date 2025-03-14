@@ -89,7 +89,7 @@ class geocenter_GRCRL06_TN13(DataSet):
     
     def pull(self):
         """Pulls the geocenter ascii files in the cache"""
-        uri=http(self.rooturl+self.fout,lastmod=datetime(2019,12,1)).download(self.cacheDir(),check=True)
+        uri=http(self.rooturl+self.fout,lastmod=datetime(2025,3,14)).download(self.cacheDir(),check=True)
 
 
     def register(self):
@@ -105,7 +105,6 @@ class geocenter_GRCRL06_TN13(DataSet):
             
             nv=[]
             mv=[]
-            tv=[]
             cnmv=[]
             sigcnmv=[]
             #loop over entry lines 
@@ -118,15 +117,13 @@ class geocenter_GRCRL06_TN13(DataSet):
                 m=int(m)
                 nv.append(n)
                 mv.append(m)
-                tv.append(0)
                 cnmv.append(float(cnm))
                 sigcnmv.append(float(sigcnm))
 
                 #append sine coefficients
                 if m > 0:
                     nv.append(n)
-                    mv.append(m)
-                    tv.append(1)
+                    mv.append(-m)
                     cnmv.append(float(snm))
                     sigcnmv.append(float(sigsnm))
 
@@ -140,12 +137,12 @@ class geocenter_GRCRL06_TN13(DataSet):
                     # tcent=datetime(tstart.year,tstart.month,15)
                 
                     meta={"type":"GSM","time":tcent,"tstart":tstart,"tend":tend,"lastupdate":lastupdate,"nmax":1,"omax":1,"origin":"CF","format":"JSONB","gm":0.3986004415e+15,"re":0.6378136460e+07}
-                    meta["data"]=xr.Dataset(data_vars=dict(cnm=(["shg"],cnmv),sigcnm=(["shg"],sigcnmv)),coords=dict(n=(["shg"],nv),m=(["shg"],mv),t=(["shg"],tv)))
+                    meta["data"]=xr.Dataset(data_vars=dict(cnm=(["nm"],cnmv),sigcnm=(["nm"],sigcnmv)),coords=dict(n=(["nm"],nv),m=(["nm"],mv)))
                     
                     self.addEntry(meta)
                     nv=[]
                     mv=[]
-                    tv=[]
+                
                     cnmv=[]
                     sigcnmv=[]
 
@@ -157,46 +154,41 @@ class geocenter_GRCRL06_TN13(DataSet):
 
 
 class GeocenterRIESCFCM(DataSet):
-    fout30="GCN_L1_L2_30d_CF-CM.txt"
-    fout60="GCN_L1_L2_60d_CF-CM.txt"
+    fout60="60_day_geocenter_constrained_heights_detrended.txt"
     #note also embed mm to meter conversion in here (e3)
     sqrt3timesRE=11047256.23312e3
     schema=schema
-    table=type("geocenter_ries_cfcmTable", (GravitySHTBase,), {})
     def __init__(self,dbconn):
+        self.table=type(self.__class__.__name__.lower().replace('-',"_")+"Table", (GravitySHinDBTBase,), {})
         super().__init__(dbconn)
-        # super().__init__(direc=direc,uri='https://wobbly.earth/data/Geocenter_dec2017.tgz',order=['c10','c11','s11'],lastupdate=datetime(2018,10,16))
     
     def pull(self):
         """Pulls the geocenter ascii files in the cache"""
-        
-        uri=http("http://download.csr.utexas.edu/pub/slr/geocenter/"+self.fout30).download(self.cacheDir())
-        uri=http("http://download.csr.utexas.edu/pub/slr/geocenter/"+self.fout60).download(self.cacheDir())
+        url="https://download.csr.utexas.edu/pub/slr/geocenter/"+self.fout60
+        uri=http(url,checkssl=False).download(self.cacheDir())
 
 
     def register(self):
         self.truncateTable()
         #set general settings
-        self._dbinvent.data={"citation":"Ries, J.C., 2016. Reconciling estimates of annual geocenter motion from space geodesy, in: Proceedings of the 20th International Workshop on Laser Ranging, Potsdam, Germany. pp. 10–14."}
+        self._dbinvent.data={"citation":"Updated from: Ries, J.C., 2016. Reconciling estimates of annual geocenter motion from space geodesy, in: Proceedings of the 20th International Workshop on Laser Ranging, Potsdam, Germany. pp. 10–14."}
         
             
-        self.extractSLR(os.path.join(self.cacheDir(),self.fout30))
+        # self.extractSLR(os.path.join(self.cacheDir(),self.fout30))
         self.extractSLR(os.path.join(self.cacheDir(),self.fout60))
         self.updateInvent()
 
     def extractSLR(self,filen):
             lastupdate=datetime.now()
-            order=[(1,1,Trig.c),(1,1,Trig.s),(1,0,Trig.c)]
-            if re.search('30d',filen):
-                dt=timedelta(days=15)
-            else:
-                dt=timedelta(days=30)
+            #order of the coefficients per line
+            nv=[1,1,1]
+            mv=[1,-1,0]
+            dt=timedelta(days=30)
 
             with open(filen,'r') as fid:
                 #skip header
                 fid.readline()
                 for ln in fid:
-                    shar=JSONSHArchive(1)
                     lnspl=ln.split()
                     #note little hack as the 60d file version has an empty line at the back
                     if len(lnspl) == 0:
@@ -204,17 +196,20 @@ class GeocenterRIESCFCM(DataSet):
                     tcent=decyear2dt(float(lnspl[0]))
                     tstart=tcent-dt
                     tend=tcent+dt
-                    
-                    meta={"type":"GSM"+os.path.basename(filen)[10:13],"time":tcent,"tstart":tstart,"tend":tend,"lastupdate":lastupdate,"nmax":1,"omax":1,"origin":"CF","format":"JSONB","uri":"self:data","gm":0.3986004415e+15,"re":0.6378136460e+07
-}
-                    
-                    for el,val in zip(order,lnspl[1:4]):
-                        shar["cnm"][shar.idx(el)]=float(val)/self.sqrt3timesRE
+                    cnm=[] 
+                    for val in lnspl[1:4]:
+                        cnm.append(float(val)/self.sqrt3timesRE)
 
                     #also add sigmas 
-                    for el,val in zip(order,lnspl[4:7]):
-                        shar["sigcnm"][shar.idx(el)]=float(val)/self.sqrt3timesRE
-                    meta["data"]=shar.dict
+                    sigcnm=[]
+                    for val in lnspl[4:7]:
+                        sigcnm.append(float(val)/self.sqrt3timesRE)
+
+
+                    meta={"type":"GSM","time":tcent,"tstart":tstart,"tend":tend,"lastupdate":lastupdate,"nmax":1,"omax":1,"origin":"CF","format":"JSONB","gm":0.3986004415e+15,"re":0.6378136460e+07}
+
+
+                    meta["data"]=xr.Dataset(data_vars=dict(cnm=(["nm"],cnm),sigcnm=(["nm"],sigcnm)),coords=dict(n=(["nm"],nv),m=(["nm"],mv)))
                     self.addEntry(meta)
 
 
@@ -260,7 +255,6 @@ class  TN14SLRGSFC(DataSet):
                 #Append c20 coefficients
                 nv.append(2)
                 mv.append(0)
-                tv.append(0)
                 cnmv.append(float(c20))
                 dcnmv.append(float(dc20)*1e-10)
                 sigcnmv.append(float(sigc20))
@@ -268,7 +262,6 @@ class  TN14SLRGSFC(DataSet):
                     nmax=3
                     nv.append(3)
                     mv.append(0)
-                    tv.append(0)
                     cnmv.append(float(c30))
                     dcnmv.append(float(dc30)*1e-10)
                     sigcnmv.append(float(sigc30))
@@ -279,15 +272,15 @@ class  TN14SLRGSFC(DataSet):
                 tcent=tstart+(tend-tstart)/2
             
                 meta={"type":"GSM","time":tcent,"tstart":tstart,"tend":tend,"lastupdate":lastupdate,"nmax":nmax,"omax":omax,"format":"JSONB","gm":0.3986004415e+15,"re":0.6378136460e+07}
-                meta["data"]=xr.Dataset(data_vars=dict(cnm=(["shg"],cnmv),dcnm=(["shg"],dcnmv),sigcnm=(["shg"],sigcnmv)),coords=dict(n=(["shg"],nv),m=(["shg"],mv),t=(["shg"],tv)))
+                meta["data"]=xr.Dataset(data_vars=dict(cnm=(["nm"],cnmv),dcnm=(["nm"],dcnmv),sigcnm=(["nm"],sigcnmv)),coords=dict(n=(["nm"],nv),m=(["nm"],mv)))
                 
                 self.addEntry(meta)
             self.updateInvent()
 
 def getDeg1n2corrDsets(conf):
     out=[]
-    for center in ["CSR", "GFZ", "JPL"]:
-        out.append(type("geocenter_"+center+"RL06_TN13",(geocenter_GRCRL06_TN13,),{"fout":"TN-13_GEOC_"+center+"_RL06.txt"}))
+    for center in ["CSR_RL0602","GFZ_RL0601","JPL_RL0601"]:
+        out.append(type("deg1_tn13_"+center,(geocenter_GRCRL06_TN13,),{"fout":"TN-13_GEOC_"+center+".txt"}))
     out.append(GeocenterRIESCFCM)
     out.append(TN14SLRGSFC)
     return out

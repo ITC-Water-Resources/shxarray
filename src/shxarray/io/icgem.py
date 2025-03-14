@@ -131,18 +131,29 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
 
     if needsClosing:
         fileobj.close()
+
+    
+    if hasattr(xr,'Coordinates'):
+        #only in newer xarray versions..
+        coords=xr.Coordinates.from_pandas_multiindex(SHindexBase.mi_fromtuples(nm), SHindexBase.name)
+        if time:
+            coords=coords.assign(time=time)
+    else:
+        coords={SHindexBase.name:SHindexBase.mi_fromtuples(nm)}
+        if time:
+            coords["time"]=time
+
     if time:
         shp=["time",SHindexBase.name]
-        coords={SHindexBase.name:SHindexBase.mi_fromtuples(nm),"time":time}
+        # coords={SHindexBase.name:shimi,"time":time}
         #also expand variables
         cnm=np.expand_dims(cnm[0:ncount], axis=0)
         sigcnm=np.expand_dims(sigcnm[0:ncount],axis=0)
     else:
         shp=[SHindexBase.name]
-        coords={SHindexBase.name:SHindexBase.mi_fromtuples(nm)}
+        # coords={SHindexBase.name:shimi}
         cnm=cnm[0:ncount]
         sigcnm=sigcnm[0:ncount]
-    
     
     if ncolumns >= 6:
         ds=xr.Dataset(data_vars=dict(cnm=(shp,cnm,get_cfatts("stokes")),sigcnm=(shp,sigcnm,get_cfatts("stokes stdv"))),coords=coords,attrs=attr)

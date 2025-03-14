@@ -9,7 +9,7 @@ import numpy as np
 import geopandas as gpd
 import pandas as pd
 
-from shxarray.core.logging import logger
+from shxarray.core.logging import shxlogger
 
 def polygon2sh(polygeom,nmax:int=100,auxcoord=None,engine="shlib",**kwargs) ->xr.DataArray:
     """
@@ -76,14 +76,14 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,engine="shlib",**kwargs) ->xr
     
 
     #query using a spatial index and set values to 1
-    logger.info("Masking and gridding polygons")
+    shxlogger.info("Masking and gridding polygons")
     for i,poly in enumerate(polygeom): 
         idx=ggrd.sindex.query(poly,predicate="contains")
         dtmp[i,idx]=1.0
     
 
     dtmp=dtmp.unstack("lonlat")
-    logger.info("Applying SH analysis")
+    shxlogger.info("Applying SH analysis")
     dsout=dtmp.sh.analysis(nmax,engine=engine) 
 
     return dsout

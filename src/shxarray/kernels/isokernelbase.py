@@ -4,7 +4,7 @@
 #
 
 import xarray as xr
-from shxarray.core.logging import logger
+from shxarray.core.logging import shxlogger
 from scipy.sparse import diags
 from shxarray.shlib import Ynm
 from shxarray.core.cf import get_cfatts
@@ -41,7 +41,7 @@ class IsoKernelBase:
             raise RuntimeError(f"Requested kernel operation is only supported for degrees {nminsup} < = n <= {nmaxsup}")
 
         if self._dsiso.n.diff(dim="n").max().item() > 1:
-            logger.info("Some degrees are missing in the kernel, interpolating")
+            shxlogger.info("Some degrees are missing in the kernel, interpolating")
             coeff=self._dsiso.interp(n=shindex.n)
         else:
             coeff=self._dsiso.sel(n=shindex.n)

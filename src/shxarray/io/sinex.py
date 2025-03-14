@@ -5,7 +5,7 @@ import os
 import gzip
 from shxarray.core.sh_indexing import SHindexBase
 from datetime import datetime,timedelta
-from shxarray.core.logging import logger
+from shxarray.core.logging import shxlogger
 from shxarray.io.gzipwrap import gzip_open_r
 def sinex2date(snxdate:str)->datetime:
     """
@@ -220,7 +220,7 @@ def read_statistics(fileobj,dsout,blockname):
         else:
             tp=None
             varname =None
-            logger.warning(f"ignoring {blockname} entry {line}")
+            shxlogger.warning(f"ignoring {blockname} entry {line}")
 
         if varname:
             spl = line.split()
@@ -285,12 +285,12 @@ def read_sinex(file_or_obj,stopatmat=False):
             block=line[1:].strip()
 
             if block not in blockdispatch.keys():
-                logger.info(f"Ignoring block {block}")
+                shxlogger.info(f"Ignoring block {block}")
                 continue
             if stopatmat and "MATRIX" in block:
-                logger.info(f"Encountered {block}, stopping")
+                shxlogger.info(f"Encountered {block}, stopping")
                 break
-            logger.info(f"Reading block {block}")
+            shxlogger.info(f"Reading block {block}")
             dsout=blockdispatch[block](file_or_obj,dsout,block)
         
     if needsClosing:

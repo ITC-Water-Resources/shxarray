@@ -4,5 +4,6 @@ __pycache__
 build/
 #Exclude in source pip environment for testing the code
 pyshxarray/
-
+#don't include the compiled shared library
+shlib.cpython-*so
 

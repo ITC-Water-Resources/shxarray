@@ -49,6 +49,13 @@ shlib = "shxarray.shlib:SHComputeBackend"
 
 [project.entry-points."geoslurp.dsetfactories"]
 deg1n2corr = "shxarray.geoslurp.deg1n2:getDeg1n2corrDsets"
+tugrazgrace = "shxarray.geoslurp.TUGRAZDsets:TUGRAZGRACEDsets"
+gracel2 = "shxarray.geoslurp.GRACEDsets:GRACEDsets"
 
 [project.entry-points."geoslurp.dsets"]
 icgemstatic = "shxarray.geoslurp.icgemdset:ICGEMstatic"
+loadlove = "shxarray.geoslurp.loadlove:LLove"
+gracefilter = "shxarray.geoslurp.gracefilters:GRACEfilter"
+
+[project.entry-points."geoslurp.viewfactories"]
+graceviews = "shxarray.geoslurp.graceviews:getGRACEviews"

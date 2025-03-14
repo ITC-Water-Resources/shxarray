@@ -8,7 +8,7 @@ import xarray as xr
 import numpy as np
 
 from shxarray.core.sh_indexing import SHindexBase
-from shxarray.core.logging import logger
+from shxarray.core.logging import shxlogger
 
 loaded_engines={}
 
@@ -76,7 +76,7 @@ class ShXrBase:
     def gravtype(self,gravtypeval):
         """Sets the gravitational type of the content"""
         if gravtypeval not in ["stokes","tws"]:
-            logger.warning(f"Unknown gravitation type {gravtypeval}")
+            shxlogger.warning(f"Unknown gravitation type {gravtypeval}")
         self._obj.attrs["gravtype"]=gravtypeval
    
     def truncate(self,nmax=None,nmin=None,dims=[SHindexBase.name]):

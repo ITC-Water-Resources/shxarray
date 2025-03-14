@@ -9,7 +9,7 @@ import xarray as xr
 from math import floor
 import os
 from shxarray.core.admin import defaultcache
-from shxarray.core.logging import logger
+from shxarray.core.logging import shxlogger
 from shxarray.kernels.gravfunctionals import Load2Geoid,Load2Uplift
 from shxarray.earth.rotation import qs_rotfeedback_slow
 
@@ -28,11 +28,11 @@ class SpectralSeaLevelSolver(SeaLevelSolver):
                 import requests
                 url="https://github.com/strawpants/geoshapes/raw/refs/heads/master/ocean/ne_10m_oceansh_n300.nc"
                 r = requests.get(url)
-                logger.info(f"Downloading ocean SH coefficients {oceanshfile}")
+                shxlogger.info(f"Downloading ocean SH coefficients {oceanshfile}")
                 with open(oceanshfile,'wb') as fid:
                     fid.write(r.content)
             else:
-                logger.info(f"{oceanshfile}, already downloaded")
+                shxlogger.info(f"{oceanshfile}, already downloaded")
             
             oceansh=xr.open_dataset(oceanshfile).sh.truncate(nmax=2*nmax).oceansh
         else:
@@ -63,10 +63,10 @@ class SpectralSeaLevelSolver(SeaLevelSolver):
             p2scache=os.path.join(defaultcache("P2S"),f"p2s_ocean_n{self.nmax}.nc")
         if os.path.exists(p2scache):
             #Read product to sum mat from cache
-            logger.info(f"Reading product2sum ocean function from cache: {p2scache}") 
+            shxlogger.info(f"Reading product2sum ocean function from cache: {p2scache}") 
             self.dsp2s_oce=xr.open_dataset(p2scache).cnm.sh.build_nmindex().sh.build_nmindex('_')
         else:
-            logger.info(f"Computing ocean function and saving to cache: {p2scache}") 
+            shxlogger.info(f"Computing ocean function and saving to cache: {p2scache}") 
             if oceansh.sh.nmax != 2*self.nmax:
                 oceansh=oceansh.sh.truncate(nmax=self.nmax*2)
 
@@ -75,7 +75,7 @@ class SpectralSeaLevelSolver(SeaLevelSolver):
             self.dsp2s_oce.sh.drop_nmindex().sh.drop_nmindex('_').to_netcdf(p2scache)
         
         if self.rotfeedback:
-            logger.warning("Adding static rotation feedback probably only makes sense for very slowly changing loads (> Chandler wobble freq)")
+            shxlogger.warning("Adding static rotation feedback probably only makes sense for very slowly changing loads (> Chandler wobble freq)")
             self.rotmat=qs_rotfeedback_slow()
 
     def rotfeed(self,load):

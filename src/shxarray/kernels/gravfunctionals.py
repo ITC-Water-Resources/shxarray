@@ -27,11 +27,43 @@ class Stokes2TWS(IsoKernelBase):
 
         self._dsiso=(2*knLove.n+1)*rho_earth*a_earth/(3*rho_water*(1+knLove))
 
+class Load2Geoid(IsoKernelBase):
+    """Provides an isotropic kernel representing the transformation of a surface load (in m) to geoid height in meter"""
+    name="load2geoid"
+    transform=("load","geoid")
+    def __init__(self,knLove=None,nmax=None,deg0scale=None):
+        super().__init__()
+        if knLove is None:
+            #retrieve the default
+            knLove=SnreiFactory.load(nmax=nmax,deg0scale=deg0scale).kn
 
+        self._dsiso=(3*rho_water/rho_earth)*((1+knLove)/(2*knLove.n+1))
+        if deg0scale is not None:
+            self._dsiso.loc[0]=deg0scale
 
+class Load2Uplift(IsoKernelBase):
+    """Provides an isotropic kernel representing the transformation of surface load (in m) to elastic uplift in meter"""
+    name="load2uplift"
+    transform=("load","uplift")
+    def __init__(self,hnLove=None,nmax=None,deg0scale=None):
+        super().__init__()
+        if hnLove is None:
+            #retrieve the default
+            hnLove=SnreiFactory.load(nmax=nmax,deg0scale=deg0scale).hn
+        self._dsiso=(3*rho_water/rho_earth)*(hnLove/(2*hnLove.n+1))
+        
+gravclasses=[Stokes2TWS,Load2Geoid,Load2Uplift]
+
+gravlookup={cls.transform:cls for cls in gravclasses}
 
 def gravFunc(fromType,toType,**kwargs):
     """Computes a kernel to transform of one gravitational function into another"""
-    if (fromType,toType) == Stokes2TWS.transform:
-        return Stokes2TWS(**kwargs)
+    transtype=(fromType,toType)
+    if transtype in gravlookup:
+        return gravlookup[transtype](**kwargs)
+    elif transtype[::-1] in gravlookup:
+        #inverse version is found
+        return gravlookup[transtype[::-1]](**kwargs).inv()
+
+    raise RuntimeError(f"No gravity transfer function available for transform {fromType}->{toType}")
 

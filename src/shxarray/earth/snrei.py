@@ -42,7 +42,7 @@ def change_frame(dsLove,frame):
 
 
 
-def snrei_load(model,dbfile_or_con,frame="CF",nmax=None):
+def snrei_load(model,dbfile_or_con,frame="CF",nmax=None,deg0scale=None):
     """Loads (load) Love numbers"""
     if dbfile_or_con is None:
         #create a default filename
@@ -58,6 +58,13 @@ def snrei_load(model,dbfile_or_con,frame="CF",nmax=None):
         #assume the input is already a open (sqlalchemy-like ) database connection
         qry=f"SELECT data from earthmodels.llove WHERE name = '{model}'"
         res=dbfile_or_con.execute(qry).first()[0]
+    
+    if deg0scale is not None:
+        res["coords"]["degree"]["data"].insert(0,0)
+        res["data_vars"]["kn"]["data"].insert(0,deg0scale)
+        res["data_vars"]["hn"]["data"].insert(0,deg0scale)
+        res["data_vars"]["ln"]["data"].insert(0,deg0scale)
+
 
     dsout=xr.Dataset.from_dict(res).rename({"degree":"n"})
     if nmax is not None:
@@ -71,8 +78,8 @@ def snrei_load(model,dbfile_or_con,frame="CF",nmax=None):
 
 class SnreiFactory:
     @staticmethod
-    def load(model="PREM",dbfile_or_con=None,frame="CF",nmax=None):
-        return snrei_load(model=model,dbfile_or_con=dbfile_or_con,frame=frame,nmax=nmax)
+    def load(model="PREM",dbfile_or_con=None,frame="CF",nmax=None,deg0scale=None):
+        return snrei_load(model=model,dbfile_or_con=dbfile_or_con,frame=frame,nmax=nmax,deg0scale=deg0scale)
 
 
 

@@ -4,7 +4,6 @@
 #
 
 # distutils: language = c++
-# cython: profile=True
 
 import xarray as xr
 import cython
@@ -17,7 +16,7 @@ from openmp cimport omp_lock_t,omp_init_lock,omp_set_lock,omp_unset_lock
 from shxarray.core.sh_indexing import SHindexBase
 from shxarray.core.cf import find_lon,find_lat
 from scipy.linalg.cython_blas cimport dger
-from libc.math cimport cos
+from libc.math cimport cos,abs
 
 @cython.boundscheck(False)
 @cython.wraparound(False)
@@ -58,7 +57,7 @@ cdef class Analysis:
         cdef double stepx=loninfo.step*np.pi/180
         cdef double stepy=latinfo.step*np.pi/180
         # printf("stepx %f stepy %f\n",stepx,stepy)
-        cdef double weight=stepx*stepy/(4*np.pi)
+        cdef double weight=abs(stepx*stepy)/(4*np.pi)
         self._apply_ana(dain,daout,weight)
         return daout
     

@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0","setuptools-scm>=8","numpy<2","Cython>=3","wheel","pytest","scipy"]
+requires = ["setuptools>=61.0","setuptools-scm>=8","numpy","Cython>=3","wheel","pytest","scipy","packaging"]
 build-backend = "setuptools.build_meta"
 [project]
 name = "shxarray"
@@ -20,23 +20,27 @@ classifiers = [
     "Development Status :: 1 - Planning"
 ]
 dependencies = [ "pandas >= 2.0", "pyaml >= 23.9.0", "scipy", "xarray >= 2023.1.0",
-"numpy<2","numba", "sparse","importlib_metadata","requests","openpyxl"]
+"numpy","numba", "sparse","importlib_metadata","requests","openpyxl","geopandas"]
 
 [project.optional-dependencies]
 #you need dask in combination with when using older xarray versions
 dask=["dask>=2022.9.2"]
+#Optionally speed up reading of gzip compressed files:
+rapidgzip=["rapidgzip"]
 
 [tool.setuptools_scm]
-# empty for now
+version_file = "src/shxarray/_version.py"
 
 #For some reason specifying the xarray-backend as below is not working in toml (it's added in setup.py)
 [project.entry-points."xarray.backends"]
 icgem = "shxarray.io.shiobackend:ICGEMBackEntryPoint"
 gsmv6 = "shxarray.io.shiobackend:GSMv6BackEntryPoint"
 shascii ="shxarray.io.shiobackend:SHAsciiBackEntryPoint"
+sinex ="shxarray.io.shiobackend:SINEXBackEntryPoint"
 #ddk = "shxarray.io.shiobackend:DDKBackEntryPoint"
 
 [project.entry-points."shxarray.computebackends"]
+shtns = "shtns_backend.shtns:SHTnsBackend"
 shlib = "shxarray.shlib:SHComputeBackend"
 
 [project.urls]

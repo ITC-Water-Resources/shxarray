@@ -5,15 +5,28 @@
 
 This extension adds functionality to work with Spherical Harmonics to [Xarray](https://github.com/pydata/xarray).
 
-## Features and functionality (in progress)
+
+## Features and functionality 
 * Gravity functionals: (convert from Stokes coefficients to various gravity functionals, such as equivalent water heights, geoid changes, etc.)
 * Filter (e.g. Gaussian or anisotropic filter applied in the spectral domain)
-* The use of Xarray like operations allow for applying functionality to multi-dimensional datasets
-
+* The use of Xarray-like operations allow for applying functionality to multi-dimensional datasets
+* A spectral sea level equation solver
 
 ## Getting started
-The tutorials in the [documentation](https://shxarray.wobbly.earth/stable/tutorial.html) will gradually epxand and provide Jupyter notebook workflows to start with.
+The tutorials in the [documentation](https://shxarray.wobbly.earth/stable/tutorial.html) provide Jupyter Notebooks with examples of how to make use of the module. The notebooks can also be found on the [github repository](https://github.com/ITC-Water-Resources/shxarray/tree/main/docs/source/notebooks).
 
+The functionality of shxarray becomes available when importing the module together with Xarray:
+
+```
+import shxarray
+import xarray as xr
+```
+after which the shxarray accessor becomes available for use, e.g.:
+```
+nmax=20
+nmin=2
+dazeros=xr.DataArray.sh.ones(nmax=nmax,nmin=nmin)
+```
 
 ## Installation
 You can install this package from PyPi using:
@@ -21,6 +34,8 @@ You can install this package from PyPi using:
 pip install shxarray
 ```
 
+## Backends
+Shxarray comes with a default **shlib** backend written in C++ and Cython. In addition, a very fast 'shtns' backend can be used when [SHTns](https://nschaeff.bitbucket.io/shtns/) is installed. The backends can be specified in enabled routines as the options: `engine='shlib'` or `engine='shtns'`.
 
 ## Development Installation
 If you want to help in the development of this package, it's best to clone the repository to allow for modifications and pull requests. The extension makes use of [Cython](https://cython.readthedocs.io/en/latest/) generated code to speed up spherical harmonic synthesis and analysis.
@@ -41,23 +56,23 @@ will be much faster than using
 ```pip install -e .``` 
 
 
-This will build the shared library in for example `./build/lib.linux-x86_64-cpython-3xx/shxarray/shlib.cpython-3xx-x86_64-linux-gnu.so`. To make sure changes are picked up in your editable install you can create a symbolic link in the Python part of the library e.g. :
+This will build the shared library in for example `./build/lib.linux-x86_64-cpython-3xx/shxarray/shlib.cpython-3xx-x86_64-linux-gnu.so`. To make sure changes are picked up in your editable install you should create a symbolic link in the Python part of the library e.g. :
 
 ```
 cd src/shxarray/
 ln -sf ../../build/lib.linux-x86_64-cpython-311/shxarray/shlib.cpython-311-x86_64-linux-gnu.so
 ```
 
-### Building against Numpy 2
-For portablity, the current C++ files are build against Numpy version 1.26 and are incompatible with a [Numpy 2.0](https://numpy.org/doc/stable/release/2.0.0-notes.html) installation. To build against Numpy 2.0, (1) change the Numpy version numbers in [pyproject.toml](pyproject.toml), (2) set the environment variable `export USE_CYTHON=1`, and (3) build the module as described above.
+### Numpy version issues
+The provided c++ files are cythonized against numpy > 2. When building against older numpy versions (<2), the cpp files are re-cythonized upon install, this requires a working cython installation.
 
 
 ## Contributing
-This repository is under development and contributions and feedback are welcome.
+This repository is under development and contributions and feedback is welcome.
 
 ### Contributors
 * Main developer: Roelof Rietbroek (r.rietbroek@utwente.nl)
-* ..
+* Kiana Karimi
 
 
 

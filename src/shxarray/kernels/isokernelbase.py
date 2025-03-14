@@ -17,8 +17,12 @@ class IsoKernelBase:
     attr={"shtype":"shiso","kernelstate":"collapsed"}
     name="shkernel"
     transform=None
-    def __init__(self):
-        self._dsiso=None
+    def __init__(self,dsiso=None,name=None,transform=None):
+        self._dsiso=dsiso
+        if name is not None:
+            self.name=name
+        if transform is not None:
+            self.transform=transform
     
     @property
     def nmax(self):
@@ -34,7 +38,7 @@ class IsoKernelBase:
         nminsup= self._dsiso.n.min().item() 
         nmaxsup= self._dsiso.n.max().item()
         if nmin < nminsup or  nmax > nmaxsup:
-            raise RuntimeError("Requested kernel operation is only supported for degrees {nminsup} < = n <= {nmaxsup}")
+            raise RuntimeError(f"Requested kernel operation is only supported for degrees {nminsup} < = n <= {nmaxsup}")
 
         if self._dsiso.n.diff(dim="n").max().item() > 1:
             logger.info("Some degrees are missing in the kernel, interpolating")
@@ -65,8 +69,12 @@ class IsoKernelBase:
             daout.attrs.update(get_cfatts(name))
         except:
             pass
-
         return daout.rename(name)
+    
+    def inv(self):
+        """Returns the inverse of the isotropic Kernel"""
+        invkernel=IsoKernelBase(1/self._dsiso,name=f'inv({self.name}',transform=(self.transform[::-1]))
+        return invkernel
 
     def position(self,lon,lat):
         """
@@ -90,3 +98,30 @@ class IsoKernelBase:
         :return: A xarray.DataArray with the 1-D Greens function in the spatial domain
         """
         pass
+
+    def plot(self,ax=None,**kwargs):
+        """
+        Plot the isotropic kernel as a function of degree
+
+        Parameters
+        ----------
+        ax : matplotlib axis object, optional
+            The axis to plot the kernel on. If None, a new axis is created.
+            
+        **kwargs: additional keyword arguments for plotting
+            
+
+        Returns
+        -------
+        ax : matplotlib axis object
+            
+        """
+        
+        lplt=self._dsiso.plot(ax=ax,**kwargs)
+        if ax is None:
+            ax=lplt[0].axes
+
+        ax.set_title(f"{self.name} Kernel")
+        ax.set_xlabel("Degree")
+        ax.set_ylabel("Kernel Coefficient")
+        return ax

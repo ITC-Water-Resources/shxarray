@@ -8,7 +8,9 @@ from shxarray.io.icgem import readIcgem
 from shxarray.io.gsmv6 import readGSMv6
 from shxarray.io.binv_legacy import readBINV
 from shxarray.io.shascii import readSHAscii
+from shxarray.io.sinex import read_sinex
 import os
+
 import re
 
 class ICGEMBackEntryPoint(BackendEntrypoint):
@@ -64,6 +66,34 @@ class SHAsciiBackEntryPoint(BackendEntrypoint):
     
     def guess_can_open(self,filename_or_obj):
         #User need to use this engine explicitly as the filenaming can be anything
+        return False
+
+class SINEXBackEntryPoint(BackendEntrypoint):
+    url="https://github.com/ITC-Water-Resources/shxarray"
+    description = "Read normal equation systems in SINEX format"
+    def open_dataset(self,filename_or_obj,*,drop_variables=None):
+        if drop_variables is not None and "N" in drop_variables:
+            #Special case: it is much quicker to abandon reading when a matrix is present and not needed
+            dsout=read_sinex(filename_or_obj,stopatmat=True)
+            drop_variables
+        elif drop_variables is not None:
+            dsout=read_sinex(filename_or_obj)
+            dsout=dsout.drop_vars(drop_variables)
+        else:
+            dsout=read_sinex(filename_or_obj)
+        
+        return dsout
+    
+    def guess_can_open(self,filename_or_obj):
+        try:
+            strrep=str(filename_or_obj).lower()
+            # search for usual file naming of SINEX files
+            if strrep.endswith('.snx') or strrep.endswith('.snx.gz'):  
+                #Found a file name which probably is a sinex file
+                return True
+        except AttributeError:
+            return False
+            
         return False
 
 ## NOte: this currently does not work (xarray changes the underlying sparse array)

@@ -1,10 +1,9 @@
 # This file is part of the shxarray software which is licensed
 # under the Apache License version 2.0 (see the LICENSE file in the main repository)
-# Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2023
+# Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2025
 #
 
 # distutils: language = c++
-# cython: profile=False
 
 import xarray as xr
 import cython
@@ -14,31 +13,37 @@ from legendre cimport Ynm_cpp
 from libc.stdio cimport printf
 # from warnings import warn
 from scipy.linalg.cython_blas cimport dgemv
-from shxarray.core.cf import get_cfatts
+from shxarray.core.cf import get_cfatts,find_lon,find_lat
 @cython.boundscheck(False)
 @cython.wraparound(False)
 @cython.initializedcheck(False)
 cdef class Synthesis:
     cdef public object _dsobj
-    def __cinit__(self, lon, lat,grid=True):
+    def __cinit__(self, dslonlat):
+        """Initialize the synthesis operator with a lon,lat grid or a set of lon,lat points contained as coordinates in an xarray dataset""" 
         
-        if type(lon) == xr.DataArray and type(lat) == xr.DataArray:
-            #possibly check whether they share the same dimension name and size and set grid to false in that case
-            if lon.dims[0] == lat.dims[0] and lon.size == lat.size:
-                grid=False
-            lon=lon.data
-            lat=lat.data
+        loninfo=find_lon(dslonlat.coords)
+        latinfo=find_lat(dslonlat.coords)
+        
+        self._dsobj=xr.Dataset(coords=dict(lat=latinfo.var.copy(deep=True),lon=loninfo.var.copy(deep=True)))
 
-        if grid:
-            #create a xrray dataset which spans the in and output
-            coords={"lat":("lat",lat,get_cfatts('latitude')),"lon":("lon",lon,get_cfatts('longitude'))}
-            self._dsobj=xr.Dataset(coords=coords)
-        else:
-            if len(lon) != len(lat):
-                raise RuntimeError("Synthesis on a one dimensional set of points requires equally sized lon and lat ")
+        # if type(lon) == xr.DataArray and type(lat) == xr.DataArray:
+            # #possibly check whether they share the same dimension name and size and set grid to false in that case
+            # if lon.dims[0] == lat.dims[0] and lon.size == lat.size:
+                # grid=False
+            # lon=lon.data
+            # lat=lat.data
 
-            coords={"lat":("nlonlat",lat,get_cfatts('latitude')),"lon":("nlonlat",lon,get_cfatts('longitude'))}
-            self._dsobj=xr.Dataset(coords=coords)
+        # if grid:
+            # #create a xrray dataset which spans the in and output
+            # coords={"lat":("lat",lat,get_cfatts('latitude')),"lon":("lon",lon,get_cfatts('longitude'))}
+            # self._dsobj=xr.Dataset(coords=coords)
+        # else:
+            # if len(lon) != len(lat):
+                # raise RuntimeError("Synthesis on a one dimensional set of points requires equally sized lon and lat ")
+
+            # coords={"lat":("nlonlat",lat,get_cfatts('latitude')),"lon":("nlonlat",lon,get_cfatts('longitude'))}
+            # self._dsobj=xr.Dataset(coords=coords)
 
                      
     def __call__(self,dain:xr.DataArray):
@@ -59,7 +64,7 @@ cdef class Synthesis:
         coordsout.update({ky:val for ky,val in self._dsobj.coords.items()})
         
         dimsin=[(dim,sz) for dim,sz in dain.sizes.items() if dim != "nm"]
-        #it is import to have lat, and lon as first dimensions (slowest varying index)
+        #it is important to have lat, and lon as first dimensions (slowest varying index)
         dimsout=[(dim,sz) for dim,sz in self._dsobj.sizes.items()]+dimsin
 
         #allocate space (c-contiguous) for the output data

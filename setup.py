@@ -10,18 +10,29 @@ from setuptools import setup,Extension
 from setuptools_scm import get_version
 from Cython.Build import cythonize
 import Cython.Compiler.Options
+from packaging.version import Version
+
 import os 
 import numpy as np
 import sys
 
 if sys.platform.startswith("win"):
-    openmp_arg = '/openmp'
+    winplatform=True
+    extra_args = ['/openmp']
 else:
-    openmp_arg = '-fopenmp'
+    winplatform=False
+    extra_args = ['-fopenmp']
 
-debug=False
+if "DEBUG_CYTHON" in os.environ:
+    debug=True
+    extra_args.append('-O0')
+    #extra_args.append('-pg')
+else:
+    debug=False
+
 #don't necessarily use cython
-if "USE_CYTHON" in os.environ:
+if "USE_CYTHON" in os.environ or winplatform:
+    # note being on windows forces the use of cython
     useCython=True
     ext=".pyx"
     Cython.Compiler.Options.annotate = True
@@ -29,12 +40,17 @@ else:
     useCython=False
     ext=".cpp"
 
+#Force the use of cython if numpy has a version < 2
+if not useCython and Version(np.__version__) < Version ("2.0.0"):
+    useCython=True
+    ext=".pyx"
+
 
 def listexts():
     names=["shlib"]
     exts=[]
     for nm in names:
-        exts.append(Extension("shxarray."+nm.replace("/","."),["src/builtin_backend/"+nm+ext],include_dirs=[np.get_include(),"."], define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')],extra_compile_args=[openmp_arg],extra_link_args=[openmp_arg]))
+        exts.append(Extension("shxarray."+nm.replace("/","."),["src/builtin_backend/"+nm+ext],include_dirs=[np.get_include(),"."], define_macros=[('NPY_NO_DEPRECATED_API', 'NPY_1_7_API_VERSION')],extra_compile_args=extra_args,extra_link_args=extra_args))
     return exts
 
 extensions=listexts()
@@ -42,7 +58,7 @@ extensions=listexts()
 
 if useCython:
     #additionally cythonize pyx files before building
-    extensions=cythonize(extensions,language_level=3,annotate=True,gdb_debug=debug)
+    extensions=cythonize(extensions,language_level=3,annotate=True,gdb_debug=debug,compiler_directives={'embedsignature': True})
 
 setup(
     version = get_version(root='.', relative_to=__file__),

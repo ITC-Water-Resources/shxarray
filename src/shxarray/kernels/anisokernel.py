@@ -44,18 +44,31 @@ class AnisoKernel:
     def __call__(self,dain:xr.DataArray):
         if SHindexBase.name not in dain.indexes:
             
-            raise RuntimeError("al harmonic index not found in input, cannot apply kernel operator to object")
+            raise RuntimeError("SH harmonic index not found in input, cannot apply kernel operator to object")
+
+        if self.nmax < dain.sh.nmax:
+            raise RuntimeError("Input data has higher degree than kernel, cannot apply kernel operator to object")
+
         daout=xr.dot(self._dskernel.mat,dain,dims=[SHindexBase.name]) 
         #rename nm and convert to dense array
         daout=daout.sh.toggle_nm()
         if self.useDask:
             daout=xr.DataArray(daout.compute().data,coords=daout.coords,name=self.name)
         else:
-            daout=xr.DataArray(daout.data.todense(),coords=daout.coords,name=self.name)
-        
-        if not self.truncate and self.nmin > 0:
+            if hasattr(daout.data,'todense'):
+                #still needs expanding
+                daout=xr.DataArray(daout.data.todense(),coords=daout.coords,name=self.name)
+            else:
+                #just rename
+                daout.name=self.name
+
+        if not self.truncate and self.nmin > dain.sh.nmin:
             #also add the unfiltered lower degree coefficients back to the results
-            daout=xr.concat([dain.sh.truncate(self.nmin-1),daout],dim=SHindexBase.name)
+            daout=xr.concat([dain.sh.truncate(self.nmin-1,dain.sh.nmin),daout],dim=SHindexBase.name)
+
+        if daout.sh.nmax == dain.sh.nmax and daout.sh.nmin == dain.sh.nmin:
+            #resort to original order when output nmax and nmin agree
+            daout=daout.sel({SHindexBase.name:dain.nm})
 
         return daout
 

@@ -1,0 +1,13 @@
+#!/bin/bash
+
+fin=shxarraylogo_light.png
+fout=favicon.ico
+extent=`identify $fin | awk '{\
+    split($3,dim,"x");\
+    if(dim[1] > dim[2]){\
+        printf "0x%d\n",(dim[1])\
+    }else{\
+        printf "%dx0\n",(dim[2])}\
+    }'`
+
+convert $fin -background none  -gravity center -extent $extent -resize 16x16 $fout

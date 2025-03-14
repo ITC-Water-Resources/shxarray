@@ -1,0 +1,22 @@
+Monthly mean of c20 from SLR (CSR RL06)
+for details see
+http://ifg.tugraz.at/downloads/gravity-field-models/itsg-grace2018
+
+begin_of_head ========================================
+
+modelname              model_c20_2013-11
+product_type           gravity_field
+earth_gravity_constant 3.9860044150e+14
+radius                 6.3781363000e+06
+max_degree             2
+norm                   fully_normalized
+errors                 no
+
+key     L    M         C                   S          
+end_of_head ==========================================
+gfc     0    0  0.000000000000e+00  0.000000000000e+00
+gfc     1    0  0.000000000000e+00  0.000000000000e+00
+gfc     1    1  0.000000000000e+00  0.000000000000e+00
+gfc     2    0 -4.841696152100e-04  0.000000000000e+00
+gfc     2    1  0.000000000000e+00  0.000000000000e+00
+gfc     2    2  0.000000000000e+00  0.000000000000e+00

@@ -12,7 +12,10 @@ import numpy as np
 import gzip
 import os
 import pickle
+from tqdm import tqdm
+from shxarray.core.sh_indexing import SHindexBase
 
+precision=16
 
 @pytest.fixture
 def wigner3jVal():
@@ -65,16 +68,27 @@ def gauntVal():
         from sympy.physics.wigner import gaunt
         #generate new data
         nmax=9
+        nsh=SHindexBase.nsh(nmax)
+        ntot=int(nsh*(nsh+1)/2)
+        i2=0
+        progbar= tqdm(total=ntot,desc="Generating sympy validation")
         for n2 in range(0,nmax+1):
-            for n3 in range(0,nmax+1):
-                for m2 in range(-n2,n2+1):
+            for m2 in range(-n2,n2+1):
+                i2+=1
+                i3=0
+                for n3 in range(0,nmax+1):
                     for m3 in range(-n3,n3+1):
-                        #retrieve non-zero orders and degrees
-                        dagaunt=xr.DataArray.sh.gaunt(n2,n3,m2,m3)
-                        nm=dagaunt.nm.data
-                        m1=np.unique(dagaunt.m)[0]
-                        data=[float(val) for val in [gaunt(n1,n2,n3,m1,m2,m3) for n1 in dagaunt.n.data]]
-                        gauntv.append({"nm":nm.copy(),"n2":n2,"n3":n3,"m2":m2,"m3":m3,"data":data.copy()})
+                        i3+=1
+
+                        if i2 <= i3:
+                            progbar.update(1)
+                            #retrieve non-zero orders and degrees
+                            dagaunt=xr.DataArray.sh.gaunt(n2,n3,m2,m3)
+                            nm=dagaunt.nm.data
+                            m1=np.unique(dagaunt.m)[0]
+                            data=[float(val) for val in [gaunt(n1,n2,n3,m1,m2,m3,prec=precision) for n1 in dagaunt.n.data]]
+                            gauntv.append({"nm":nm.copy(),"n2":n2,"n3":n3,"m2":m2,"m3":m3,"data":data.copy()})
+                            gauntv.append({"nm":nm.copy(),"n2":n3,"n3":n2,"m2":m3,"m3":m2,"data":data.copy()})
         with gzip.open(sympyfile,'wb') as fid:
             pickle.dump(gauntv,fid,protocol=1)
     else:
@@ -103,20 +117,34 @@ def gauntrealVal():
         from sympy.physics.wigner import real_gaunt
         #generate new data
         nmax=8
+        nsh=SHindexBase.nsh(nmax)
+        ntot=int(nsh*(nsh+1)/2)
+        i2=0
+        progbar= tqdm(total=ntot,desc="Generating real gaunt validation with Sympy")
+        #total number of combinations shxarray.core.sh_indec
         for n2 in range(0,nmax+1):
-            for n3 in range(0,nmax+1):
-                for m2 in range(-n2,n2+1):
+            for m2 in range(-n2,n2+1):
+                i2+=1
+                i3=0
+                for n3 in range(0,nmax+1):
                     for m3 in range(-n3,n3+1):
+                        i3+=1
+
+                        if i2 <= i3:
                         #retrieve non-zero orders and degrees
-                        dagaunt=xr.DataArray.sh.gauntReal(n2,n3,m2,m3)
-                        if len(dagaunt) == 0:
-                            # no-nonzero values
-                            continue
-                        nm=dagaunt.nm.data
+                            progbar.update(1)
+                            dagaunt=xr.DataArray.sh.gauntReal(n2,n3,m2,m3)
+
+                            if len(dagaunt) == 0:
+                                # no-nonzero values
+                                continue
+                            nm=dagaunt.nm.data
                     
-                        m1=np.unique(dagaunt.m)[0]
-                        data=[float(val) for val in [real_gaunt(n1,n2,n3,m1,m2,m3) for n1 in dagaunt.n.data]]
-                        gauntv.append({"nm":nm.copy(),"n2":n2,"n3":n3,"m2":m2,"m3":m3,"data":data.copy()})
+                            data=[float(val) for val in [real_gaunt(n1,n2,n3,m1,m2,m3,prec=precision) for n1,m1 in dagaunt.nm.data]]
+                            gauntv.append({"nm":nm.copy(),"n2":n2,"n3":n3,"m2":m2,"m3":m3,"data":data.copy()})
+                            #also append mirror values (same value)
+                            gauntv.append({"nm":nm.copy(),"n2":n3,"n3":n2,"m2":m3,"m3":m2,"data":data.copy()})
+
         with gzip.open(sympyfile,'wb') as fid:
             pickle.dump(gauntv,fid,protocol=1)
     else:
@@ -132,11 +160,4 @@ def test_Gauntreal(gauntrealVal):
         dagaunt=xr.DataArray.sh.gauntReal(valdata["n2"],valdata["n3"],valdata["m2"],valdata["m3"])
         assert(len(valdata["data"]) == len(dagaunt))
         closeEnough=np.allclose(dagaunt.data,valdata["data"],rtol=rtol)
-        # m1=dagaunt.m.data[0]
-        # m2=valdata["m2"]
-        # m3=valdata["m3"]
-        # if not closeEnough:
-            # print(f'not ok {np.sign(m1*m2*m3)}')            
-        # else:
-            # print(f'OK {np.sign(m1*m2*m3)}')            
         assert(closeEnough)

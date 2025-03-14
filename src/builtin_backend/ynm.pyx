@@ -4,7 +4,6 @@
 #
 
 # distutils: language = c++
-# cython: profile=False
 
 import cython
 cimport numpy as np

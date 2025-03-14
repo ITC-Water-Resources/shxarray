@@ -86,11 +86,10 @@ def readBINV(file_or_obj,trans=False,nmax=-1):
 
     #read integer meta information
     (nints,ndbls,nval1,nval2)=struct.unpack(endianness+'IIII',fid.read(4*4))
-
     if vnum < 2.4:
         (pval1,pval2)=struct.unpack(endianness+'II',fid.read(4*2))
     else:
-        (pval1,pval2)=struct.unpack(endianness+'LL',fid.read(8*2))
+        (pval1,pval2)=struct.unpack(endianness+'QQ',fid.read(8*2))
 
 
     if vnum <= 2.1:
@@ -133,7 +132,7 @@ def readBINV(file_or_obj,trans=False,nmax=-1):
         if vnum <= 2.4:
             ivals=np.fromfile(fid,dtype=endianness+'I',count=nints)
         else:
-            ivals=np.fromfile(fid,dtype=endianness+'L',count=nints)
+            ivals=np.fromfile(fid,dtype=endianness+'Q',count=nints)
         vals.extend(ivals)
     if ndbls >0:
         dnames=np.fromfile(fid,dtype='|S24',count=ndbls).astype('|U24')
@@ -212,8 +211,18 @@ def readBINV(file_or_obj,trans=False,nmax=-1):
     #unpack in sparse matrix
         mat = sparse.COO(coords, pack, shape=(nval1,nval1),fill_value=0.0)
         # mat=sparse.GCXS.from_coo(mat,compressed_axes=[1])
+    elif dictout["type"] in ["SYMV0___","SYMV1___","SYMV2___","SYMVN___"]:
+        mat=np.zeros([nval1,nval1])
+        istart=0
+        iend=0
+        for i in range(nval1):
+            mat[i,0:i+1]=pack[istart:istart+i+1]
+            istart+=i+1
+        #mirror the triangular matrix
+        mat=np.tril(mat,k=-1).T+mat
     else: 
-        raise NotImplemented(f"Cannot Unpack a matrix of {dictout['type']}")
+        
+        raise NotImplementedError(f"Cannot Unpack a matrix of {dictout['type']}")
     
     shname=SHindexBase.name
     shname_t=shname+"_"

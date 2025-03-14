@@ -4,7 +4,7 @@
 #
 
 import xarray as xr
-from shxarray.core.logging import logger
+from shxarray.core.logging import shxlogger
 from shxarray.shlib import Ynm
 from shxarray.core.sh_indexing import SHindexBase
 import sparse

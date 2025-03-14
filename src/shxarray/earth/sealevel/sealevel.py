@@ -5,7 +5,7 @@
 
 import xarray as xr
 import numpy as np
-from shxarray.core.logging import logger
+from shxarray.core.logging import shxlogger
 from shxarray.core.cf import *
 from datetime import datetime
 
@@ -70,7 +70,7 @@ class SeaLevelSolver:
             relratio=np.max(np.abs(delta/force00)).item()
             #update dphi_g in the right direction
             dphi_g-=damp*delta/oce_surf_ratio
-            logger.info(f"current mass inconsistency: iteration {it}, relratio:{relratio}")
+            shxlogger.info(f"current mass inconsistency: iteration {it}, relratio:{relratio}")
             
             it+=1
 

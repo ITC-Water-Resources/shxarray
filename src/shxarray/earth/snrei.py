@@ -3,7 +3,7 @@
 # Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2023
 #
 
-from shxarray.core.logging import logger
+from shxarray.core.logging import shxlogger
 from shxarray.core.admin import defaultcache
 import xarray as xr
 import os
@@ -12,10 +12,10 @@ import json
 
 def download_snrei(dbfilename):
     if os.path.exists(dbfilename):
-        logger.info(f"{dbfilename} already exists, no need to download)")
+        shxlogger.info(f"{dbfilename} already exists, no need to download)")
         return
     else:
-        logger.info(f" Downloading {dbfilename}")
+        shxlogger.info(f" Downloading {dbfilename}")
 
     url="https://github.com/strawpants/snrei/raw/master/Love/geoslurp_dump_llove.sql"
     req=requests.get(url)

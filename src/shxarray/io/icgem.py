@@ -21,7 +21,7 @@ import re
 import sys
 import numpy as np
 from shxarray.core.sh_indexing import SHindexBase
-from shxarray.core.logging import logger 
+from shxarray.core.logging import shxlogger 
 from datetime import datetime,timedelta
 from shxarray.core.cf import get_cfatts
 
@@ -61,7 +61,7 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
         nmax=attr["nmax"]
 
         if nmax > nmaxsupp:
-            logger.warning("Nmax ({nmax}) requested larger than supported, higher degree coefficients will be set to zero")
+            shxlogger.warning("Nmax ({nmax}) requested larger than supported, higher degree coefficients will be set to zero")
 
 
         if 'format' in hdr:

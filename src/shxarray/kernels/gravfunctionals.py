@@ -33,7 +33,7 @@ class Stokes2Geoid(IsoKernelBase):
     transform=("stokes","geoid")
     def __init__(self,nmax):
         super().__init__()
-        self._dsiso=a_earth*xr.DataArray(np.ones([121]),dims=['n'],coords=dict(n=np.arange(nmax+1)))
+        self._dsiso=a_earth*xr.DataArray(np.ones([nmax+1]),dims=['n'],coords=dict(n=np.arange(nmax+1)))
 
 class Load2Geoid(IsoKernelBase):
     """Provides an isotropic kernel representing the transformation of a surface load (in m) to geoid height in meter"""

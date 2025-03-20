@@ -368,7 +368,9 @@ class SHTnsBackend(SHComputeBackendBase):
                 dslonlat=xr.Dataset(coords=dict(lon=("nlonlat",lon),lat=("nlonlat",lat)))
             else:
                 #we need to check whether the proposed grid is compatible with SHTns
-
+                #rough estimate of nmax needed
+                dres=min(np.median(np.diff(lon)),np.median(np.diff(lat)))
+                nmax=int(180/dres)
                 sh = shtns.sht(nmax, nmax, norm=shtns.sht_orthonormal+shtns.SHT_NO_CS_PHASE)
                 sh.set_grid(len(lat),len(lon),shtns_type)
                 dslonlat=xr.Dataset(coords=dict(lon=lon,lat=lat))

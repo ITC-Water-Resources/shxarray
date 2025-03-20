@@ -1,4 +1,5 @@
-from shxarray.kernels import ParabolicCap
+from xarray.core.dataarray import DataArray
+from shxarray.kernels import ParabolicCap, Disk
 import pytest
 import xarray as xr
 import os
@@ -105,4 +106,56 @@ def generategrddata(grdvalidation,request):
     valdata=grdvalidation*scales1*scales2
 
     return dain,valdata
+
+@pytest.fixture
+def basin_sim_data():
+    """
+    Generate an simulated (annual/semiannual) signal in three non-overlapping circular basins, where amplitude and phase and size of the basins differ
+    """
+    time= np.arange(np.datetime64("2000-01-01"), np.datetime64("2010-12-31"), np.timedelta64(7, "D"))
+    
+    #generate a set of circular basins which are closeby but are non overlapping
+    nmax=120
+    radius=[11.5,9.5,13.5] #radii in degrees of the disks
+    lon=[-51.38,-63,-77.34]
+    lat=[-10.22,8,-10.30]
+    dabasins=None
+    for rad,lo,la in zip(radius,lon,lat):
+        pdisk=Disk(nmax*2,rad)
+        
+        datmp=pdisk.position([lo],[la]).rename(dict(lon="plon",lat="plat",nlonlat="basins"))
+        if dabasins is None:
+            dabasins=datmp
+        else:
+            dabasins=xr.concat([dabasins,datmp],dim="basins")
+    # create a seasonal signal in the basins and a phase shifted seasonal signal with lower amplitude in the surrounding areas 
+    # amplitudes 
+    amplitudes=np.array([3.,20.,1.])
+    phases=np.array([0,90/365,200/365])
+
+    semiamplitudes=0.1*amplitudes
+    semiphases=phases+1/12
+
+    #generate a seasonal signal
+    t0=np.datetime64("2005-01-01")
+    time_yrs=((time-t0)/np.timedelta64(365,'D')).astype(float)
+    seas_cos=np.cos(2*np.pi*(np.matlib.repmat(time_yrs,len(phases),1).T+np.matlib.repmat(phases,len(time_yrs),1)))
+    seas_cos*=np.matlib.repmat(amplitudes,len(time_yrs),1)
+
+    #generate a semiannual signal
+    semiseas_cos=np.cos(4*np.pi*(np.matlib.repmat(time_yrs,len(semiphases),1).T+np.matlib.repmat(semiphases,len(time_yrs),1)))
+    semiseas_cos*=np.matlib.repmat(semiamplitudes,len(time_yrs),1)
+
+    #add the contribution of the basins together
+    datws=(xr.DataArray(seas_cos+semiseas_cos,dims=['time','basins'],coords=dict(time=time))*dabasins).sum('basins')
+    
+    ds=datws.to_dataset(name="tws")
+    ds['basin_sh']=dabasins
+    #add truth-mean series
+    ds['basin_avs']=(["time","basins"],seas_cos+semiseas_cos)
+    return ds
+     
+
+
+
 

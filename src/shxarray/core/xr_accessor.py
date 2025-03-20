@@ -6,7 +6,7 @@
 import xarray as xr
 from shxarray.core.sh_indexing import SHindexBase
 from shxarray.core.shxarbase import ShXrBase
-from shxarray.kernels.ddk import load_ddk
+from shxarray.kernels import getSHfilter
 from shxarray.kernels.gauss import Gaussian
 from shxarray.io.shascii import to_shascii
 from shxarray.geom.polygons import polygon2sh
@@ -14,6 +14,7 @@ from shxarray.geom.points import point2sh
 
 import numpy as np
 from shxarray.kernels.gravfunctionals import gravFunc
+from shxarray.signal.basinav import Basinav
 
 @xr.register_dataarray_accessor("sh")
 class SHDaAccessor(ShXrBase):
@@ -110,29 +111,7 @@ class SHDaAccessor(ShXrBase):
             halfwidth (int): specify the halfwidth in km's for the Gaussian filter, alternatively specify in the format Gauss300
             truncate (bool) (default=True): Truncate low degree coefficients which fall outside the filter. Set to False to keep unfiltered input
         """
-        if filtername.startswith('DDK'):
-            #load a dedicated DDK filter
-            if "transpose" in kwargs:
-                trans=kwargs["transpose"]
-            else:
-                trans=False
-            if "truncate" in kwargs:
-                truncate=kwargs["truncate"]
-            else:
-                truncate=True
-            kernel=load_ddk(filtername,trans,self.nmax,truncate)
-        elif filtername.startswith('Gauss'):
-            if "halfwidth" in kwargs:
-                radius=kwargs["halfwidth"]
-            else:
-                try:
-                    radius=int(filtername[5:])
-                except:
-                    raise RuntimeError("Cannot parse the Gaussian halfwidth in km.\n Specify either 'Gaussxxx'or add halfwidth=xxx to the sh.filter call")
-            kernel=Gaussian(self.nmax,radius*1e3)
-        else:
-            raise RuntimeError(f"SH Filter {filtername} not recognized")
-
+        kernel=getSHfilter(filtername,self.nmax,**kwargs)
         return self.convolve(kernel)
 
     def convolve(self,kernel):
@@ -166,8 +145,9 @@ class SHDaAccessor(ShXrBase):
         kernel=gravFunc(self.gravtype,"tws",nmax=self.nmax,**kwargs)
         return self.convolve(kernel)
     
-    # def geoid(self,**kwargs):
-        # pass #return self.gravfunctional("geoid",**kwargs)
+    def geoid(self,**kwargs):
+        kernel=gravFunc(self.gravtype,"geoid",nmax=self.nmax,**kwargs)
+        return self.convolve(kernel)
 
     def to_ascii(self,out_obj=None):
         """Return a string representing the ascii file content of the spherical harmonic coefficients""" 
@@ -273,10 +253,24 @@ class SHDaAccessor(ShXrBase):
         else:
             raise RuntimeError(f"geometry type {gtypes[0]}, is not supported")
 
-        import pdb;pdb.set_trace() 
-        pass
-    
+    def basinav(self,dabasins,filtername=None,leakage_corr=None,**kwargs):
+        """
+        Compute the basin averages of the spherical harmonic coefficients using basin coefficients and possibly a filter and leakage correction
+        Parameters
+        ----------
+        dabasins : xr.DataArray 
+            spherical harmonic basin coefficients (basins are uniform masks with 1 inside and 0 outside the region)
+        filtername : str or None
+            Name of the filter to apply to the coefficients (see sh.filter)
+            
+        leakage_corr : str or None
+            Name of the leakage correction to apply to the coefficients.
+            
 
+        """
+        basinavOp=Basinav(dabasins,filtername=filtername,leakage_corr=leakage_corr)
+        return basinavOp(self._obj,**kwargs)
+        
 @xr.register_dataset_accessor("sh")
 class SHDsAccessor(ShXrBase):
     def __init__(self, xarray_obj):

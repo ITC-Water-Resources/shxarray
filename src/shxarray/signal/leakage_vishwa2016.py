@@ -8,7 +8,7 @@ import numpy as np
 from scipy.signal import hilbert
 from shxarray.kernels import getSHfilter
 from shxarray.exp.multiply import multiply
-
+from shxarray.core.logging import shxlogger
 
 def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
     """
@@ -59,9 +59,8 @@ def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
     filterOp = getSHfilter(filtername,nmax=datws.sh.nmax)
     datws_f=filterOp(datws)
     
-    
+     
     Ic_f=((daknm@datws_f)/dabasins.sel(n=0,m=0)).interp({timedim:time_eq})
-
     #compute double filtered leakage signal
     datws_ff=filterOp(datws_f)
     Ic_ff=((daknm@datws_ff)/dabasins.sel(n=0,m=0)).interp({timedim:time_eq})
@@ -79,7 +78,11 @@ def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
         A[:,0]=1
         A[:,1]=Ic_ff.isel({auxdim:i}).data
         A[:,2]=np.imag(hilbert(Ic_ff.isel({auxdim:i}).data))
-        reg_fit,_,_,_=np.linalg.lstsq(A,Ic_f.isel({auxdim:i}).data)
+        try:
+            reg_fit,_,_,_=np.linalg.lstsq(A,Ic_f.isel({auxdim:i}).data)
+        except np.linalg.LinAlgError:
+            shxlogger.warning(f"Least squares fit failed for basin {i}, phase for leakage could not be computed, assuming np phase shift")
+            reg_fit=[0,1,0]
         # compute phase=atan(c/b) to get the phase shift and take the complex exponential
         phase_exp.append(np.exp(-1j*(np.atan2(reg_fit[2],reg_fit[1]))))
     

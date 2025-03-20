@@ -44,5 +44,5 @@ class Basinav:
             leakage=leakage_corr_vishwa2016(datws, self._dabin, self._filtername,engine=engine) 
             da_av=(da_av-leakage)*dascales
 
-        return da_av
+        return da_av.drop_vars(['n','m','nm'])
 

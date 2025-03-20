@@ -8,7 +8,7 @@ from shxarray.core.logging import shxlogger
 from shxarray.shlib import Ynm
 from shxarray.core.sh_indexing import SHindexBase
 import sparse
-
+import numpy as np
 from packaging import version
 
 
@@ -48,8 +48,12 @@ class AnisoKernel:
 
         if self.nmax < dain.sh.nmax:
             raise RuntimeError("Input data has higher degree than kernel, cannot apply kernel operator to object")
+        
+        if type(dain.data) != np.ndarray:
+            dain=dain.compute()
 
         daout=xr.dot(self._dskernel.mat,dain,dims=[SHindexBase.name]) 
+
         #rename nm and convert to dense array
         daout=daout.sh.toggle_nm()
         if self.useDask:

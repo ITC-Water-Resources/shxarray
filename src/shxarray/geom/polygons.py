@@ -41,6 +41,7 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,engine="shlib",**kwargs) ->xr
     if type(polygeom) != gpd.GeoSeries:
         polygeom=gpd.GeoSeries(polygeom)
     
+    
     #create a dense enough grid encompassing all polgyons to use for spherical harmonic synthesis
     # heuristic way to figure out the resolution based on nmax
     dslonlat=xr.Dataset.sh.lonlat_grid(nmax,engine=engine)
@@ -66,9 +67,14 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,engine="shlib",**kwargs) ->xr
 
 
     dtmp=xr.DataArray(np.zeros([dslonlat.sizes['lon'],dslonlat.sizes['lat'],len(polygeom)]),coords=coords,dims=dims).stack(lonlat=("lon","lat"))
-
-    #create a geoDataframe of points from the grid
-    ggrd=gpd.GeoDataFrame(geometry=[Point(lon,lat) for lon,lat in dtmp.lonlat.values],crs=4326)
+    if dtmp.lon.min() < 0:
+        #grid has 0 central meridian already
+        #create a geoDataframe of points from the grid (lon is already with 0 central meridian
+        ggrd=gpd.GeoDataFrame(geometry=[Point(lon,lat) for lon,lat in dtmp.lonlat.values],crs=4326)
+    else:
+        #grid has 180 central meridian
+        #create a geoDataframe of points from the grid and convert lon to have 0 central meridian
+        ggrd=gpd.GeoDataFrame(geometry=[Point((lon+180)%360-180,lat) for lon,lat in dtmp.lonlat.values],crs=4326)
     
     if polygeom.crs != ggrd.crs:
         #possibly convert the lon/lat grid in the desired projection before doing the polygon test
@@ -77,7 +83,11 @@ def polygon2sh(polygeom,nmax:int=100,auxcoord=None,engine="shlib",**kwargs) ->xr
 
     #query using a spatial index and set values to 1
     shxlogger.info("Masking and gridding polygons")
-    for i,poly in enumerate(polygeom): 
+    for i,poly in enumerate(polygeom):
+        # if i == 18:
+            # breakpoint()
+            # from IPython.core.debugger import set_trace
+            # set_trace()
         idx=ggrd.sindex.query(poly,predicate="contains")
         dtmp[i,idx]=1.0
     

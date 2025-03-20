@@ -21,7 +21,7 @@ class SeaLevelSolver:
     def set_global_mean(load,level):
         """Sets the global mean value of of a load. Depending on the discretization, this needs to be differently implemented"""
         
-        raise NotImplementedError("add_uniform(), needs to be implemented in derived class")
+        raise NotImplementedError("set_global_mean(), needs to be implemented in derived class")
     
     @staticmethod
     def global_mean(load):

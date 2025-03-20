@@ -12,8 +12,8 @@ from shxarray.kernels.isokernelbase import IsoKernelBase
 
 from shxarray.earth.constants import a_earth,rho_water,rho_earth,rho_sea
 from shxarray.earth.snrei import SnreiFactory
-
-
+import xarray as xr
+import numpy as np
 
 class Stokes2TWS(IsoKernelBase):
     """Provides an isotropic kernel representing the transformation of Stokes coefficients [-] to equivalent water height [m]"""
@@ -26,6 +26,14 @@ class Stokes2TWS(IsoKernelBase):
             knLove=SnreiFactory.load(nmax=nmax).kn
 
         self._dsiso=(2*knLove.n+1)*rho_earth*a_earth/(3*rho_water*(1+knLove))
+
+class Stokes2Geoid(IsoKernelBase):
+    """Provides an isotropic kernel representing the transformation of disturbing potential to geoid height in meter, using Brun's formula"""
+    name="stoked2geoid"
+    transform=("stokes","geoid")
+    def __init__(self,nmax):
+        super().__init__()
+        self._dsiso=a_earth*xr.DataArray(np.ones([121]),dims=['n'],coords=dict(n=np.arange(nmax+1)))
 
 class Load2Geoid(IsoKernelBase):
     """Provides an isotropic kernel representing the transformation of a surface load (in m) to geoid height in meter"""
@@ -52,7 +60,7 @@ class Load2Uplift(IsoKernelBase):
             hnLove=SnreiFactory.load(nmax=nmax,deg0scale=deg0scale).hn
         self._dsiso=(3*rho_water/rho_earth)*(hnLove/(2*hnLove.n+1))
         
-gravclasses=[Stokes2TWS,Load2Geoid,Load2Uplift]
+gravclasses=[Stokes2TWS,Load2Geoid,Load2Uplift,Stokes2Geoid]
 
 gravlookup={cls.transform:cls for cls in gravclasses}
 

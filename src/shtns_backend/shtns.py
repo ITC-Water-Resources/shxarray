@@ -126,13 +126,17 @@ class Analysis_shtns:
         gtype,tmpflags=infer_gtype(loninfo,latinfo)
         if gtype == "point":
             raise RuntimeError("SHTns Backend: Analysis is not supported for point grids")
-
+        
         grdflags|=tmpflags
         auxdims=[dim for dim in dain.dims if dim not in [loninfo.var.dims[0],latinfo.var.dims[0]]]
 
         if len(auxdims) > 1:
             dain=dain.stack(auxdim=auxdims)
             auxdim='auxdim'
+        elif len(auxdims) == 0:
+            auxdim="auxsingle"
+            #expand for consistency with the below code
+            dain=dain.expand_dims(auxdim)
         else:
             auxdim=auxdims[0]
         
@@ -174,7 +178,6 @@ class Analysis_shtns:
                 grddata=dain.data[i,:,:].copy(order='C')
             else:
                 grddata=dain.data[i,:,:]
-            
             self.shtns.spat_to_SH(grddata,cnm_comp)
             cnm_comp/=conv
             #scale and asssign values to real spherical harmonics
@@ -186,7 +189,8 @@ class Analysis_shtns:
         #unstack the auxiliary dimensions if needed 
         if auxdim == 'auxdim':
             daout=daout.unstack(auxdim)
-    
+        elif auxdim == 'auxsingle':
+            daout=daout.squeeze(auxdim,drop=True)
         return daout
 
 class Synthesis_shtns:
@@ -218,6 +222,10 @@ class Synthesis_shtns:
         if len(auxdims) > 1:
             dain=dain.stack(auxdim=auxdims)
             auxdim='auxdim'
+        elif len(auxdims) == 0:
+            auxdim="auxsingle"
+            #expand for consistency with the below code
+            dain=dain.expand_dims(auxdim)
         else:
             auxdim=auxdims[0]
         
@@ -268,7 +276,9 @@ class Synthesis_shtns:
                     j+=1
         
         if auxdim == 'auxdim':
-            daout=daout.unstack(auxdim) 
+            daout=daout.unstack(auxdim)
+        elif auxdim == 'auxsingle':
+            daout=daout.squeeze(auxdim,drop=True)
         daout.name=dain.name
         return daout 
 

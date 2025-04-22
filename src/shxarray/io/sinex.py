@@ -5,7 +5,7 @@ import os
 import gzip
 from shxarray.core.sh_indexing import SHindexBase
 from datetime import datetime,timedelta
-from shxarray.core.logging import logger
+from shxarray.core.logging import shxlogger
 from shxarray.io.gzipwrap import gzip_open_r
 def sinex2date(snxdate:str)->datetime:
     """
@@ -51,7 +51,7 @@ def read_vec(fileobj,dsout,blockname):
     Returns
     -------
     an updated xarray.Dataset holding the new data in new variables:
-    depending on the blockname these ar: sol_est,sol_std,apri_est or rhs
+    depending on the blockname these are: sol_est,sol_std,apri_est or rhs
 
     """
     svtype=None
@@ -110,9 +110,7 @@ def read_vec(fileobj,dsout,blockname):
     if 'nm' not in dsout.indexes:
         #possibly build index (if it has not been build already)
         mi=SHindexBase.mi_fromtuples(nm)
-        mi=xr.Coordinates.from_pandas_multiindex(mi, "nm")
-        
-        dsout=dsout.assign_coords(mi)
+        dsout=dsout.sh.set_nmindex(mi)
     
     return dsout
 
@@ -162,8 +160,7 @@ def read_symmat(fileobj,dsout,blockname):
     if "nm_" not in dsout.indexes:
         #add the transposed index
         mi_=SHindexBase.mi_toggle(dsout.indexes['nm'])
-        mi_=xr.Coordinates.from_pandas_multiindex(mi_, "nm_")
-        dsout=dsout.assign_coords(mi_)
+        dsout=dsout.sh.set_nmindex(mi_,'_')
 
     dsout['N']=(['nm','nm_'],mat)
     return dsout
@@ -223,7 +220,7 @@ def read_statistics(fileobj,dsout,blockname):
         else:
             tp=None
             varname =None
-            logger.warning(f"ignoring {blockname} entry {line}")
+            shxlogger.warning(f"ignoring {blockname} entry {line}")
 
         if varname:
             spl = line.split()
@@ -272,9 +269,14 @@ def read_sinex(file_or_obj,stopatmat=False):
     # read first line
     header=file_or_obj.readline().split()
     if header[1] not in compatversions:
-        raise RuntimeError(f"read_sinex is not compatible with {headerline[1]}")
+        raise RuntimeError(f"read_sinex is not compatible with {header[1]}")
     
-    nest=int(header[-3])
+    #nest=int(header[-3])
+    try:
+        nest=int(header[-3])
+    except ValueError:
+        nest=int(header[-2]) 
+
     tstart=sinex2date(header[5])
     tend=sinex2date(header[6])
     #initialize xarray dataset with some scalar vars to augment
@@ -288,12 +290,12 @@ def read_sinex(file_or_obj,stopatmat=False):
             block=line[1:].strip()
 
             if block not in blockdispatch.keys():
-                logger.info(f"Ignoring block {block}")
+                shxlogger.info(f"Ignoring block {block}")
                 continue
             if stopatmat and "MATRIX" in block:
-                logger.info(f"Encountered {block}, stopping")
+                shxlogger.info(f"Encountered {block}, stopping")
                 break
-            logger.info(f"Reading block {block}")
+            shxlogger.info(f"Reading block {block}")
             dsout=blockdispatch[block](file_or_obj,dsout,block)
         
     if needsClosing:

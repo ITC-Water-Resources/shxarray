@@ -51,7 +51,7 @@ def read_vec(fileobj,dsout,blockname):
     Returns
     -------
     an updated xarray.Dataset holding the new data in new variables:
-    depending on the blockname these ar: sol_est,sol_std,apri_est or rhs
+    depending on the blockname these are: sol_est,sol_std,apri_est or rhs
 
     """
     svtype=None
@@ -269,9 +269,14 @@ def read_sinex(file_or_obj,stopatmat=False):
     # read first line
     header=file_or_obj.readline().split()
     if header[1] not in compatversions:
-        raise RuntimeError(f"read_sinex is not compatible with {headerline[1]}")
+        raise RuntimeError(f"read_sinex is not compatible with {header[1]}")
     
-    nest=int(header[-3])
+    #nest=int(header[-3])
+    try:
+        nest=int(header[-3])
+    except ValueError:
+        nest=int(header[-2]) 
+
     tstart=sinex2date(header[5])
     tend=sinex2date(header[6])
     #initialize xarray dataset with some scalar vars to augment

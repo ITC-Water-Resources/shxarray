@@ -7,6 +7,8 @@ from shxarray.core.sh_indexing import SHindexBase
 from datetime import datetime,timedelta
 from shxarray.core.logging import shxlogger
 from shxarray.io.gzipwrap import gzip_open_r
+from shxarray.shlib import read_symmat_fast
+
 def sinex2date(snxdate:str)->datetime:
     """
         Convert sinex datestring in yy:doy:seconds to python datetime
@@ -116,7 +118,8 @@ def read_vec(fileobj,dsout,blockname):
 
 def read_symmat(fileobj,dsout,blockname):
     """
-        Reads a triangular matrix from a SINEX block and returns a symmetric version
+        Reads a triangular matrix from a SINEX block and returns a symmetric version.
+        This is a slow Pure Python implmentation, use read_symmat_fast for a faster cythonized version
     Parameters
     ----------
     fileobj : 
@@ -235,8 +238,8 @@ def read_statistics(fileobj,dsout,blockname):
 blockdispatch={"SOLUTION/ESTIMATE":read_vec,'SOLUTION/APRIORI':read_vec,
                'SOLUTION/NORMAL_EQUATION_VECTOR':read_vec,
                'SOLUTION/STATISTICS':read_statistics,
-               'SOLUTION/NORMAL_EQUATION_MATRIX U':read_symmat,
-               'SOLUTION/NORMAL_EQUATION_MATRIX L':read_symmat}
+               'SOLUTION/NORMAL_EQUATION_MATRIX U':read_symmat_fast,
+               'SOLUTION/NORMAL_EQUATION_MATRIX L':read_symmat_fast}
 
 compatversions=["2.02"]
 
@@ -283,7 +286,6 @@ def read_sinex(file_or_obj,stopatmat=False):
     dsout=xr.Dataset(dict(tstart=tstart,tend=tend,snx_ids=("nm",np.arange(1,nest+1))))
     
     
-
     # loop until a block is encountered and then dispatch to appropriate function
     for line in file_or_obj:
         if line[0] == "+":

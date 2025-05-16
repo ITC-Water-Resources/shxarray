@@ -55,5 +55,8 @@ cdef class Pnm:
     def index(self):
         nmax=deref(self.legnm_ptr).nmax()
         sz=deref(self.legnm_ptr).size()
+        cdef pair[int,int] (*nm_from_i)(cython.size_t,int)
         nm_from_i=deref(self.legnm_ptr).nm_from_i
+        # return [deref(self.legnm_ptr).nm_from_i(idx,nmax) for idx in range(sz)] 
+        # nm_from_i=deref(self.legnm_ptr).nm_from_i
         return [nm_from_i(idx,nmax) for idx in range(sz)] 

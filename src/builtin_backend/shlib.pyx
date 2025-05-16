@@ -15,6 +15,7 @@ include "gaunt.pyx"
 include "ynm.pyx"
 include "synthesis.pyx"
 include "analysis.pyx"
+include "sinex.pyx"
 
 from shxarray.core.shcomputebase import SHComputeBackendBase
 from shxarray.core.cf import get_cfatts,get_cfglobal

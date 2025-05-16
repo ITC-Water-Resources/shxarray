@@ -29,6 +29,7 @@ if "DEBUG_CYTHON" in os.environ:
     #extra_args.append('-pg')
 else:
     debug=False
+    extra_args.append('-O3')
 
 #don't necessarily use cython
 if "USE_CYTHON" in os.environ or winplatform:

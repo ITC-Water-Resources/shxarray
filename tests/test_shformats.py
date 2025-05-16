@@ -9,6 +9,8 @@ import shxarray
 import xarray as xr
 import os
 import numpy as np
+import time
+from shxarray.core.logging import shxlogger
 
 def test_icgem():
     """Test ICGEM Backends for xarray"""
@@ -88,10 +90,13 @@ def test_sinex(sinexval):
         r=requests.get(url)
         with open(sinexfile,'wb') as fid:
             fid.write(r.content)
-    # sinexfile=os.path.join(os.path.dirname(__file__),'testdata/ITSG-Grace2018_n96_2003-09.snx') 
+    sinexfile=os.path.join(os.path.dirname(__file__),'testdata/ITSG-Grace2018_n96_2003-09.snx') 
     #quick read which stops when encountering a normal matrix
     #Engine does not need to be specified because file corresponds to commonly used filename pattern for sinex 
+    start=time.time()
     dsneqsinex=xr.open_dataset(sinexfile,drop_variables=["N"])
+    end=time.time()
+    shxlogger.info(f"Time to read sinex file without normal matrix {end-start:.2f} seconds")
 
     for var in ["sol_est","apri_est","sol_std","rhs"]:
         for n,m,val in sinexval[var]:
@@ -99,7 +104,10 @@ def test_sinex(sinexval):
         # assert dsneqsinex[var].sel(n=
     
     #read version with entire normal matrix
+    start=time.time()
     dsneqsinex=xr.open_dataset(sinexfile,engine='sinex')
+    end=time.time()
+    shxlogger.info(f"Time to read sinex file with normal matrix {end-start:.2f} seconds")
     for ix,iy,val in sinexval["N"]:
         #note index ix,and iy are 1-indexed
         assert val == dsneqsinex.N[ix-1,iy-1].item()

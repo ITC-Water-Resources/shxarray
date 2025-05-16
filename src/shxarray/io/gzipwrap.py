@@ -13,7 +13,7 @@ except:
     #failed to load (ok)
     RapidgzipFile=None
 
-def gzip_open_r(filename,textmode=False):
+def gzip_open_r(filename,textmode=False,encoding=None):
     """
         GZip file reading wrapper leveraging parallel decompression speed when rapidgzip is installed on the system
     Parameters
@@ -29,7 +29,7 @@ def gzip_open_r(filename,textmode=False):
         gzfid=RapidgzipFile(filename,parallelization=os.cpu_count())
 
     else:
-        gzfid=GzipFile(filename,'rb')
+        gzfid=GzipFile(filename,'rb',encoding=encoding)
 
 
     if textmode:

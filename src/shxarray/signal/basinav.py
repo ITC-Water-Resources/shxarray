@@ -18,7 +18,6 @@ class Basinav:
 
     
     def __call__(self, datws,**kwargs):
-
         nmax=datws.sh.nmax
         if self._filtername is not None:
             filterOp = getSHfilter(self._filtername,nmax=nmax,transpose=True)
@@ -27,11 +26,13 @@ class Basinav:
             #just truncate to the same nmax as the input
             dabin_f=self._dabin.sh.truncate(nmax)
         
+        dabin=self._dabin.sh.truncate(nmax)
+
         #compute the unscaled basin average
-        da_av=(dabin_f@datws)/self._dabin.sel(n=0,m=0)
+        da_av=(dabin_f@datws)/dabin.sel(n=0,m=0)
         
-        if self._leakage_corr in ['scale','vishwa2016']
-            dascales = self._dabin.dot(self._dabin,dim='nm')/self._dabin.sh.truncate(nmax).dot(dabin_f,dim='nm')
+        if self._leakage_corr in ['scale','vishwa2016']:
+            dascales = dabin.dot(dabin,dim='nm')/dabin.dot(dabin_f,dim='nm')
         else:
             dascales=None
 
@@ -44,13 +45,14 @@ class Basinav:
         
             da_av=da_av*dascales
         elif self._leakage_corr == "vishwa2016":
-            leakage=leakage_corr_vishwa2016(datws, self._dabin, self._filtername,engine=engine) 
+            leakage=leakage_corr_vishwa2016(datws, dabin, self._filtername,engine=engine) 
             da_av=(da_av-leakage)*dascales
         elif self._leakage_corr == "vishwa2017":
-            leakage=leakage_corr_vishwa2016(datws, self._dabin, self._filtername,engine=engine) 
-            deltaleakage=delta_leakage_corr_vishwa2017(datws, self._dabin, self._filtername,engine=engine)
+            leakage=leakage_corr_vishwa2016(datws, dabin, self._filtername,engine=engine) 
+            deltaleakage=delta_leakage_corr_vishwa2017(datws, dabin, self._filtername,engine=engine)
             #note: no scaling applied
             da_av=(da_av-leakage-deltaleakage)
+            # da_av=(da_av-leakage)
 
         return da_av.drop_vars(['n','m','nm'])
 

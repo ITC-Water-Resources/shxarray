@@ -165,17 +165,18 @@ def delta_leakage_corr_vishwa2017(datws, dabasins, filtername,engine='shlib'):
     datws_ff=filterOp(datws_f)
 
     nmax=datws.sh.nmax
-    #Complementary basins (representing the outside of the catchments)
+    #negated Complementary basins (representing the outside of the catchments)
     #compute the complementary basins
     basins_comp=-dabasins.sh.truncate(nmax)
     basins_comp.loc[dict(n=0,m=0)]+=1
-    
+    #make sure to negate to use deltaOp as defined above 
+    basins_comp=-basins_comp
+
     #mean
     Ac=dabasins.sel(n=0,m=0)
 
     #delta operator deltaOp= b' (B-I) = ((B-I)' b)'  
     deltaOp=basins_comp.sh.multiply(dabasins.sh.truncate(nmax),engine=engine,truncate=True)/Ac
-    breakpoint()
     #apply the delta operator to the once/twice filtered data
     delta_ave_f= deltaOp@datws_f
     delta_ave_ff= deltaOp@datws_ff

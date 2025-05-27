@@ -7,13 +7,14 @@ import xarray as xr
 import numpy as np
 from scipy.signal import hilbert
 from shxarray.kernels import getSHfilter
-from shxarray.exp.multiply import multiply
 from shxarray.core.logging import shxlogger
 
 def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
     """
-    Basin averages with leakage correction as described in Vishwakarma et al. (2016) for the given Total water storage dataset and basins.
+    Basin averages leakage correction as described in Vishwakarma et al. (2016) for the given Total water storage dataset and basins.
     source: https://onlinelibrary.wiley.com/doi/abs/10.1002/2016WR018960
+
+    #note this only provides the Ic_hat correction (in eq. 36) not the estimate of the basin average itself
 
     Parameters
     ----------
@@ -27,7 +28,7 @@ def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
     Returns
     -------
     xarray.Dataset
-        Dataset containing basin averaged leakage corrected data.
+        Dataset containing basin averaged leakage correction data.
     """
     timedim='time'
     #check if a time dimension is present int he input data
@@ -46,7 +47,7 @@ def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
     
     filterOp_t = getSHfilter(filtername,nmax=dabasins.sh.nmax,transpose=True)
     #compute Knm coefficients (note that we use the transpose of the filter, when relevant)
-    daknm=multiply(basins_comp,filterOp_t(dabasins),engine=engine)
+    daknm=basins_comp.sh.multiply(filterOp_t(dabasins),engine=engine,truncate=True)
     
     #equidistant sampling interval and make sure it's even
     delta_t=datws[timedim].diff(dim=timedim).median().item()
@@ -84,7 +85,7 @@ def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
             shxlogger.warning(f"Least squares fit failed for basin {i}, phase for leakage could not be computed, assuming np phase shift")
             reg_fit=[0,1,0]
         # compute phase=atan(c/b) to get the phase shift and take the complex exponential
-        phase_exp.append(np.exp(-1j*(np.atan2(reg_fit[2],reg_fit[1]))))
+        phase_exp.append(np.exp(-1j*(np.arctan2(reg_fit[2],reg_fit[1]))))
     
     
     ax=Ic_ff.dims.index('time')
@@ -107,6 +108,83 @@ def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
     Ic_hat=Ic_hat*Ic_frac
     return Ic_hat
 
+# def delta_kernels_vishwa2017(dabasins):
+    # """
+    # Compute the kernels which can be used for computing the delta compo 
+    # """
+
+def delta_leakage_corr_vishwa2017(datws, dabasins, filtername,engine='shlib'):
+    """
+    Provides the delta leakage correction as described in Vishwakarma et al. (2017) for the given Total water storage dataset and basins.
+    source: https://onlinelibrary.wiley.com/doi/abs/10.1002/2017WR021150
+
+    #note this only provides an estimate of the deltaFc correction part (in eq. 13) not the estimate of the basin average itself
+    
+    deltaF is defined as deltaF = F - fc with fc the true catchment average and F the masked true field within the basin.
+    The masking operation can be written as 
+    F = B f and its complement F* = (I-B) f, where B is the basin operator and f the true field.
+
+    When averaging deltaFwith the basin averaging operator b' (basin vectors divided by their area) we can rewrite the above as a dedicated basin defined delta operator
+    
+    deltaF_ave = b' B f - b' f =  deltaOp f 
+    with deltaOp = b' (B-I)
+    In the spectral deomain deltaOp is equivalent to a transposed spherical harmonic vector, independent on the field f and the filter operation 
+    
+    When applying once (_f) and twice (_ff) filtered versions we can thus compute
+    deltaF_ave_f= deltaOp f_f
+    and 
+    deltaF_ave_ff= deltaOp f_ff
+
+    An approximation of the true deltaF_ave can be computed as
+
+    deltaF_ave = ratio* deltaF_ave_f 
+
+    where the ratio comes from the median values of the once/twice filtered deltaF_ave's
+    ratio =median(deltaF_ave_f(ti)/deltaF_ave_ff(ti)) with ti spanning the times
+
+
+    Parameters
+    ----------
+    datws : xarray.Dataset
+        Dataset containing the terrestrial water storage data.
+    dabasins : xarray.DataArray
+        Basin representation of the data
+    filtername : str
+        Name of the smoothing filter to apply
+    
+    Returns
+    -------
+    xarray.Dataset
+        Dataset containing basin averaged leakage correction data.
+    """
+    
+    #filter data once/twice
+
+    filterOp = getSHfilter(filtername,nmax=datws.sh.nmax)
+    datws_f=filterOp(datws)
+    datws_ff=filterOp(datws_f)
+
+    nmax=datws.sh.nmax
+    #Complementary basins (representing the outside of the catchments)
+    #compute the complementary basins
+    basins_comp=-dabasins.sh.truncate(nmax)
+    basins_comp.loc[dict(n=0,m=0)]+=1
+    
+    #mean
+    Ac=dabasins.sel(n=0,m=0)
+
+    #delta operator deltaOp= b' (B-I) = ((B-I)' b)'  
+    deltaOp=basins_comp.sh.multiply(dabasins.sh.truncate(nmax),engine=engine,truncate=True)/Ac
+    breakpoint()
+    #apply the delta operator to the once/twice filtered data
+    delta_ave_f= deltaOp@datws_f
+    delta_ave_ff= deltaOp@datws_ff
+
+    #retrieve the median ratio over the time dimension (assumes 'time' is a valid dimension in datws)
+    deltaratio=(delta_ave_f/delta_ave_ff).median('time')
+    
+    #return appximate deltaF_ave
+    return delta_ave_f*deltaratio
 
 
 

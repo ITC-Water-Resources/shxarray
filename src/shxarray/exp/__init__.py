@@ -10,3 +10,4 @@ Developer Notes:
 
 """
 from shxarray.exp.p2s import *
+from shxarray.exp.multiply import *

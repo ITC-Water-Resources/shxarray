@@ -50,6 +50,10 @@ class Nmindex{
         const size_t & operator[](const nmpair & nm)const{
             return nmmap_.at(nm);
         }
+        const size_t & operator()(const int & n,const int & m)const{
+            return nmmap_.at(std::make_pair(n,m));
+        }
+
         void set(nmpair nm,size_t ix){
             nmmap_[nm]=ix;
         }

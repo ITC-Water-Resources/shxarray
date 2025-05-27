@@ -359,7 +359,7 @@ class SHTnsBackend(SHComputeBackendBase):
 
             nlat, nphi = sh.set_grid(flags=shtns_type)
             lon=np.linspace(0,360,nphi,endpoint=False)
-            lat=np.rad2deg(np.asin(sh.cos_theta))
+            lat=np.rad2deg(np.arcsin(sh.cos_theta))
             dslonlat=xr.Dataset(coords=dict(lon=lon,lat=lat))
         elif lon is not None and lat is not None:
             if gtype == "point":
@@ -390,6 +390,33 @@ class SHTnsBackend(SHComputeBackendBase):
         dslonlat.attrs['comments']=self._credits
         return dslonlat
 
+    
+    def multiply(self,dash1:xr.DataArray,dash2:xr.DataArray)->xr.DataArray:
+        """
+        Multiply two spherical harmonics DataArrays together (equivalent to multiplying in the spatial domain)
+        Currently this function uses a spherical harmonic synthesis followed, a multiplication in the spatial domain and a spherical harmonic analysis
+        A future implementation may use the realGaunt coefficients to directly erform the multiplication in the spectral domain
+        Parameters
+        ----------
+            
+        dash1 : xr.DataArray
+            
+        dash2 : xr.DataArray
+            
 
+
+        Returns
+        -------
+        xr.DataArray
+            
+
+        """
+        nmax=dash1.sh.nmax+dash2.sh.nmax
+        dslonlat=self.lonlat_grid(nmax=nmax)
+        dagrd1=self.synthesis(dash1,dslonlat=dslonlat)
+        dagrd2=self.synthesis(dash2,dslonlat=dslonlat)
+        dagrd=dagrd1*dagrd2
+        dashout=self.analysis(dagrd,nmax=nmax)
+        return dashout
 
 

@@ -6,3 +6,4 @@ cdef extern from "Helpers.hpp":
         Nmindex(size_t maxsize) except +
         void set(pair[int,int] nm, size_t ix)
         size_t operator[] (const pair[int,int] & nm)
+        size_t operator() (const int & n,const int & m)

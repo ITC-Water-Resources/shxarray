@@ -270,7 +270,17 @@ class SHDaAccessor(ShXrBase):
         """
         basinavOp=Basinav(dabasins,filtername=filtername,leakage_corr=leakage_corr)
         return basinavOp(self._obj,**kwargs)
-        
+   
+    def multiply(self,daother,engine="exp",truncate=False,**kwargs):
+        #dispatch to compute engine
+        eng=self._eng(engine)
+        if truncate:
+            nmax=self._obj.sh.nmax
+            daout=eng.multiply(self._obj,daother,**kwargs)
+            return daout.sh.truncate(nmax=nmax)
+        else:
+            return eng.multiply(self._obj,daother,**kwargs)
+
 @xr.register_dataset_accessor("sh")
 class SHDsAccessor(ShXrBase):
     def __init__(self, xarray_obj):

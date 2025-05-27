@@ -117,3 +117,44 @@ class SHComputeBackend(SHComputeBackendBase):
         return dslonlat
 
 
+    def multiply(self,dash1:xr.DataArray,dash2:xr.DataArray,method="spectral")->xr.DataArray:
+        """
+        Multiply two spherical harmonics DataArrays together (equivalent to multiplying in the spatial domain)
+        This function uses the computation of Real Gaunt coefficients
+        Parameters
+        ----------
+            
+        dash1 : xr.DataArray
+            
+        dash2 : xr.DataArray
+            
+
+
+        Returns
+        -------
+        xr.DataArray
+            
+
+        """
+        from time import time
+        if method == "spatial":
+            # Note: approximate method only
+            shxlogger.info("Multiplying in the spatial domain")
+            nmax=dash1.sh.nmax+dash2.sh.nmax
+            dslonlat=self.lonlat_grid(nmax=nmax)
+            t0=time()
+            dagrd1=self.synthesis(dash1,dslonlat=dslonlat)
+            dagrd2=self.synthesis(dash2,dslonlat=dslonlat)
+            t1=time()
+            dagrd=dagrd1*dagrd2
+            dashout=self.analysis(dagrd,nmax=nmax)
+            t2= time()
+            shxlogger.info(f"Multiplication in the spatial domain took {t1-t0:.2f} seconds for synthesis and {t2-t1:.2f} seconds for analysis")
+        elif method == "spectral":
+            shxlogger.info("Multiplying in the spectral domain")
+            dashout=multiply_sh(dash1,dash2)
+        else:
+            raise ValueError("Method for shlib should be either 'spatial' or 'spectral'")
+
+        return dashout
+

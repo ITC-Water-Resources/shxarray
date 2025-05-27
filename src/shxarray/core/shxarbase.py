@@ -282,3 +282,12 @@ class ShXrBase:
         eng=ShXrBase._eng(engine)
         return eng.lonlat_grid(nmax,**kwargs)
 
+    def auxcoords(self):
+        """
+        Return the auxiliary coordinates of the spherical harmonic data
+        :return: dictionary with auxiliary coordinates
+        :rtype: dict
+        """
+        exclude=["n","m","n_","m_",SHindexBase.name,SHindexBase.name_t]
+        return {co:self._obj.coords[co] for co in self._obj.coords if co not in exclude}
+

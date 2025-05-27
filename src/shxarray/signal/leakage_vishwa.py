@@ -9,6 +9,8 @@ from scipy.signal import hilbert
 from shxarray.kernels import getSHfilter
 from shxarray.core.logging import shxlogger
 
+timedim='time'
+
 def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
     """
     Basin averages leakage correction as described in Vishwakarma et al. (2016) for the given Total water storage dataset and basins.
@@ -30,10 +32,9 @@ def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
     xarray.Dataset
         Dataset containing basin averaged leakage correction data.
     """
-    timedim='time'
     #check if a time dimension is present int he input data
     if timedim not in datws.dims:
-        raise RuntimeError("No time dimension found in the input data")
+        raise RuntimeError(f"No time dimension {timedim} found in the input data")
 
     nbasindims=len(dabasins.dims)
     if nbasindims == 1:
@@ -70,7 +71,7 @@ def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
     #i.e. solve with least squares a,b,c:  Ic_f = a + b * Ic_ff + c * imag(Hilbert(Ic_ff))
     
     
-    auxdim=[d for d in Ic_ff.dims if d != 'time'][0]
+    auxdim=[d for d in Ic_ff.dims if d != timedim][0]
     #allocate design matrix
     A=np.zeros([len(time_eq),3])
 
@@ -88,7 +89,7 @@ def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
         phase_exp.append(np.exp(-1j*(np.arctan2(reg_fit[2],reg_fit[1]))))
     
     
-    ax=Ic_ff.dims.index('time')
+    ax=Ic_ff.dims.index(timedim)
     #shift Ic_ff towards Ic_f using fft -> ifft
     fftdat=(phase_exp*np.fft.rfft(Ic_ff.data,axis=ax).T).T
     Ic_ff_shft=np.fft.irfft(fftdat,axis=ax)
@@ -98,7 +99,7 @@ def leakage_corr_vishwa2016(datws, dabasins, filtername,engine='shlib'):
     fftdat=(phase_exp*np.fft.rfft(Ic_f.data,axis=ax).T).T
     Ic_f_shft=xr.zeros_like(Ic_f)
     Ic_f_shft[:,:]=np.fft.irfft(fftdat,axis=ax)
-    #compute the median ratio between the shifted double filtered series and the single filtered series
+    #compute the mean ratio between the shifted double filtered series and the single filtered series
     Ic_frac=(Ic_f/Ic_ff_shft).mean(timedim)
     
     
@@ -158,6 +159,9 @@ def delta_leakage_corr_vishwa2017(datws, dabasins, filtername,engine='shlib'):
         Dataset containing basin averaged leakage correction data.
     """
     
+    #check if a time dimension is present int he input data
+    if timedim not in datws.dims:
+        raise RuntimeError(f"No time dimension {timedim} found in the input data")
     #filter data once/twice
 
     filterOp = getSHfilter(filtername,nmax=datws.sh.nmax)
@@ -181,8 +185,8 @@ def delta_leakage_corr_vishwa2017(datws, dabasins, filtername,engine='shlib'):
     delta_ave_f= deltaOp@datws_f
     delta_ave_ff= deltaOp@datws_ff
 
-    #retrieve the median ratio over the time dimension (assumes 'time' is a valid dimension in datws)
-    deltaratio=(delta_ave_f/delta_ave_ff).median('time')
+    #retrieve the mean ratio over the time dimension (assumes 'time' is a valid dimension in datws)
+    deltaratio=(delta_ave_f/delta_ave_ff).mean(timedim)
     
     #return appximate deltaF_ave
     return delta_ave_f*deltaratio

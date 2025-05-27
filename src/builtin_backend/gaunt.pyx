@@ -120,8 +120,14 @@ def multiply_sh(dash1,dash2):
     """
 
     cdef int shidim1=dash1.get_axis_num('nm')
+    if shidim1 == 0:
+        dash1=dash1.T
+        shidim1=dash1.get_axis_num('nm')
 
     cdef int shidim2=dash2.get_axis_num('nm')
+    if shidim2 == 0:
+        dash2=dash2.T
+        shidim2=dash2.get_axis_num('nm')
 
     if shidim1 != dash1.ndim - 1 or shidim2 != dash2.ndim - 1:
         raise ValueError("Input data should have the spherical harmonic dimension as the last dimension, consider transposing the input")

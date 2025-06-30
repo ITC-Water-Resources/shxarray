@@ -211,6 +211,50 @@ class SHDaAccessor(ShXrBase):
         fig=lplt.figure
         return ax
 
+    def geoplot(self,ax=None,engine="shlib",add_colorbar=True,**kwargs):
+        """
+            Plot the spherical harmonic coefficients on a global map using cartopy
+        Parameters
+        ----------
+        ax :
+            Cartopy axis object to plot on. If None, a new axis will be created
+        engine : str, default: 'shlib'
+            Compute engine to use for the synthesis of the spherical harmonic coefficients. Other options could be 'shtns' (when installed).
+        add_colorbar : bool, default: True
+            Whether to add a colorbar to the plot
+        **kwargs:
+            Additional arguments passed to the pcolormesh plot function
+        Returns
+        -------
+        ax : cartopy axis object
+            The axis on which the spherical harmonic coefficients are plotted
+        """
+
+        import cartopy.crs as ccrs
+        # import cartopy.feature as cfeature
+        import matplotlib.pyplot as plt
+
+        if ax is None:
+            ax = plt.axes(projection=ccrs.PlateCarree())
+
+
+
+        dagrd=self._obj.sh.synthesis(engine=engine)
+
+        if add_colorbar:
+            cbar_kwargs = dict(orientation="horizontal",label=f"{self._obj.name} [{self._obj.attrs.get('units','?')}]")
+        else:
+            cbar_kwargs = None
+
+        dagrd.plot.pcolormesh(
+            transform=ccrs.PlateCarree(), add_colorbar=add_colorbar,ax=ax,cbar_kwargs=cbar_kwargs,**kwargs)
+        ax.set_global()
+        if 'long_name' in self._obj.attrs:
+            ax.set_title(self._obj.attrs['long_name'])
+        ax.coastlines(color='#282828', linewidth=0.5)
+        
+        return ax
+
     @staticmethod    
     def from_geoseries(gseries,nmax:int,auxcoord=None,engine="shlib",**kwargs):
         """

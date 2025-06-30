@@ -36,7 +36,6 @@ version_file = "src/shxarray/_version.py"
 icgem = "shxarray.io.shiobackend:ICGEMBackEntryPoint"
 gsmv6 = "shxarray.io.shiobackend:GSMv6BackEntryPoint"
 shascii ="shxarray.io.shiobackend:SHAsciiBackEntryPoint"
-sinex ="shxarray.io.shiobackend:SINEXBackEntryPoint"
 #ddk = "shxarray.io.shiobackend:DDKBackEntryPoint"
 
 [project.entry-points."shxarray.computebackends"]

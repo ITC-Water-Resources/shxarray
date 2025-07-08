@@ -9,6 +9,7 @@ import numpy as np
 
 from shxarray.core.sh_indexing import SHindexBase
 from shxarray.core.logging import shxlogger
+from shxarray.kernels.gravfunctionals import gtypes
 
 loaded_engines={}
 
@@ -69,14 +70,13 @@ class ShXrBase:
         try:
             return self._obj.attrs["gravtype"]
         except KeyError:
-            # defaults to Stokes coefficients 
-            return "stokes"
+            raise TypeError(f"No gravitational type registered in the xarray object, use the shxarray accessor ---.sh.gravtype to set it to one of ({','.join(gtypes)})")
     
     @gravtype.setter
     def gravtype(self,gravtypeval):
         """Sets the gravitational type of the content"""
-        if gravtypeval not in ["stokes","tws"]:
-            shxlogger.warning(f"Unknown gravitation type {gravtypeval}")
+        if gravtypeval not in gtypes:
+            shxlogger.warning(f"Setting to unknown gravitational type {gravtypeval}")
         self._obj.attrs["gravtype"]=gravtypeval
    
     def truncate(self,nmax=None,nmin=None,dims=[SHindexBase.name]):

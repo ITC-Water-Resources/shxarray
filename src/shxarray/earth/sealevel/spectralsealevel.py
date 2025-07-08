@@ -10,7 +10,7 @@ from math import floor
 import os
 from shxarray.core.admin import defaultcache
 from shxarray.core.logging import shxlogger
-from shxarray.kernels.gravfunctionals import Load2Geoid,Load2Uplift
+from shxarray.kernels.gravfunctionals import TWS2Geoid,TWS2Uplift
 from shxarray.earth.rotation import qs_rotfeedback_slow
 
 
@@ -52,11 +52,11 @@ class SpectralSeaLevelSolver(SeaLevelSolver):
         #setup SNREI Earth loading function
         if dssnrei is None:
             #default uses PREM Earth Model
-            self.geoidKernel=Load2Geoid(nmax=self.nmax,deg0scale=0.0)
-            self.upliftKernel=Load2Uplift(nmax=self.nmax,deg0scale=0.0)
+            self.geoidKernel=TWS2Geoid(nmax=self.nmax,deg0scale=0.0,k0=0.0)
+            self.upliftKernel=TWS2Uplift(nmax=self.nmax,h0=0.0)
         else:
-            self.geoidKernel=Load2Geoid(knLove=dssnrei.kn,nmax=self.nmax)
-            self.upliftKernel=Load2Uplift(hnLove=dssnrei.hn,nmax=self.nmax)
+            self.geoidKernel=TWS2Geoid(knLove=dssnrei.kn,nmax=self.nmax,deg0scale=0.0)
+            self.upliftKernel=TWS2Uplift(hnLove=dssnrei.hn,nmax=self.nmax)
 
         #setup ocean function
         if p2scache is None:

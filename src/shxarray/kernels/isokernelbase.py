@@ -17,13 +17,32 @@ class IsoKernelBase:
     attr={"shtype":"shiso","kernelstate":"collapsed"}
     name="shkernel"
     transform=None
+    invert=False #inverts the kernel when initializing
     def __init__(self,dsiso=None,name=None,transform=None):
         self._dsiso=dsiso
+        if self.invert:
+            if self._dsiso is None:
+                raise ValueError("Cannot invert kernel without a dsiso defined")
+            self._dsiso=1/self._dsiso
+
         if name is not None:
             self.name=name
         if transform is not None:
             self.transform=transform
     
+    @classmethod
+    def invcls(cls):
+        """
+        Returns the inverse class of the current kernel class
+        :return: An IsoKernelBase class representing the inverse kernel
+        """
+        if cls.transform is None:
+            trans=None
+        else:
+            trans= cls.transform[::-1]
+        clsnew=type(f"{cls.__name__}_inv",(cls,),dict(invert=True,transform=trans,name=f"{cls.name}_inv"))
+        return clsnew
+
     @property
     def nmax(self):
         return self._dsiso.n.max().item()
@@ -62,6 +81,7 @@ class IsoKernelBase:
         daout=dain*daexpand
         if self.transform is not None:
             name=self.transform[1]
+
         else:
             name=self.name
         try:
@@ -72,9 +92,10 @@ class IsoKernelBase:
         return daout.rename(name)
     
     def inv(self):
-        """Returns the inverse of the isotropic Kernel"""
-        invkernel=IsoKernelBase(1/self._dsiso,name=f'inv({self.name}',transform=(self.transform[::-1]))
+        """Returns the inverse of an already instantiated isotropic Kernel"""
+        invkernel=self.invcls()(self._dsiso)
         return invkernel
+
 
     def position(self,lon,lat):
         """
@@ -125,3 +146,52 @@ class IsoKernelBase:
         ax.set_xlabel("Degree")
         ax.set_ylabel("Kernel Coefficient")
         return ax
+
+
+
+
+class IsoKernelCompositeBase(IsoKernelBase):
+    """
+    Combines two isotropic kernels into a joint one
+    """
+    
+    #note clsleft and clsright need to be defined in the derived class
+    clsleft=None
+    clsright=None
+    def __init__(self, **kwargs):
+        
+
+        if self.clsleft is None or self.clsright is None:
+            raise ValueError("A derived composite kernel classes needs to have clsleft and clsright defined")
+
+        # initialize the left and right kernels
+        # Note: both kernels need to accept the same arguments (but not all need to be used)
+        lft=self.clsleft(**kwargs)
+        rght=self.clsright(**kwargs)
+        
+        dsisonew= lft._dsiso * rght._dsiso
+        name= f"{rght.transform[1]} -> {lft.transform[0]}"
+        super().__init__(dsiso=dsisonew,name=name)
+
+
+def genCompIsoKernelClass(clsleft,clsright):
+    """
+    Create a composite kernel  class (not instance!) from two isotropic kernels
+    :param clsleft: The left IsoKernelBase class to use
+    :param clsright: The right IsoKernelBase class to use
+    :return: An IsoKernelCompositeBase object representing the composite kernel
+    """
+    
+
+    if clsleft.transform is None or clsright.transform is None:
+        raise ValueError("Cannot create composite kernel without a transform defined for both kernels")
+
+    
+
+    if clsleft.transform[1] != clsright.transform[0]:
+        raise ValueError(f"Compositekernel join dimensions are inconsistent")
+    
+    transform=(clsleft.transform[0],clsright.transform[1])
+
+    return type(f"Comp_{clsleft.__name__}_{clsright.__name__}", (IsoKernelCompositeBase,), dict(clsleft=clsleft,clsright=clsright,transform=transform))
+

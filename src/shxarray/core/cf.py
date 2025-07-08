@@ -97,7 +97,10 @@ cflookup={
         "stokes":{'units':'-',"long_name":"Stokes Coefficients","gravtype":"stokes"},
         "stokes stdv":{'units':'-',"long_name":"Standard deviation of the Stokes Coefficients","gravtype":"stokes"},
         "tws":{'units':'m',"long_name":"Total water storage","gravtype":"tws"},
-        
+        "geoid":{'units':'m',"long_name":"Geoid height anomaly","gravtype":"geoid"}, 
+        "load":{'units':'m',"long_name":"Equivalent water height on a rigid earth (load only)","gravtype":"load"},
+        "uplift":{'units':'m',"long_name":"Uplift due to loading","gravtype":"uplift"},
+        "horzdef":{'units':'m',"long_name":"Horizontal deformation component due to loading","gravtype":"horzdef"},
         }
 
 def get_cfatts(standard_name):

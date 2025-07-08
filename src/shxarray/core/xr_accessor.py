@@ -6,14 +6,14 @@
 import xarray as xr
 from shxarray.core.sh_indexing import SHindexBase
 from shxarray.core.shxarbase import ShXrBase
+from shxarray.core.logging import shxlogger
 from shxarray.kernels import getSHfilter
-from shxarray.kernels.gauss import Gaussian
 from shxarray.io.shascii import to_shascii
 from shxarray.geom.polygons import polygon2sh
 from shxarray.geom.points import point2sh
 
 import numpy as np
-from shxarray.kernels.gravfunctionals import gravFunc
+from shxarray.kernels.gravfunctionals import gravFunc,gtypes
 from shxarray.signal.basinav import Basinav
 
 @xr.register_dataarray_accessor("sh")
@@ -142,12 +142,59 @@ class SHDaAccessor(ShXrBase):
         return dv 
     
     def tws(self,**kwargs):
-        kernel=gravFunc(self.gravtype,"tws",nmax=self.nmax,**kwargs)
-        return self.convolve(kernel)
+        return self.gravfunctional("tws",**kwargs)
     
     def geoid(self,**kwargs):
-        kernel=gravFunc(self.gravtype,"geoid",nmax=self.nmax,**kwargs)
+        return self.gravfunctional("geoid",**kwargs)
+    
+    def uplift(self,**kwargs):
+        return self.gravfunctional("uplift",**kwargs)
+    
+    def horzdef(self,**kwargs):
+        return self.gravfunctional("horzdef",**kwargs)
+    
+    def stokes(self,**kwargs):
+        return self.gravfunctional("stokes",**kwargs)
+
+    def gravfunctional(self,outgravtype,ingravtype=None,**kwargs):
+        """
+        Compute a gravity functional from the spherical harmonic coefficients
+        :param outgravtype: The gravity functional type to compute (see shxarray.kernels.gravfunctionals.gtypes)
+        :param ingravtype: The input gravity functional type to use (default is the one set in the DataArray)
+        :return: A DataArray with the computed gravity functional
+        """
+        if ingravtype is None:
+            #try retrieving the input gravitational type
+            try:
+                ingravtype=self.gravtype
+            except TypeError:
+                raise TypeError(f"Input gravtype cannot be retrieved, user setter xarray.DataArray.sh.gravtype=xxx or add ingravtype=xxx as an argument, where  xxx is one of ({','.join(gtypes)})")
+        if ingravtype == outgravtype:
+            shxlogger.warning(f"Input and output gravity functional type are the same ({ingravtype}), returning input")
+            return self._obj
+
+        if self._obj.sh.nmin == 0:
+            if "tws" in outgravtype or "tws" in ingravtype or "uplift" in outgravtype or "uplift" in ingravtype or "horzdef" in outgravtype or "horzdef" in ingravtype:
+                
+
+                #set the k0 value to 0.0 if not specified
+                #this is needed for TWS and uplift computations
+                if "k0" not in kwargs:
+                    kwargs["k0"]=0.0
+                    shxlogger.warning('k0 Load Love number is not set explicitly, but n=0 is requested, setting k0=0.0 for Total water storage computation (treat degree 0 output with caution)')
+                if "h0" not in kwargs:
+                    #set the h0 value to 1.0 if not specified
+                    kwargs["h0"]=1.0
+                    shxlogger.warning('h0 Load Love number is not set explicitly, but n=0 is requested, setting h0=1.0 for uplift computation (treat degree 0 output with caution)')
+
+                if "l0" not in kwargs:
+                    #set the h0 value to 1.0 if not specified
+                    kwargs["l0"]=1.0
+                    shxlogger.warning('l0 Load Love number is not set explicitly, but n=0 is requested, setting l0=1.0 for horizontal deformation computation, but treat degree 0 output with caution')
+
+        kernel=gravFunc(ingravtype,outgravtype,nmax=self.nmax,**kwargs)
         return self.convolve(kernel)
+
 
     def to_ascii(self,out_obj=None):
         """Return a string representing the ascii file content of the spherical harmonic coefficients""" 

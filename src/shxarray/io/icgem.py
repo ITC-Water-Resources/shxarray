@@ -24,31 +24,96 @@ from shxarray.core.sh_indexing import SHindexBase
 from shxarray.core.logging import shxlogger 
 from datetime import datetime,timedelta
 from shxarray.core.cf import get_cfatts
+import pandas as pd
+from functools import partial
+
+def get_gfc(lnspl,errors):
+    #parse a gfc line (ascii)
+    n=int(lnspl[1])
+    m=int(lnspl[2])
+    
+    c=dict(ityp=lnspl[0],n=n,m=m,cnm=float(lnspl[3]))
+
+    if m != 0:
+        s=dict(ityp=lnspl[0],n=n,m=-m,cnm=float(lnspl[4]))
+    else:
+        s=None
+    
+    if errors == 1:
+        c['sigcnm']=float(lnspl[5])
+        if m != 0:
+            s['sigcnm']=float(lnspl[6])
+    
+    return c,s
+
+
+
+def get_gfct(lnspl,errors):
+    #parse a gfc line (ascii)
+    n=int(lnspl[1])
+    m=int(lnspl[2])
+    time=datetime.strptime(lnspl[5+errors*2],'%Y%m%d')
+    c=dict(ityp=lnspl[0],n=n,m=m,cnm=float(lnspl[3]),t0=time)
+
+    if m != 0:
+        s=dict(ityp=lnspl[0],n=n,m=-m,cnm=float(lnspl[4]),t0=time)
+    else:
+        s=None
+    
+    if errors == 1:
+        c['sigcnm']=float(lnspl[5])
+        if m != 0:
+            s['sigcnm']=float(lnspl[6])
+    
+    return c,s
+
+
+def get_trig(lnspl,errors):
+    #parse a acos/asin line (ascii)
+    
+    n=int(lnspl[1])
+    m=int(lnspl[2])
+    period=float(lnspl[5+errors*2])
+    c=dict(ityp=lnspl[0],n=n,m=m,cnm=float(lnspl[3]),period_yr=period)
+
+    if m != 0:
+        s=dict(ityp=lnspl[0],n=n,m=-m,cnm=float(lnspl[4]),period_yr=period)
+    else:
+        s=None
+    
+    if errors == 1:
+        c['sigcnm']=float(lnspl[5])
+        if m != 0:
+            s['sigcnm']=float(lnspl[6])
+    
+    return c,s
 
 def readIcgem(fileobj,nmaxstop=sys.maxsize):
     needsClosing=False
     if type(fileobj) == str:
         needsClosing=True
         if fileobj.endswith('.gz'):
-            fileobj=gzip.open(fileobj,'rb')
+            fileobj=gzip.open(fileobj,'rt')
         else:
-            fileobj=open(fileobj,'rb')
+            fileobj=open(fileobj,'rt')
 
+    hassigma=False
     #first read the icgem header 
-    inheader=False
     hdr={}
     for ln in fileobj:
-        if b'begin_of_head' in ln:
-            inheader=True
+        if 'begin_of_head' in ln:
             continue
-        if b'end_of_head' in ln:
+        if 'end_of_head' in ln:
             break
         
-        spl=ln.decode('utf-8').split()
+        spl=ln.split()
         if len(spl) == 2:
             #insert name value pairs in the hdr dict
             hdr[spl[0]]=spl[1]
-    
+        elif len(spl) > 4 and spl[0] == 'key':
+            if "sigma" in spl:
+                hassigma=True
+
     #extract relevant parameters from the header
     attr={}
     try:
@@ -67,7 +132,7 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
         if 'format' in hdr:
             attr["format"]=hdr['format']
         else:
-            attr["format"]="icgem"
+            attr["format"]="icgem1.0"
         
         if "norm" in hdr:
             attr["norm"]=hdr["norm"]
@@ -78,7 +143,10 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
     except KeyError:
     #some values may not be present but that is ok
         pass
-    
+
+    if hdr['product_type'] != 'gravity_field':
+        raise ValueError(f"Only gravity_field product_type is supported, not {hdr['product_type']}")
+
     #Non standard HACK to try to retrieve the epoch from the modelname (GRAZ monthly solutions only)
     if "modelname" in hdr:
         try:
@@ -87,78 +155,97 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
             time=None
     else:
         time=None
+   
 
 
-    nsh=SHindexBase.nsh(nmax,squeeze=True)
-    cnm=np.zeros([nsh])
-    sigcnm=np.zeros([nsh])
-    ncount=0
-    nm=[]
-    #continue reading the data
-    dataregex=re.compile(b'^gfc')
-    ncolumns= -1
+    if attr["format"] != "icgem1.0":
+        raise ValueError(f"Only icgem1.0 format is supported, not {attr['format']}")
+
+    parser={}
+    if hdr['errors'] == 'no':
+        errors=0
+    elif hdr['errors'] == 'formal' or hdr['errors'] == 'calibrated':
+        errors=1
+    else:
+        raise ValueError(f"Cannot handle error specification {hdr['error']} in icgem header")
+    
+    parser['gfc']=partial(get_gfc,errors=errors)
+    parser['gfct']=partial(get_gfct,errors=errors)
+    parser['trnd']=partial(get_gfc, errors=errors)
+    parser['asin']=partial(get_trig, errors=errors)
+    parser['acos']=partial(get_trig, errors=errors)
+
+    rowdicts=[]
     for ln in fileobj:
-        if dataregex.match(ln):
-            lnspl=ln.replace(b"D",b"E").split()
-            if ncolumns < 0:
-                ncolumns = len(lnspl)
-                
-            n=int(lnspl[1])
-            if n> nmaxstop:
-                if ncount > nsh:
-                    #all required coefficients have been read (no need to read the file further)
-                    break
-                continue
-                
+        lnspl=ln.replace("D","E").split()
+        ky=lnspl[0]
+        try:
+            c,s=parser[ky](lnspl)
+            rowdicts.append(c)
+            if s is not None:
+                rowdicts.append(s)
 
-            m=int(lnspl[2])
+        except KeyError:
+            #ok (not supported key)
+            shxlogger.warning(f"key not supported {ky}, ignoring")
 
-            cnm[ncount]=float(lnspl[3])
-            if ncolumns >= 6:
-                sigcnm[ncount]=float(lnspl[5])
-            
-            nm.append((n,m))
-            ncount+=1
-            
-            #possibly also add snm coefficients
-            if m!=0:
-                cnm[ncount]=float(lnspl[4])
-                if ncolumns >= 6:
-                    sigcnm[ncount]=float(lnspl[6])
-                    
-                nm.append((n,-m))
-                ncount+=1
 
     if needsClosing:
         fileobj.close()
+    
+    #stuff everything in a dataframe
+    df=pd.DataFrame.from_dict(rowdicts)
+    
+    #convert ot xarray
+    ds=df.to_xarray().set_coords(['n','m','ityp']).set_xindex('ityp')
+    ds=ds.drop_vars('index').rename(dict(index='nm'))
+    
+    itypes=df.ityp.unique()
+    if len(itypes) == 1:
+        if itypes[0] !=  'gfc':
+            raise ValueError(f"Only {itypes[0]} coefficients found in the file, don't know how to handle")
 
-    
-    if hasattr(xr,'Coordinates'):
-        #only in newer xarray versions..
-        coords=xr.Coordinates.from_pandas_multiindex(SHindexBase.mi_fromtuples(nm), SHindexBase.name)
-        if time:
-            coords=coords.assign(time=time)
-    else:
-        coords={SHindexBase.name:SHindexBase.mi_fromtuples(nm)}
-        if time:
-            coords["time"]=time
-
-    if time:
-        shp=["time",SHindexBase.name]
-        # coords={SHindexBase.name:shimi,"time":time}
-        #also expand variables
-        cnm=np.expand_dims(cnm[0:ncount], axis=0)
-        sigcnm=np.expand_dims(sigcnm[0:ncount],axis=0)
-    else:
-        shp=[SHindexBase.name]
-        # coords={SHindexBase.name:shimi}
-        cnm=cnm[0:ncount]
-        sigcnm=sigcnm[0:ncount]
-    
-    if ncolumns >= 6:
-        ds=xr.Dataset(data_vars=dict(cnm=(shp,cnm,get_cfatts("stokes")),sigcnm=(shp,sigcnm,get_cfatts("stokes stdv"))),coords=coords,attrs=attr)
-    
-    else:
-        ds=xr.Dataset(data_vars=dict(cnm=(shp,cnm,get_cfatts("stokes"))),coords=coords,attrs=attr)
+        dsout=ds.drop_vars(['ityp'])#.sh.build_nmindex()
         
-    return ds
+        if time is not None:
+            dsout['cnm']=dsout.cnm.expand_dims('time')
+            if errors == 1:
+                dsout['sigcnm']=dsout.sigcnm.expand_dims('time')
+            dsout=dsout.assign_coords(time=time)
+        dsout=dsout.sh.build_nmindex()
+    else:
+        dsout=None 
+        for ityp,dsgrp in ds.groupby('ityp'):
+            
+            if ityp in ['acos','asin']:
+                dsgrp=dsgrp.drop_vars(['ityp','t0'])
+            elif ityp == 'trnd':
+                dsgrp=dsgrp.drop_vars(['ityp','t0','period_yr'],errors='ignore')
+            elif ityp == 'gfct':
+                dsgrp=dsgrp.drop_vars(['ityp','period_yr'],errors='ignore')
+            else:
+                dsgrp=dsgrp.drop_vars(['ityp','t0','period_yr'],errors='ignore')
+            
+            #add attributes
+            dsgrp['cnm'].attrs.update(get_cfatts("stokes"))
+
+            if errors == 1:
+                dsgrp['sigcnm'].attrs.update(get_cfatts("stokes stdv"))
+                renamedict=(dict(cnm=f'cnm_{ityp}',sigcnm=f'sigcnm_{ityp}'))
+            else:
+                renamedict=(dict(cnm=f'cnm_{ityp}'))
+            dsgrp=dsgrp.rename(renamedict).sh.build_nmindex()
+            if dsout is None:
+                dsout=dsgrp
+            else:
+                #add the data to the output dataset
+                if dsout.sizes['nm'] != dsgrp.sizes['nm']:
+                    #add the data but it has it's own nm index
+                    dsgrp=dsgrp.rename(dict(nm=f'nm_{ityp}',n=f'n_{ityp}',m=f'm_{ityp}'))
+
+            
+            dsout=dsout.merge(dsgrp)
+    
+    dsout.attrs.update(attr)
+
+    return dsout

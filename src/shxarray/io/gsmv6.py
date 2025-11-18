@@ -91,15 +91,27 @@ def readGSMv6(fileobj,nmaxstop=sys.maxsize):
     if needsClosing:
         fileobj.close()
     
+    nm_mi=SHindexBase.mi_fromtuples(nm)
+    if hasattr(xr,'Coordinates'):
+        #only in newer xarray versions: convert to xarray coordinates
+        coords=xr.Coordinates.from_pandas_multiindex(nm_mi, SHindexBase.name)
+        if time:
+            coords.update(dict(time=time))
+    else:
+        coords={SHindexBase.name:nm_mi}
+        if time:
+            coords["time"]=time
+
     if time:
         shp=["time",SHindexBase.name]
-        coords={SHindexBase.name:SHindexBase.mi_fromtuples(nm),"time":time}
+
+        # coords={SHindexBase.name:nm_mi,"time":time}
         #also expand variables
         cnm=np.expand_dims(cnm[0:ncount], axis=0)
         sigcnm=np.expand_dims(sigcnm[0:ncount],axis=0)
     else:
         shp=[SHindexBase.name]
-        coords={SHindexBase.name:SHindexBase.mi_fromtuples(nm)}
+        # coords={SHindexBase.name:nm_mi}
         cnm=cnm[0:ncount]
         sigcnm=sigcnm[0:ncount]
     

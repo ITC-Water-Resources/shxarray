@@ -37,7 +37,7 @@ def setWarningLevel():
     shxlogger.setLevel(logging.WARNING)
 
 def setErrorLevel():
-    """Set logging level for both python and c++ to WARNING severity"""
+    """Set logging level for both python and c++ to ERROR severity"""
     shxlogger.setLevel(logging.ERROR)
 
 setInfoLevel()

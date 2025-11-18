@@ -27,10 +27,13 @@ from shxarray.core.cf import get_cfatts
 import pandas as pd
 from functools import partial
 
-def get_gfc(lnspl,errors):
+def get_gfc(lnspl,errors,nmaxstop=sys.maxsize):
     #parse a gfc line (ascii)
     n=int(lnspl[1])
     m=int(lnspl[2])
+    
+    if n > nmaxstop:
+        return None,None
     
     c=dict(ityp=lnspl[0],n=n,m=m,cnm=float(lnspl[3]))
 
@@ -48,10 +51,13 @@ def get_gfc(lnspl,errors):
 
 
 
-def get_gfct(lnspl,errors):
+def get_gfct(lnspl,errors,nmaxstop=sys.maxsize):
     #parse a gfc line (ascii)
     n=int(lnspl[1])
     m=int(lnspl[2])
+    if n > nmaxstop:
+        return None,None
+
     time=datetime.strptime(lnspl[5+errors*2],'%Y%m%d')
     c=dict(ityp=lnspl[0],n=n,m=m,cnm=float(lnspl[3]),t0=time)
 
@@ -88,10 +94,11 @@ def get_trig(lnspl,errors):
     
     return c,s
 
-def readIcgem(fileobj,nmaxstop=None):
+def readIcgem(fileobj,nmaxstop=sys.maxsize):
+    
     if nmaxstop is None:
         nmaxstop=sys.maxsize
-
+    
     needsClosing=False
     if type(fileobj) == str:
         needsClosing=True
@@ -116,7 +123,7 @@ def readIcgem(fileobj,nmaxstop=None):
         elif len(spl) > 4 and spl[0] == 'key':
             if "sigma" in spl:
                 hassigma=True
-
+        shxlogger.warning("product_type not specified in icgem header, assuming gravity_field")
     #extract relevant parameters from the header
     attr={}
     try:
@@ -140,15 +147,18 @@ def readIcgem(fileobj,nmaxstop=None):
         if "norm" in hdr:
             attr["norm"]=hdr["norm"]
         
-        attr["gm"]=float(hdr["earth_gravity_constant"])
+        attr["gm"]=float(hdr["earth_gravity_constant"].replace("D","E"))
         attr["re"]=float(hdr["radius"])
         attr["modelname"]=hdr["modelname"]
     except KeyError:
     #some values may not be present but that is ok
         pass
-
-    if hdr['product_type'] != 'gravity_field':
-        raise ValueError(f"Only gravity_field product_type is supported, not {hdr['product_type']}")
+    
+    try:
+        if hdr['product_type'] != 'gravity_field':
+            raise ValueError(f"Only gravity_field product_type is supported, not {hdr['product_type']}")
+    except KeyError:
+        shxlogger.warning("product_type not specified in icgem header, assuming gravity_field")
 
     #Non standard HACK to try to retrieve the epoch from the modelname (GRAZ monthly solutions only)
     if "modelname" in hdr:
@@ -165,15 +175,20 @@ def readIcgem(fileobj,nmaxstop=None):
         raise ValueError(f"Only icgem1.0 format is supported, not {attr['format']}")
 
     parser={}
-    if hdr['errors'] == 'no':
-        errors=0
-    elif hdr['errors'] == 'formal' or hdr['errors'] == 'calibrated':
-        errors=1
-    else:
-        raise ValueError(f"Cannot handle error specification {hdr['error']} in icgem header")
-    
-    parser['gfc']=partial(get_gfc,errors=errors)
-    parser['gfct']=partial(get_gfct,errors=errors)
+    try:
+        if hdr['errors'] == 'no':
+            errors=0
+        elif hdr['errors'] == 'formal' or hdr['errors'] == 'calibrated':
+            errors=1
+        else:
+            raise ValueError(f"Cannot handle error specification {hdr['error']} in icgem header")
+    except KeyError: 
+        shxlogger.warning("errors specification not found in icgem header, assuming no errors")
+        errors=0 
+
+
+    parser['gfc']=partial(get_gfc,errors=errors,nmaxstop=nmaxstop)
+    parser['gfct']=partial(get_gfct,errors=errors,nmaxstop=nmaxstop)
     parser['trnd']=partial(get_gfc, errors=errors)
     parser['asin']=partial(get_trig, errors=errors)
     parser['acos']=partial(get_trig, errors=errors)
@@ -184,6 +199,9 @@ def readIcgem(fileobj,nmaxstop=None):
         ky=lnspl[0]
         try:
             c,s=parser[ky](lnspl)
+            if c is None and s is None:
+                #stop parsing
+                break
             rowdicts.append(c)
             if s is not None:
                 rowdicts.append(s)

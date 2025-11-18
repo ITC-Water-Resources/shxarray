@@ -101,6 +101,7 @@ cflookup={
         "load":{'units':'m',"long_name":"Equivalent water height on a rigid earth (load only)","gravtype":"load"},
         "uplift":{'units':'m',"long_name":"Uplift due to loading","gravtype":"uplift"},
         "horzdef":{'units':'m',"long_name":"Horizontal deformation component due to loading","gravtype":"horzdef"},
+        "nm":{'units':'-',"long_name":"Spherical harmonic degree and order index"},
         }
 
 def get_cfatts(standard_name):

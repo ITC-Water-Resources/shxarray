@@ -10,7 +10,8 @@ import pandas as pd
 class SHindexBase:
     name="nm"
     name_t="nm_"
-
+    
+    
     @staticmethod
     def nsh(nmax,nmin=0, squeeze=True):
         """
@@ -112,7 +113,7 @@ class SHindexBase:
         return pd.MultiIndex.from_tuples(nm,names=names)
     
     @staticmethod
-    def mi_fromarrays(nm):
+    def mi_fromarrays(nm,names=["n","m"]):
         """
         Generate a MultiIndex of degree and order from an array of degree and order [[n..],[..m]]
         
@@ -128,7 +129,7 @@ class SHindexBase:
         pandas.MultiIndex
             A MultiIndex with degrees "n" and orders "m" 
         """
-        return pd.MultiIndex.from_arrays(nm,names=["n","m"])
+        return pd.MultiIndex.from_arrays(nm,names=names)
     
     @staticmethod
     def mi_toggle(mi,ending=''):

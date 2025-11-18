@@ -14,8 +14,8 @@ import re
 class ICGEMBackEntryPoint(BackendEntrypoint):
     url="https://github.com/ITC-Water-Resources/shxarray"
     description = "Read spherical harmonic coefficients in ICGEM format"
-    def open_dataset(self,filename_or_obj,*,drop_variables=None):
-        dsout=readIcgem(filename_or_obj)
+    def open_dataset(self,filename_or_obj,*,drop_variables=None,nmax=None):
+        dsout=readIcgem(filename_or_obj,nmaxstop=nmax)
         if drop_variables is not None:
             dsout=dsout.drop_vars(drop_variables)
         return dsout

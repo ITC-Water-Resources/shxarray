@@ -88,7 +88,10 @@ def get_trig(lnspl,errors):
     
     return c,s
 
-def readIcgem(fileobj,nmaxstop=sys.maxsize):
+def readIcgem(fileobj,nmaxstop=None):
+    if nmaxstop is None:
+        nmaxstop=sys.maxsize
+
     needsClosing=False
     if type(fileobj) == str:
         needsClosing=True
@@ -249,3 +252,18 @@ def readIcgem(fileobj,nmaxstop=sys.maxsize):
     dsout.attrs.update(attr)
 
     return dsout
+
+
+
+
+# def get_icgem_at_time(dsicgem,time,nmax=None):
+    # """
+    # #extract a set of Stokes coefficients at a given time from an ICGEM dataset with time variable components
+    # """
+
+    # import pdb;pdb.set_trace()
+    
+    # if nmax is None:
+        # nmax=dsicgem.sh.nmax
+    # if "
+    # dsout=dsicgem.sh.slice_nm(nmax=nmax).sh.build_nmindex()

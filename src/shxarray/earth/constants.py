@@ -9,7 +9,7 @@ rho_water=1.e3 # average density of water
 rho_earth=5517.0 #average density of the Earth
 rho_ice=931.0 #density of ice kg/m^3 taken from G. Spada and friends
 g=9.80665e0 # mean gravity m/s^2
-
+GM_earth=3.986004418e14 #standard gravitational parameter of the earth m^3/s^2
 
 
 #flattening accroding to GRS80

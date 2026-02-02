@@ -18,7 +18,7 @@ loaded_engines={}
 try:
     from importlib.metadata import entry_points
 except:
-    breakpoint()
+    # breakpoint()
     from importlib_metadata import entry_points
 
 class ShXrBase:

@@ -253,9 +253,11 @@ class SHDaAccessor(ShXrBase):
             lplt=dadv.plot(**kwargs)
         else:
             lplt=dadv.plot(ax=ax,**kwargs)
+
         if ax is None:
-            ax=lplt.axes
-        fig=lplt.figure
+            ax=lplt[0].axes
+        
+        fig=lplt[0].figure
         return ax
 
     def geoplot(self,ax=None,engine="shlib",add_colorbar=True,**kwargs):

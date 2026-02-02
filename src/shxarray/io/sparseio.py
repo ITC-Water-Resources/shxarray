@@ -33,7 +33,9 @@ def coo_serialize(ds):
                 vname_data=f"{vname}_coo_data"
                 vname_dim=f"{vname}_coo_nnz"
                 orig_dims=list(var.dims)
-                dsmod[vname_data]=([vname_dim],var.data.data,dict(long_name=f"COO data array for variable {vname}",orig_name=vname,orig_dims=orig_dims))
+                attrs=var.attrs.copy()
+                attrs.update(dict(coo_name=f"COO data array for variable {vname}",orig_name=vname,orig_dims=orig_dims))
+                dsmod[vname_data]=([vname_dim],var.data.data,attrs)
                 dsmod[vname_co]=(['coo_dim',vname_dim],var.data.coords,dict(long_name=f"COO coordinate array for variable {vname}",orig_name=vname,orig_dims=orig_dims))
                 #remove the original variable
                 dsmod=dsmod.drop_vars(vname)
@@ -68,7 +70,9 @@ def coo_deserialize(ds):
             shape=[dsmod.sizes[d] for d in orig_dims]
             #reconstruct sparse array
             dmat=COO.from_iter(zip(dsmod[vname_co].data.T,var.data),shape=shape)
-            dsmod[orig_name]=(orig_dims,dmat)
+            attrs={ky:val for ky,val in var.attrs.items() if ky not in ['orig_name','orig_dims']} 
+
+            dsmod[orig_name]=(orig_dims,dmat,attrs)
             #cleanup
             dsmod=dsmod.drop_vars([vname,vname_co])
     return dsmod

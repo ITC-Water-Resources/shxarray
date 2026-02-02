@@ -46,7 +46,7 @@ class SHindexBase:
 
     
     @staticmethod
-    def nm_mi(nmax,nmin=0):
+    def nm_mi(nmax,nmin=0,sort='n++/m++'):
         """
         Generate a MultiIndex of degree and order which span a spherical harmonic degree range
         
@@ -58,13 +58,24 @@ class SHindexBase:
             maximum spherical harmonic degree
         nmin : int, optional
             minimum spherical harmonic degree
-
+        sort: str, default='n++/m++' 
+            How to sort the degree and order 
+            'n++/m++' : n slowest ascending, m quickest ascending 
+            'm++/n++': m slowest ascending, n quickest ascending
+            'm++/CS/n++':  m (>=0) ascending slowest, then Cosine (+m) then Sine (-m) then n quickest ascending 
         Returns
         -------
         pandas.MultiIndex
             A MultiIndex with degrees "n" and orders "m" 
         """
-        nm=[(n,m) for n in range(nmin,nmax+1) for m in range(-n,n+1)]
+        if sort == 'n++/m++':
+            nm=[(n,m) for n in range(nmin,nmax+1) for m in range(-n,n+1)]
+        elif sort == 'm++/CS/n++':
+            nm=[(n,sgn*m) for m in range(nmax+1) for sgn in [1,-1] if not (sgn ==-1 and m==0) for n in range(nmax+1) if n>=m and n>=nmin]
+        elif sort == 'm++/n++':
+            nm=[(n,m) for m in range(-(nmax+1),nmax+1) for n in range(nmin,nmax+1) if n>=abs(m)] 
+        else:
+            raise RuntimeError(f"Unknown sorting selected  nm_mi {sort}")
         return SHindexBase.mi_fromtuples(nm)
 
     @staticmethod

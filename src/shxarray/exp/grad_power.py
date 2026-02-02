@@ -114,7 +114,7 @@ def getab(m,nmax):
 
 
 
-def gradient_power_matrix(nmax,sat_height=None,kn=None,direction='east_west'):
+def gradient_power_matrix(nmax,sat_radius=None,kn=None,direction='east_west'):
     """
         Compute a spherical harmonic matrix, Phi, which relates the power of an east-west gradient to a set of unknown Stokes Coefficients cnm:
         
@@ -133,8 +133,8 @@ def gradient_power_matrix(nmax,sat_height=None,kn=None,direction='east_west'):
     scale=np.pi/4
 
     #setup a degree dependent weighting
-    if sat_height is not None:
-        rn=np.power(a_earth/sat_height,np.arange(1,nmax+2))
+    if sat_radius is not None:
+        rn=np.power(a_earth/sat_radius,np.arange(1,nmax+2))
     else:
         rn=np.ones([nmax+1])
 
@@ -159,7 +159,7 @@ def gradient_power_matrix(nmax,sat_height=None,kn=None,direction='east_west'):
     if direction == 'horizontal':
         # Shortcut : just return the diagonal horizontal gradient power matrix
         #generate the entire (diagonal) matrix for horizontal gradient power
-        nm=SHindexBase.nm_mi(nmax)
+        nm=SHindexBase.nm_mi(nmax,sort='m++/CS/n++') #make sure to use the same sorting as the other output matrices
         diagmat=diags([4*np.pi*n*(n+1)*np.power(rn[n],2) for n,m in nm])
 
         dictout={"readme":"Diagonal matrix describing the power of the horizontal gradient to Stokes coefficients"}

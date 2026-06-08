@@ -86,41 +86,41 @@ class Uri(UriBase):
 class Crawler(CrawlerBase):
     """Crawl icgem static fields"""
     def __init__(self):
-        super().__init__(url="http://icgem.gfz-potsdam.de/tom_longtime")
+        super().__init__(url="https://icgem.gfz-potsdam.de/tom_longtime")
         buf=http(self.rooturl).buffer()
         self._roothtml=HTMLtree(buf.getvalue())
 
     def uris(self):
         """List uris of available static models"""
+        
+
+        
 
         rowregex=re.compile('(^tom-row(?!-header))|(^tom-row-odd)')
-        for elem in self._roothtml.iterfind('.//tr'):
+        for elem in self._roothtml.findall('.//tbody/tr/td/a'):
+            if not elem.attrib['href'].endswith(".gfc"):
+                #not a gfc file
+                continue
+        
             uridict={}
-            if not rowregex.match(elem.attrib['class']):
-                continue
 
-            nameelem=elem.find(".//td[@class='tom-cell-name']")
-            if nameelem.text.strip() != '':
-                #just find the name end strip line ending
-                uridict["name"]=nameelem.text.lstrip()[:-1]
-            else:
-                #find a name and reference
-                nameelem=nameelem.find(".//a[@href]")
-                uridict["name"]=nameelem.text
-                uridict["ref"]=nameelem.attrib['href']
+            # find the entry index (different models can have multiple versions)
+            indx=0
+            for el in elem.getparent().getchildren():
+                if el == elem:
+                    break
+                if el.text == 'gfc':
+                    indx+=1
+            
+            # figure out meta info 
+            trelem=elem.getparent().getparent()
+            #name=trelem[2].text[0:-1]+f"{
+            uridict["year"]=int(trelem[3].text)
+            
+            uridict['nmax']= [int(x) for x in trelem[4].itertext() if x.strip() ][indx]
+            uridict["url"]=os.path.dirname(self.rooturl)+elem.attrib['href']
+            uridict['name']=os.path.basename(el.attrib["href"])[0:-4]
 
-            #find the year, maximum degree, doi etc
-            uridict["year"]=int(elem.find(".//td[@class='tom-cell-year']").text)
-            uridict["nmax"]=int(elem.find(".//td[@class='tom-cell-degree']").text)
-            try:
-                uridict["url"]=os.path.dirname(self.rooturl)+elem.find(".//td[@class='tom-cell-modelfile']").find(".//a[@href]").attrib["href"]
-            except AttributeError:
-                #not avaailable for download so skip this entry
-                continue
 
-            try:
-                uridict["ref"]=elem.find(".//td[@class='tom-cell-doilink']").find(".//a[@href]").attrib["href"]
-            except AttributeError:
-                #no problem as this entry is optional just pass
-                pass
+
             yield Uri(**uridict)

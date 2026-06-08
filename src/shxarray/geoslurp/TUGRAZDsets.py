@@ -29,7 +29,7 @@ from shxarray.geoslurp.gravity import GravitySHTBase,GravitySHinDBTBase
 from shxarray.geoslurp.icgem import icgemMetaExtractor
 import re
 import os
-from geoslurp.db.settings import getCreateDir
+from geoslurp.db.users import getCreateDir
 import gzip as gz
 
 schema='shxarray'
@@ -88,7 +88,7 @@ def enhanceMeta(meta):
         else:
             meta["tend"]=datetime(yr,mn+1,1)
     else:
-        yyyymmdd_match=re.match(".*([0-9]{4})-([0-9]{2})-([0-9]{2})\.gfc\.gz$",meta["uri"])
+        yyyymmdd_match=re.match(r".*([0-9]{4})-([0-9]{2})-([0-9]{2})\.gfc\.gz$",meta["uri"])
         if yyyymmdd_match:
             yr=int(yyyymmdd_match.group(1))
             mn=int(yyyymmdd_match.group(2))
@@ -118,7 +118,8 @@ class TUGRAZGRACEL2Base(DataSet):
             self._dbinvent.datadir=getCreateDir(os.path.join(self.conf.getDataDir(self.schema),self.release,self.subdirs))
 
     def pull(self):
-        url=os.path.join("ftp://ftp.tugraz.at/outgoing/ITSG/GRACE/",self.release,self.subdirs)
+        url=os.path.join("ftp://ftp.tugraz.at/pub/ITSG/GRACE/",self.release,self.subdirs)
+        #url=os.path.join("ftp://ftp.tugraz.at/outgoing/ITSG/GRACE/",self.release,self.subdirs)
         ftp=ftpCrawler(url,pattern='.*.gfc',followpattern='([0-9]{4})')
 
         self.updated=ftp.parallelDownload(self._dbinvent.datadir,check=True,gzip=True, maxconn=3)
@@ -154,7 +155,8 @@ class TUGRAZGRACEL2NormalBase(DataSet):
         super().__init__(dbconn)
 
     def pull(self):
-        url=os.path.join("ftp://ftp.tugraz.at/outgoing/ITSG/GRACE/",self.release,self.subdirs)
+        url=os.path.join("ftp://ftp.tugraz.at/pub/ITSG/GRACE/",self.release,self.subdirs)
+        #url=os.path.join("ftp://ftp.tugraz.at/outgoing/ITSG/GRACE/",self.release,self.subdirs)
         ftp=ftpCrawler(url,pattern='.*.snx.gz',followpattern='([0-9]{4})')
 
         self.updated=ftp.parallelDownload(self.dataDir(),check=True, maxconn=5)
@@ -202,6 +204,8 @@ def TUGRAZGRACEDsets(conf):
 
     #and normal equation systems
     out.append(TUGRAZNormalsClassFactory(release,'monthly/normals_SINEX/monthly_n96')) 
+    #and deg 120 normal equation systems
+    out.append(TUGRAZNormalsClassFactory(release,'monthly/normals_SINEX/monthly_n120')) 
 
     #also add GRACE-FO
     release="ITSG-Grace_operational"
@@ -211,6 +215,8 @@ def TUGRAZGRACEDsets(conf):
 
     #and normal equation systems
     out.append(TUGRAZNormalsClassFactory(release,'monthly/normals_SINEX/monthly_n96')) 
+    #and deg 120 normal equation systems
+    out.append(TUGRAZNormalsClassFactory(release,'monthly/normals_SINEX/monthly_n120')) 
 
     return out
 

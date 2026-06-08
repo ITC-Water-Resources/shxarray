@@ -39,24 +39,30 @@ class ICGEMstatic(DataSet):
         outdir=self.dataDir()
         if list:
             print("%12s %5s %4s"%("name","nmax", "year"))
+        imatches=0
         for uri in crwl.uris():
             if pattern:
+
                 if not regex.search(uri.name):
                     continue
             if list:
                 #only list available models
-                print("%-12s %5d %4d"%(uri.name,uri.nmax,uri.lastmod.year))
+                print("%-12s nmax=%5d year=%4d"%(uri.name,uri.nmax,uri.lastmod.year))
             else:
                 tmp,upd=uri.download(outdir,check=True, gzip=True)
                 if upd:
                     self.updated.append(tmp)
+                imatches+=1
+
+        if pattern and imatches == 0:
+            print(f"Warning :no matches found for {pattern}") 
 
     def register(self,pattern=None):
         """Register static gravity fields donwloaded in the data director
         :param pattern: only register files whose filename obeys this regular expression
         """
         if not pattern:
-            pattern='.*\.gz'
+            pattern=r'.*\.gz'
         #create a list of files which need to be (re)registered
         if self.updated:
             files=self.updated

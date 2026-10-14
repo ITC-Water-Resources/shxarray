@@ -65,3 +65,24 @@ def test_icgem_static_tv():
 
 
 
+def test_gsm_cnes():
+    """Test GSM Backends (CNES version) for xarray"""
+    #note gzipped version (should also work)
+    cnesf=os.path.join(os.path.dirname(__file__),'testdata/GSM-2_2023121-2023151_GRFO_CNESG_TSVD_0500.txt.gz')
+    dscnes=xr.open_dataset(cnesf,engine='gsmv6')
+    nmax=90
+    assert dscnes.sh.nmax == nmax, f"nmax of icgem input is not {nmax}"
+    #note some data are missing so we only expect 599 entries
+    assert dscnes.sizes['nm'] == (nmax+1)*(nmax+2)-nmax-1, "Not all dat has been read" 
+    assert np.datetime64('2023-05-16T00:00:00.000000000') ==dscnes.time.data[0], "Time epoch is off or not present"
+    testcnm={(90,90):0.881655402494E-09}
+    testsigcnm={(90,-90): 9.6427E-15}
+    
+    testcnm[(90,-83)]=-0.120965152481E-09
+    testsigcnm[(90,83)]: 1.6863E-15
+
+    for nm,cnm in testcnm.items():
+        assert cnm == dscnes.cnm.loc[:,nm].item(),f"Coefficient {nm} {cnm} not mathching"
+
+    for nm,scnm in testsigcnm.items():
+        assert scnm == dscnes.sigcnm.loc[:,nm].item(),f"Sigma Coefficient {nm} {scnm} not mathching"

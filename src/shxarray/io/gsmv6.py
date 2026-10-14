@@ -12,23 +12,11 @@ from io import BytesIO
 import yaml
 import numpy as np
 from shxarray.core.cf import get_cfatts
+from itertools import chain
+from datetime import datetime,timedelta
 
-def readGSMv6(fileobj,nmaxstop=sys.maxsize):
-    needsClosing=False
-    if type(fileobj) == str:
-        needsClosing=True
-        if fileobj.endswith('.gz'):
-            fileobj=gzip.open(fileobj,'rb')
-        else:
-            fileobj=open(fileobj,'rb')
 
-    #first read the yaml header 
-    buf=BytesIO()
-    for ln in fileobj:
-        if b'# End of YAML header' in ln:
-            break
-        else:
-            buf.write(ln)
+def read_yaml_header(buf):
 
     hdr=yaml.safe_load(buf.getvalue())["header"]
     
@@ -45,7 +33,62 @@ def readGSMv6(fileobj,nmaxstop=sys.maxsize):
 
     attr["gm"]=nonstand["earth_gravity_param"]["value"]
     attr["re"]=nonstand["mean_equator_radius"]["value"]
+    return attr
+
+def read_cnes_header(buf):
+
+    #setup global attributes
+    attr={}
+    buf.seek(0)
+    for ln in buf:
+        if re.search(b'FIRST.*CNES.*$',ln):
+            #extract start and end time from the header line
+            tst,tnd=ln.decode('utf-8').split("_")[1].split("-")
+            attr['tstart']=datetime(int(tst[0:4]),1,1)+timedelta(days=int(tst[4:8])-1)
+            attr['tend']=datetime(int(tnd[0:4]),1,1)+timedelta(days=int(tnd[4:8])-1)
+            attr['source']=ln[6:].decode('utf-8')
+        elif re.search(b'^SHM',ln):
+            attr['nmax']=int(ln.split()[1])
+        elif re.search(b'^EARTH',ln):
+            gm,rearth=[float(val) for val in ln.split()[1:]]
+            attr["gm"]=gm
+            attr["re"]=rearth
+            
+    return attr
+
+def readGSMv6(fileobj,nmaxstop=sys.maxsize):
+    needsClosing=False
+    if type(fileobj) == str:
+        needsClosing=True
+        if fileobj.endswith('.gz'):
+            fileobj=gzip.open(fileobj,'rb')
+        else:
+            fileobj=open(fileobj,'rb')
     
+
+    #first read the yaml header 
+    buf=BytesIO()
+    headertype=None
+    for ln in fileobj:
+        if b'# End of YAML header' in ln:
+            lineiterator=fileobj
+            headertype='YAML'
+            break
+        elif b'GRCOF2' in ln:
+            #old style GSM header
+            #include first valid line in the line iterator
+            lineiterator=chain([ln],fileobj)
+            headertype='CNES'
+            break
+        else:
+            buf.write(ln)
+
+    if headertype == "YAML":
+        attr=read_yaml_header(buf)
+    elif headertype=='CNES':
+        attr=read_cnes_header(buf)
+    else:
+        raise IOError("header not recognized")
 
     nmax=attr["nmax"]
 
@@ -63,7 +106,7 @@ def readGSMv6(fileobj,nmaxstop=sys.maxsize):
     nm=[]
     #continue reading the data
     dataregex=re.compile(b'^GRCOF2')
-    for ln in fileobj:
+    for ln in lineiterator:
         if dataregex.match(ln):
             lnspl=ln.split()
             n=int(lnspl[1])

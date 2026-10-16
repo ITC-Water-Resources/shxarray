@@ -3,6 +3,8 @@
 # Copyright Roelof Rietbroek (r.rietbroek@utwente.nl), 2023
 #
 
+from math import pi,sqrt
+
 a_earth=0.6378136460e+07 #mean radius in meter
 rho_sea=1.025e3 #average density of sea water kg/m^3
 rho_water=1.e3 # average density of water
@@ -30,3 +32,7 @@ k2loadprem=-0.3054020195e+00
 k2bodyprem=0.303
 l2bodyprem=0.0855
 h2bodyprem=0.612
+
+#Approximate C20 correction for the permanent tide
+c20_perm_tide=(-0.31460)*0.30190/(a_earth*sqrt(4*pi))
+

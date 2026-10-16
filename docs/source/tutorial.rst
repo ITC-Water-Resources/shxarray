@@ -9,3 +9,4 @@ The examples in this tutorials are builds using Jupyter notebooks, which can be 
    notebooks/OceanMask
    notebooks/Geometry2sphericalHarmonics
    notebooks/SealevelEquation
+   notebooks/read_icgem_timevariable

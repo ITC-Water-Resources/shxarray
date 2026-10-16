@@ -11,8 +11,10 @@ import os
 import numpy as np
 import time
 from shxarray.core.logging import shxlogger
+from shxarray.io.icgem import sample_tv_grav
+import math
 
-def test_icgem_sig():
+def test_icgem1_sig():
     """Test ICGEM Backends for xarray"""
     #note gzipped version (should also work)
     icgem1f=os.path.join(os.path.dirname(__file__),'testdata/icgem_test_sig_ITSG.gfc.gz')
@@ -30,6 +32,38 @@ def test_icgem_sig():
     for nm,scnm in testsigcnm.items():
         assert scnm == dsicgem.sigcnm.loc[:,nm].item(),f"Sigma Coefficient {nm} {scnm} not mathching"
 
+
+def test_icgem2_tv():
+    """Test ICGEM2 Backends for xarray"""
+    #note gzipped version (should also work)
+    icgem1f=os.path.join(os.path.dirname(__file__),'testdata/CNES_GRGS.RL05MF_u202601.gfc.gz')
+    nmax=91
+    #also limit reading in higher than nmax 
+    dsicgem=xr.open_dataset(icgem1f,engine='icgem',nmax=nmax)
+    tsample=np.datetime64('2003-04-01') 
+    dssampled=sample_tv_grav(dsicgem,tsample)
+
+    assert dssampled.sh.nmax == nmax, f"nmax of icgem input is not {nmax}"
+
+   # gfct  90   87  1.90973490376E-09  3.06261539611E-10 7.2870E-15 7.8750E-15 20020416.1016 20040101.0000
+# trnd  90   87 -4.80147817178E-14 -4.57662031755E-14 1.2430E-14 1.3550E-14 20020416.1016 20040101.0000
+# acos  90   87  2.26861718802E-14  1.62981340831E-14 3.7150E-15 3.9460E-15 20020416.1016 20040101.0000 1.0
+# asin  90   87 -2.46353148623E-15 -5.52179488317E-15 2.8390E-15 3.1620E-15 20020416.1016 20040101.0000 1.0
+# acos  90   87 -7.27574781068E-15 -2.60867498328E-15 2.9610E-15 3.2430E-15 20020416.1016 20040101.0000 0.5
+# asin  90   87  1.39373205841E-15 -5.34176729895E-15 3.3680E-15 3.5410E-15 20020416.1016 20040101.0000 0.5 
+
+# gfc   91   89  2.65649920873E-09 -3.52571733178E-09 3.8550E-12 3.8560E-12
+    t0=np.datetime64('2002-01-01')
+    # t0=np.datetime64('2002-04-16T10:16')
+    dt_yr=(tsample-t0)/np.timedelta64(int(365.25*24),'h')
+    ohm=2*np.pi*dt_yr
+    testcnm={(90,87):1.90973490376E-09+(-4.80147817178E-14*dt_yr)+np.cos(ohm)* 2.26861718802E-14 + np.sin(ohm)*-2.46353148623E-15 + np.cos(2*ohm)*(-7.27574781068E-15 )+np.sin(2*ohm)*(1.39373205841E-15 )}
+    testcnm[(0,0)]=1
+# gfc  300  300 -1.25298319912E-11 -1.00609822622E-11 4.0920E-11 4.0920E-11
+    testcnm[(91,-89)]=-3.52571733178E-09 
+    
+    for nm,cnm in testcnm.items():
+        assert math.isclose(cnm,dssampled.cnm.loc[:,nm].item()),f"Coefficient {nm} {cnm} not matching"
 
 
 
@@ -51,18 +85,21 @@ def test_icgem_static_tv():
     icgem3f=os.path.join(os.path.dirname(__file__),'testdata/ITSG-Grace2018s.gfc.gz')
     dsicgem=xr.open_dataset(icgem3f,engine='icgem')
     nmax=200
-    assert dsicgem.sh.nmax == nmax, "nmax of icgem input is not 200"
+    assert dsicgem.n.max().item(), "nmax of icgem input is not 200"
     # assert dsicgem.sizes['nm'] == 9, "Not all dat has been read" 
     # assert np.datetime64('2013-11-15T12:00:00.000000000') ==dsicgem.time.data[0], "Time epoch is off or not present"
-    testcoef={('cnm_gfct',(10,2)):-9.396504743590e-08,('cnm_gfct',(200,-200)):1.956728673164e-10,
-              ('cnm_trnd',(195,159)):7.843896315171e-17,('cnm_trnd',(195,-159)):4.073388066625e-17,
-              ('sigcnm_trnd',(195,159)):7.023988334695e-15,('sigcnm_trnd',(195,-159)):7.022127457848e-15,
-              ('cnm_acos', (7,3)): 2.269912528926e-11, ('sigcnm_acos',(7,-3)): 4.115793871821e-13,
-              ('cnm_acos', (7,-3)): -3.872126870042e-12, ('sigcnm_acos',(7,3)): 4.108227520945e-13}
+    testcoef={('gfct',(10,2)):-9.396504743590e-08,('gfct',(200,-200)):1.956728673164e-10,
+              ('trnd',(195,159)):7.843896315171e-17,('trnd',(195,-159)):4.073388066625e-17,
+              ('acos', (7,3)): 2.269912528926e-11,('acos', (7,-3)): -3.872126870042e-12} 
+    
+    testsigcoef={('trnd',(195,159)):7.023988334695e-15,('trnd',(195,-159)):7.022127457848e-15, ('acos',(7,-3)): 4.115793871821e-13,('acos',(7,3)): 4.108227520945e-13}
+
     # acos    7    3  2.269912528926e-11 -3.872126870042e-12  4.108227520945e-13  4.115793871821e-13 1.0
     for (var,nm),cnm in testcoef.items():
-        assert cnm == dsicgem[var].loc[nm,].item(),f"Coefficient {nm} {cnm} not mathching"
+        assert cnm == dsicgem.cnm.sel(ityp=var).sel(n=nm[0]).sel(m=nm[1]).item(),f"Coefficient {nm} {cnm} not matching"
 
+    for (var,nm),cnm in testsigcoef.items():
+        assert cnm == dsicgem.sigcnm.sel(ityp=var).sel(n=nm[0]).sel(m=nm[1]).item(),f"Sigma Coefficient {nm} {cnm} not matching"
 
 
 def test_gsm_cnes():
